@@ -1,5 +1,7 @@
 package havabol;
 
+import java.util.*;
+
 /**
  * NOTE: Sorry about the code formatting inconsistencies. IntelliJ decided
  *       to reformat this entire file at some point.
@@ -7,6 +9,17 @@ package havabol;
  * Created by sean on 1/29/2017.
  */
 public class Classifier {
+
+    // XXX - This is probably not the best way to do this - consider interfacing with the SymbolTable???!?!
+    private static final List<String> extOps = new ArrayList<>();
+
+    static {
+        extOps.add("in");
+        extOps.add("notin");
+        extOps.add("not");
+        extOps.add("and");
+        extOps.add("or");
+    }
 
     /**
      * Classifies a Token. Can *NOT* currently handle contextually sensitive
@@ -89,6 +102,8 @@ public class Classifier {
         if ( t.primClassif != 0 ) return false;
         String operators = "+-*/<>=!";
         if ( operators.indexOf(t.tokenStr) != -1 ) {
+            return true;
+        } else if ( extOps.indexOf(t.tokenStr) != -1 ) {
             return true;
         }
 
