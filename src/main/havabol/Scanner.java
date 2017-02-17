@@ -430,6 +430,11 @@ public class Scanner
                             this.scanCtx.beginIdx
                         )
                     );
+                // The content leading up to this EOL was a comment. After the EOL,
+                // reset the comment tracker.
+                } else if ( this.scanCtx.isComment ) {
+                    DEBUG("Comment ending: " + this.scanCtx);
+                    this.scanCtx.isComment = false;
                 }
 
                 this.currentLine = null;
@@ -439,6 +444,17 @@ public class Scanner
                 return this.constructNextToken();
             }
 
+            // Check if this line has a comment marker
+            if ( ch == '/' && this.currentLine.charAt(idx + 1) == '/' && !this.scanCtx.isComment ) {
+                // Set the comment marker.
+                this.scanCtx.isComment = true;
+            }
+
+            // If the comment marker is set, short-circuit over the rest of the loop.
+            if ( this.scanCtx.isComment ) {
+                continue;
+            }
+
             // Current character is:
             // - A delimiter,
             // - Not preceded by an escape character '\\',
@@ -446,7 +462,7 @@ public class Scanner
             //
             // This character marks the end of the previous token and the
             // beginning of a delimiter token.
-            if ( delimiters.indexOf(ch) != -1 ) {
+            if ( delimiters.indexOf(ch) != -1 && !this.scanCtx.isComment ) {
                 DEBUG("Current char: [" + ch + "]");
                 DEBUG("Current scan context: " + this.scanCtx);
 

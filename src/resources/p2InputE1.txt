@@ -1,0 +1,14 @@
+// this comment tests comments with a space following the double-slash
+Int i;
+Float pi;
+//this comment tests comments w/o a following space
+String day;
+   day 
+   = 
+   "Sunday";
+String name;
+name = "Anita Goodgrade";
+String weird;
+weird = "\tTX\tTexas\n";
+String loc;
+loc = "TX";
