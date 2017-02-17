@@ -58,4 +58,11 @@ public class Resources {
      */
     public static final InputStream P2_IN = streamResource("resources/p2Input.txt");
 
+    /**
+     * Stream for `/resources/p2InputE1.txt`
+     *
+     * @return InputStream
+     */
+    public static final InputStream P2_IN_E1 = streamResource("resources/p2InputE1.txt");
+
 }
