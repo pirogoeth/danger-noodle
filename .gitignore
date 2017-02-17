@@ -1,0 +1,10 @@
+# Build artifacts
+*.class
+*.jar
+build/
+
+# IDE artifacts
+.idea
+
+# Clark artifacts
+*.docx

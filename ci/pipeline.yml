@@ -1,0 +1,17 @@
+resources:
+  - name: danger-noodle
+    type: git
+    source:
+      uri: https://github.com/pirogoeth/danger-noodle.git
+      branch: master
+      username: pirogoeth
+      password: 0b194d07b21db0144545129b21cb2cf7f59f4f9d
+
+jobs:
+  - name: danger-noodle-tests
+    plan:
+      - get: danger-noodle
+      - task: build-artifact
+        file: danger-noodle/ci/build.sh
+      - task: tests
+        file: danger-noodle/ci/test.sh

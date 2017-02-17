@@ -1,0 +1,16 @@
+platform: linux
+
+image_resource:
+  type: docker_image
+  source:
+    repository: java
+    tag: '8-alpine'
+
+inputs:
+  - danger-noodle
+
+outputs:
+  - danger-noodle.jar
+
+run:
+  path: ./danger-noodle/ci/build.sh
