@@ -30,7 +30,8 @@ class Scanner{
     private final static String delimiters = " \t;:()\'\"=!<>+-*/[]#,^\n";   //delimiters to separate tokens 
     private final static String newOperators = "and or not in notin"; 
     private final static String controlDeclare = "Int Float String Bool";
-
+    private final static String controlFLow = "if else while for";
+    private final static String controlEnd = "endif endwhile endfor";
     /**
      * Constructor for the scanner object
      * <p>
@@ -262,20 +263,20 @@ class Scanner{
                             iColPos = iScanPos;
                             
                             //Handles the new operators
+                             
                             if(newOperators.contains(szBuffer)){
                                 token.primClassif = Token.OPERATOR;
                                 token.subClassif = 0;
-                             }  
+                            }     
                             
-                            //Handles the new Control Declares
-                            if(controlDeclare.contains(szBuffer)){
-                                token.primClassif = Token.CONTROL;
-                                token.subClassif = Token.DECLARE;
-                            }
+                            checkBuffer(szBuffer, token);  
+                           
+   
+                            
+                            
                             //System.out.println(szBuffer);
                             return szBuffer;
                         }
-                        
                     //handles the " delimeter    
                     case "\"":
                          if(token.subClassif != Token.STRING){
@@ -314,6 +315,12 @@ class Scanner{
                            }
                         }else{
                            iColPos = iScanPos; 
+                           if(szBuffer.equals("t")){
+                                token.primClassif = Token.OPERATOR;
+                                token.subClassif = Token.BOOLEAN;
+                            }else{
+                               checkBuffer(szBuffer, token);     
+                            }
                            return szBuffer;
                         }                        
                     //Handles and other delemiter
@@ -333,6 +340,7 @@ class Scanner{
                            return szBuffer;
                         }else{
                            iColPos = iScanPos; 
+                           checkBuffer(szBuffer, token);  
                            return szBuffer;
                         }
                 }
@@ -351,8 +359,58 @@ class Scanner{
     }
     
     
+    void checkControl(String szWord, Token token){
+        
+        if(controlDeclare.contains(szWord)){
+            token.primClassif = Token.CONTROL;
+            token.subClassif = Token.DECLARE;
+            return;
+        }
+        
+        if(controlFLow.contains(szWord)){
+            token.primClassif = Token.CONTROL;
+            token.subClassif = Token.FLOW;
+            return;
+        }
+                            
+        if(controlEnd.contains(szWord)){
+            token.primClassif = Token.CONTROL;
+            token.subClassif = Token.END;
+            return;
+        }
+        
+    }
+    
+    void checkBuffer(String szWord, Token token){
+        if(checkBoolean(szWord, token) == false){
+               checkControl(szWord, token);
+               checkFunction(szWord, token);                                 
+         } 
+    }
+    /**
+     * This only checks for print now, this was added to make things 
+     * easier later
+     * @param szWord
+     * @param token 
+     */
+    void checkFunction(String szWord, Token token){
+        if(szWord.equals("print")){
+            token.primClassif = Token.FUNCTION;
+            token.subClassif = Token.BUILTIN;
+        }
+    }
+    
+    boolean checkBoolean(String szWord, Token token){
+        if(szWord.equals("t")){
+              token.primClassif = Token.OPERAND;
+              token.subClassif = Token.BOOLEAN;
+              return true;
+         }
+        return false;
+}
         
 }
+
 
 /**
  * This small class allows for custom error messages
