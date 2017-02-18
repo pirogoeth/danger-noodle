@@ -1,6 +1,6 @@
 package havabol;
 import java.io.*;
-import java.util.*;
+//import java.util.*;
 
 /**
  *
@@ -29,9 +29,9 @@ class Scanner{
     private final BufferedReader brBuffer;    //Buffer to get lines from
     private final static String delimiters = " \t;:()\'\"=!<>+-*/[]#,^\n";   //delimiters to separate tokens 
     private final static String newOperators = "and or not in notin"; 
-    private final static String controlDeclare = "Int Float String Bool";
-    private final static String controlFLow = "if else while for";
-    private final static String controlEnd = "endif endwhile endfor";
+    private final static String[] controlDeclare = {"Int", "Float", "String", "Bool"};
+    private final static String[] controlFLow = {"if", "else", "while", "for"};
+    private final static String[] controlEnd = {"endif", "endwhile", "endfor"};
     /**
      * Constructor for the scanner object
      * <p>
@@ -270,11 +270,7 @@ class Scanner{
                             }     
                             
                             checkBuffer(szBuffer, token);  
-                           
-   
-                            
-                            
-                            //System.out.println(szBuffer);
+              
                             return szBuffer;
                         }
                     //handles the " delimeter    
@@ -315,12 +311,7 @@ class Scanner{
                            }
                         }else{
                            iColPos = iScanPos; 
-                           if(szBuffer.equals("t")){
-                                token.primClassif = Token.OPERATOR;
-                                token.subClassif = Token.BOOLEAN;
-                            }else{
-                               checkBuffer(szBuffer, token);     
-                            }
+                           checkBuffer(szBuffer, token);  
                            return szBuffer;
                         }                        
                     //Handles and other delemiter
@@ -361,22 +352,26 @@ class Scanner{
     
     void checkControl(String szWord, Token token){
         
-        if(controlDeclare.contains(szWord)){
-            token.primClassif = Token.CONTROL;
-            token.subClassif = Token.DECLARE;
-            return;
+        for(String temp : controlDeclare){
+           if(szWord.matches(temp)){
+               token.primClassif = Token.CONTROL;
+               token.subClassif = Token.DECLARE;
+               return;
+           }
         }
         
-        if(controlFLow.contains(szWord)){
-            token.primClassif = Token.CONTROL;
-            token.subClassif = Token.FLOW;
-            return;
+        for(String temp : controlFLow){
+           if(szWord.matches(temp)){
+               token.primClassif = Token.CONTROL;
+               token.subClassif = Token.FLOW;
+               return;
+           }
         }
-                            
-        if(controlEnd.contains(szWord)){
-            token.primClassif = Token.CONTROL;
-            token.subClassif = Token.END;
-            return;
+        for(String temp : controlEnd){                  
+           if(szWord.matches(temp)){
+               token.primClassif = Token.CONTROL;
+               token.subClassif = Token.END;
+           }
         }
         
     }
@@ -401,7 +396,7 @@ class Scanner{
     }
     
     boolean checkBoolean(String szWord, Token token){
-        if(szWord.equals("t")){
+        if(szWord.equals("t") || szWord.equals("f")){
               token.primClassif = Token.OPERAND;
               token.subClassif = Token.BOOLEAN;
               return true;
