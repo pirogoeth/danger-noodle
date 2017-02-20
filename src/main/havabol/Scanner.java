@@ -15,12 +15,14 @@ class Scanner{
 
     String sourceFileNm;             //stores the file name
     SymbolTable symbolTable;         //store the symbol table (useless now)
+    String checkLine;
     char[] textLineM;                //stores the scaned in line
     int iSourceLineNr = 0;           //keeps track of line number
-    int iColPos;                     //keeps track of current token starting point
+    int iColPos = 0;                     //keeps track of current token starting point
     int iScanPos;                    //current scan position
     int iMaxPos;                     // the max positon of the line
-    Token currentToken;              //holds the current token
+    Token currentToken = new Token();              //holds the current token
+    Token nextToken = new Token();              //holds the current token
     String szLine;                   //helps to get line
     String szQuote;                  // helps to determine if " or ' is used
     String error;                    //helps in building errors
@@ -70,22 +72,43 @@ class Scanner{
      */
     String getNext() throws IOException, errorCatch{
         //clear token and get a new one
-        currentToken = new Token();
-        currentToken.tokenStr = getToken(textLineM, currentToken);
         
+        //get the first two tokens
+        if(iSourceLineNr == 1 && iColPos == 0 ){
+            currentToken.tokenStr = getToken(textLineM, currentToken);
+            nextToken.tokenStr = getToken(textLineM, nextToken);
+            
+            checkComment(currentToken, nextToken, textLineM);
+
+        }else{
+            currentToken = nextToken;
+            nextToken = new Token();
+            nextToken.tokenStr = getToken(textLineM, nextToken);
+            checkComment(currentToken, nextToken, textLineM);
+        }
+        
+       
         //if the token is empty, get the next line and return if no new line found
         if(currentToken.tokenStr.equals("")){
             
             textLineM = getLine();
-            
-            if(textLineM ==null){
+            if(textLineM== null){             
                return "";
             }
               
             currentToken.tokenStr = getToken(textLineM, currentToken);
+            nextToken.tokenStr = getToken(textLineM, nextToken);
+            
+            checkComment(currentToken, nextToken, textLineM);
+            
+            if(currentToken.tokenStr == null){
+            throw new errorCatch(error);
+            }
+            
             
         }
-       
+        
+       //System.out.println(currentToken.tokenStr);
        return currentToken.tokenStr;
     }
     
@@ -107,7 +130,7 @@ class Scanner{
         szLine = brBuffer.readLine();
         
         //check if the new line is null
-        if(szLine == null){
+        if(szLine == null){         
           return null;
         }
         
@@ -116,7 +139,9 @@ class Scanner{
         
         //if the line is blank, get a new line after printing a header
         if(szLine.matches("\\s*")){
-            getLine();
+            if(getLine() == null){       
+               return null;   
+            }
         }
         
         //calculate the max length and convert to char[] for return 
@@ -191,7 +216,7 @@ class Scanner{
                                 //If already a FLOAT, print an error for double .    
                                 case Token.FLOAT:
                                     error += "Imcompatable Float\n" + "Error on line " + iSourceLineNr + "\nAt token in position " + iColPos;    
-                                    throw new errorCatch(error);
+                                    return null;
                                     
                                 //Allows for . in String literals
                                 default:
@@ -213,13 +238,13 @@ class Scanner{
                           //If token is float, characters cause error
                           if(token.subClassif == Token.FLOAT){
                               error += "Imcompatable Float\n"+ "Error on line " + iSourceLineNr + "\nAt token in position " + iColPos;    
-                              throw new errorCatch(error);
+                              return null;
                           }
                           
                           //If token is int, characters cause error
                           if(token.subClassif == Token.INTEGER){
                               error += "Imcompatable Integer\n"+ "Error on line " + iSourceLineNr + "\nAt token in position " + iColPos;    
-                              throw new errorCatch(error);
+                              return null;
                           }
                           
                              //update token and buffer
@@ -343,7 +368,7 @@ class Scanner{
             error += "Unclosed String Literal\n" + "Did not find a second " + szQuote +
                     "\nString Literals must be ended on same line\n" + "Error on line " + iSourceLineNr 
                     + "\nAt token in position " + iColPos;    
-            throw new errorCatch(error);
+            return null;
    
         }
         return "";
@@ -402,8 +427,20 @@ class Scanner{
               return true;
          }
         return false;
-}
-        
+    }
+    
+    void checkComment(Token current, Token next, char[] line) throws IOException, errorCatch{
+        if(current.tokenStr.equals("/") && next.tokenStr.equals("/")){
+           line = getLine();
+           if(line == null){
+               current.tokenStr = "";
+               return;
+           }
+           current.tokenStr = getToken(line, current);
+           next.tokenStr = getToken(line, next);
+           checkComment(currentToken, nextToken, textLineM);
+        }
+    }
 }
 
 
