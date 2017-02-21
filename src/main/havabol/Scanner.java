@@ -25,15 +25,17 @@ class Scanner{
     Token nextToken = new Token();              //holds the current token
     String szLine;                   //helps to get line
     String szQuote;                  // helps to determine if " or ' is used
+    String szBrace = new String();                  //helps with () | [] | {}
     String error;                    //helps in building errors
     private final File fInput;           //The file to open
     private final FileReader fReader;    //File reader to get lines from
     private final BufferedReader brBuffer;    //Buffer to get lines from
-    private final static String delimiters = " \t;:()\'\"=!<>+-*/[]#,^\n";   //delimiters to separate tokens 
-    private final static String[] newOperators = {"and", "or", "not", "in", "notin"}; 
-    private final static String[] controlDeclare = {"Int", "Float", "String", "Bool"};
-    private final static String[] controlFLow = {"if", "else", "while", "for"};
-    private final static String[] controlEnd = {"endif", "endwhile", "endfor"};
+    private final static String delimiters = " \t;:()\'\"=!<>+-*/[]#,^\n{}";   //delimiters to separate tokens 
+    private final static String[] newOperators = {"and", "or", "not", "in", "notin"};  //new operators added for part 2
+    private final static String[] controlDeclare = {"Int", "Float", "String", "Bool"}; //control declare values
+    private final static String[] controlFLow = {"if", "else", "while", "for"};        //control flow values
+    private final static String[] controlEnd = {"endif", "endwhile", "endfor"};        //control end values
+    
     /**
      * Constructor for the scanner object
      * <p>
@@ -56,14 +58,11 @@ class Scanner{
      
       
     }
-
-    
-    
-     
+ 
     /**
-     * Checks the next token of the line and returns a
-     * String of the token found.This also classifies 
-     * the token while scanning it
+     * Gets two tokens if no tokens. If the current token is empty, gets
+     * a new line and then gets two tokens. Allows access to the current and
+     * next tokens
      * <p>
      * 
      * @return currentToken.tokenStr returns the current token string
@@ -71,24 +70,39 @@ class Scanner{
      * @throws errorCatch   Exception if an error is found while scanning a token
      */
     String getNext() throws IOException, errorCatch{
-        //clear token and get a new one
         
         //get the first two tokens
         if(iSourceLineNr == 1 && iColPos == 0 ){
             currentToken.tokenStr = getToken(textLineM, currentToken);        
-            nextToken.tokenStr = getToken(textLineM, nextToken);           
+            nextToken.tokenStr = getToken(textLineM, nextToken);   
+            
+            //if the current token is null, throw an error
+            if(currentToken.tokenStr == null){
+            throw new errorCatch(error);
+            }
+            
+            //check for comments or double operators
             checkComment(currentToken, nextToken, textLineM);
             checkDoubleOperator(currentToken, nextToken, textLineM);
 
         }else{
+            //store the next token into current token and get a new 
+            //  next token
             currentToken = nextToken;
             nextToken = new Token();
             nextToken.tokenStr = getToken(textLineM, nextToken);
+            
+            //if the current token is null, throw an error
+            if(currentToken.tokenStr == null){
+            throw new errorCatch(error);
+            }
+            
+            //check for comments or double operators
             checkComment(currentToken, nextToken, textLineM);
             checkDoubleOperator(currentToken, nextToken, textLineM);
         }
         
-        //if the token is empty, get the next line and return if no new line found
+        //if the current token is empty, get the next line and return if no new line found
         if(currentToken.tokenStr.equals("")){
             
             textLineM = getLine();
@@ -96,18 +110,20 @@ class Scanner{
                return "";
             }
             
+            //Get two new tokens
             currentToken.tokenStr = getToken(textLineM, currentToken);
             nextToken.tokenStr = getToken(textLineM, nextToken);
-            
             checkComment(currentToken, nextToken, textLineM);
             checkDoubleOperator(currentToken, nextToken, textLineM);
-            
+      
+            //if the current token is null, throw an error
             if(currentToken.tokenStr == null){
             throw new errorCatch(error);
             }
             
             
         }
+       //return the current token
        return currentToken.tokenStr;
     }
     
@@ -122,6 +138,7 @@ class Scanner{
      */
     char[] getLine() throws IOException{
         
+        //update the line number and col pos
         iSourceLineNr++;
         iColPos = 0;
         
@@ -174,7 +191,7 @@ class Scanner{
                //checks for numbers
                if(Character.toString(lineM[iScanPos]).matches("\\d")){
                   
-                  //If first character, set the token to integer before adding the char
+                  //If thefirst character, set the token to integer before adding the char
                   if(szBuffer.equals("")){
                       token.primClassif = Token.OPERAND;
                       token.subClassif = Token.INTEGER;
@@ -277,13 +294,17 @@ class Scanner{
                 //check for certain delemiters
                 switch(Character.toString(lineM[iScanPos])){
                     
-                    //spaces return current buffer as token and are skipped over
+                    //handles spaces
                     case " ":
+                        
+                        //update the scan pos and skip the space
                         if(szBuffer.isEmpty()){
                             iScanPos++; 
                             iColPos = iScanPos;
                             continue;
                         }else {
+                            
+                            //update the scan pos and return the buffer
                             iScanPos++;
                             iColPos = iScanPos;
                             
@@ -295,7 +316,10 @@ class Scanner{
                                 }
                             }
  
+                            //check the buffer for new control values or function values
                             checkBuffer(szBuffer, token);  
+                            
+                            //return the buffer
                             return szBuffer;
                         }
                     //handles the " delimeter    
@@ -318,6 +342,186 @@ class Scanner{
                             continue;
                          }
                          
+                    //handles (
+                    case "(":
+                         
+                          if(szBuffer.isEmpty()){
+                            
+                           szBuffer += Character.toString(lineM[iScanPos]);
+                           if(iScanPos <= iMaxPos){
+                              iScanPos++;
+                              iColPos = iScanPos;
+                              token.primClassif = Token.SEPARATOR;
+                              //this helps with checking for matching braces
+                              szBrace = "(";
+                              return szBuffer;
+                           }else{
+                               iScanPos++;
+                               szBrace = "(";
+                               return "(";
+                           }
+                        }else{
+                           iColPos = iScanPos; 
+                           checkBuffer(szBuffer, token);  
+                           return szBuffer;
+                        }    
+                    //handles )    
+                    case ")":
+                        //checks that a ( was found
+                        if(szBrace.equals("(")){ 
+                            if(szBuffer.isEmpty()){
+                            
+                             szBuffer += Character.toString(lineM[iScanPos]);
+                            if(iScanPos <= iMaxPos){
+                                iScanPos++;
+                                iColPos = iScanPos;
+                                token.primClassif = Token.SEPARATOR;
+                                szBrace = "";
+                                return szBuffer;
+                            }else{
+                                iScanPos++;
+                                szBrace = "";
+                                return ")";
+                            }
+                        }else{
+                           iColPos = iScanPos; 
+                           checkBuffer(szBuffer, token);  
+                           return szBuffer;
+                        }      
+                        //( was not found
+                        }else{
+                            //accounts for a missing (
+                            if(szBrace.isEmpty()){ 
+                                 error = "missing (\n"+ "Error on line " + iSourceLineNr + "\nAt token in position " + iColPos;    
+                                 return null; 
+                            //counts for a mismatched bracket, { followed by )
+                            }else{
+                                error = "missmatch brace\n" + szBrace + " was found first\n" +  "Error on line " + iSourceLineNr + "\nAt token in position " + iColPos;    
+                                return null; 
+                                                               
+                            }
+                        
+                        }
+                    //handles { same as ( but differnet symbol
+                    case "{":
+                         
+                          if(szBuffer.isEmpty()){
+                            
+                           szBuffer += Character.toString(lineM[iScanPos]);
+                           if(iScanPos <= iMaxPos){
+                              iScanPos++;
+                              iColPos = iScanPos;
+                              token.primClassif = Token.SEPARATOR;
+                              //this helps with checking for matching braces
+                              szBrace = "{";
+                              return szBuffer;
+                           }else{
+                               iScanPos++;
+                               szBrace = "{";
+                               return "{";
+                           }
+                        }else{
+                           iColPos = iScanPos; 
+                           checkBuffer(szBuffer, token);  
+                           return szBuffer;
+                        }    
+                          
+                    case "}":
+                        //checks that a ( was found
+                        if(szBrace.equals("{")){ 
+                            if(szBuffer.isEmpty()){
+                            
+                             szBuffer += Character.toString(lineM[iScanPos]);
+                            if(iScanPos <= iMaxPos){
+                                iScanPos++;
+                                iColPos = iScanPos;
+                                token.primClassif = Token.SEPARATOR;
+                                szBrace = "";
+                                return szBuffer;
+                            }else{
+                                iScanPos++;
+                                szBrace = "";
+                                return "}";
+                            }
+                        }else{
+                           iColPos = iScanPos; 
+                           checkBuffer(szBuffer, token);  
+                           return szBuffer;
+                        }      
+                        //{ was not found
+                        }else{
+                            //accounts for a missing {
+                            if(szBrace.isEmpty()){ 
+                                 error = "missing {\n"+ "Error on line " + iSourceLineNr + "\nAt token in position " + iColPos;    
+                                 return null; 
+                            //counts for a mismatched bracket, [ followed by }
+                            }else{
+                                error = "missmatch brace\n" + szBrace + " was found first\n" +  "Error on line " + iSourceLineNr + "\nAt token in position " + iColPos;    
+                                return null; 
+                                                               
+                            }
+                        
+                        }    
+                        
+                    case "[":
+                         
+                          if(szBuffer.isEmpty()){
+                            
+                           szBuffer += Character.toString(lineM[iScanPos]);
+                           if(iScanPos <= iMaxPos){
+                              iScanPos++;
+                              iColPos = iScanPos;
+                              token.primClassif = Token.SEPARATOR;
+                              //this helps with checking for matching braces
+                              szBrace = "[";
+                              return szBuffer;
+                           }else{
+                               iScanPos++;
+                               szBrace = "[";
+                               return "[";
+                           }
+                        }else{
+                           iColPos = iScanPos; 
+                           checkBuffer(szBuffer, token);  
+                           return szBuffer;
+                        }    
+                          
+                    case "]":
+                        //checks that a ( was found
+                        if(szBrace.equals("[")){ 
+                            if(szBuffer.isEmpty()){
+                            
+                             szBuffer += Character.toString(lineM[iScanPos]);
+                            if(iScanPos <= iMaxPos){
+                                iScanPos++;
+                                iColPos = iScanPos;
+                                token.primClassif = Token.SEPARATOR;
+                                szBrace = "";
+                                return szBuffer;
+                            }else{
+                                iScanPos++;
+                                szBrace = "";
+                                return "]";
+                            }
+                        }else{
+                           iColPos = iScanPos; 
+                           checkBuffer(szBuffer, token);  
+                           return szBuffer;
+                        }      
+                        //[ was not found
+                        }else{
+                            //accounts for a missing [
+                            if(szBrace.isEmpty()){ 
+                                 error = "missing [\n"+ "Error on line " + iSourceLineNr + "\nAt token in position " + iColPos;    
+                                 return null; 
+                            //counts for a mismatched bracket, { followed by ]
+                            }else{
+                                error = "missmatch brace\n" + szBrace + " was found first\n" +  "Error on line " + iSourceLineNr + "\nAt token in position " + iColPos;    
+                                return null; 
+                                                               
+                            }
+                        
+                        } 
                     //handles the ; delemiter    
                     case ";" :
                         //Empties the buffer before processing itself
@@ -329,14 +533,22 @@ class Scanner{
                               iScanPos++;
                               iColPos = iScanPos;
                               token.primClassif = Token.SEPARATOR;
+                              if(!szBrace.isEmpty()){
+                                error = "A brace wasn't closed\n" + szBrace + " was found\n" +  "Error on line " + iSourceLineNr + "\nAt token in position " + iColPos;    
+                                return null; 
+                                    
+                              }
                               return szBuffer;
                            }else{
                                iScanPos++;
+                               
                                return ";";
+                               
                            }
                         }else{
                            iColPos = iScanPos; 
                            checkBuffer(szBuffer, token);  
+                           
                            return szBuffer;
                         }                        
                     //Handles and other delemiter
@@ -360,6 +572,7 @@ class Scanner{
                            iColPos = iScanPos; 
                            
                            checkBuffer(szBuffer, token);  
+                           
                            return szBuffer;
                         }
                 }
@@ -368,14 +581,15 @@ class Scanner{
         
         //Error if String Literal is not ended by the end of the line
         if(token.subClassif == Token.STRING && iScanPos == iMaxPos){
-            error += "Unclosed String Literal\n" + "Did not find a second " + szQuote +
+            error = "Unclosed String Literal\n" + "Did not find a second " + szQuote +
                     "\nString Literals must be ended on same line\n" + "Error on line " + iSourceLineNr 
                     + "\nAt token in position " + iColPos;    
             return null;
    
         }
         
-        if(iColPos != iMaxPos  ){
+        //This accounts for lines that do not end with a ;
+        if(iColPos != iMaxPos){
             iColPos = iScanPos;
             return szBuffer;
         }else{
@@ -383,7 +597,13 @@ class Scanner{
         }
     }
     
-    
+    /**
+     * This method checks the newly added control declare, flow, and end values and sets 
+     * the token values if appropriate
+     * <p>
+     * @param szWord  the token str to check
+     * @param token   the token to update the information
+     */
     void checkControl(String szWord, Token token){
         
         for(String temp : controlDeclare){
@@ -409,13 +629,21 @@ class Scanner{
         }
         
     }
-    
+
+    /**
+     * This method calls two other mehtods to check for type of token.
+     * This was made to save time typing these two lines multiple times
+     * <p>
+     * @param szWord  the token str to check
+     * @param token   the token to update the information
+     */    
     void checkBuffer(String szWord, Token token){
         if(checkBoolean(szWord, token) == false){
                checkControl(szWord, token);
                checkFunction(szWord, token);                                 
          } 
     }
+    
     /**
      * This only checks for print now, this was added to make things 
      * easier later
@@ -429,6 +657,13 @@ class Scanner{
         }
     }
     
+    /**
+     * Checks if the token is either t or f and therefore a boolean
+     * <p>
+     * @param szWord
+     * @param token
+     * @return boolean  true or false if the token is t or f
+     */
     boolean checkBoolean(String szWord, Token token){
         if(szWord.equals("t") || szWord.equals("f")){
               token.primClassif = Token.OPERAND;
@@ -438,44 +673,65 @@ class Scanner{
         return false;
     }
     
+    /**
+     * CHecks for comments
+     * 
+     * @param current first token
+     * @param next    next token
+     * @param line    used to update the scan line if comment found
+     * @throws IOException
+     * @throws errorCatch 
+     */
     void checkComment(Token current, Token next, char[] line) throws IOException, errorCatch{
-        if(current.tokenStr.equals("/") && next.tokenStr.equals("/")){
-           line = getLine();
-           if(line == null){
-               current.tokenStr = "";
-               return;
-           }
-           current.tokenStr = getToken(line, current);
-           next.tokenStr = getToken(line, next);
-           checkComment(currentToken, nextToken, textLineM);
-        }
+    
+         if(current.tokenStr.equals("/") && next.tokenStr.equals("/")){
+             line = getLine();
+             if(line == null){
+                 current.tokenStr = "";
+                 return;
+             }
+             current.tokenStr = getToken(line, current);
+             next.tokenStr = getToken(line, next);
+             checkComment(currentToken, nextToken, textLineM);
+         }
+      
     }
     
+    /**
+     * checks for double operators
+     * <p>
+     * @param current  current token
+     * @param next     next token
+     * @param line     used to get next token if doubleoperator is found
+     * @throws errorCatch 
+     */
     void checkDoubleOperator(Token current, Token next, char[] line) throws errorCatch{
-        if(current.primClassif == Token.OPERATOR && next.primClassif == Token.OPERATOR ){
-            switch(current.tokenStr){
-                case "<":
-                    if(next.tokenStr.equals("=")){
-                        current.tokenStr += next.tokenStr;
-                        next.tokenStr = getToken(line, next);
-                    }
-                case ">":
-                    if(next.tokenStr.equals("=")){
-                        current.tokenStr += next.tokenStr;
-                        next.tokenStr = getToken(line, next);
-                    }
-                case "=":
-                    if(next.tokenStr.equals("=")){
-                        current.tokenStr += next.tokenStr;
-                        next.tokenStr = getToken(line, next);
-                    }
-                case "!":
-                    if(next.tokenStr.equals("=")){
-                        current.tokenStr += next.tokenStr;
-                        next.tokenStr = getToken(line, next);
-                    }
+
+           if(current.primClassif == Token.OPERATOR && next.primClassif == Token.OPERATOR ){
+               switch(current.tokenStr){
+                   case "<":
+                       if(next.tokenStr.equals("=")){
+                           current.tokenStr += next.tokenStr;
+                           next.tokenStr = getToken(line, next);
+                       }
+                   case ">":
+                       if(next.tokenStr.equals("=")){
+                           current.tokenStr += next.tokenStr;
+                           next.tokenStr = getToken(line, next);
+                       }
+                   case "=":
+                       if(next.tokenStr.equals("=")){
+                          current.tokenStr += next.tokenStr;
+                          next.tokenStr = getToken(line, next);
+                       }
+                   case "!":
+                       if(next.tokenStr.equals("=")){
+                           current.tokenStr += next.tokenStr;
+                           next.tokenStr = getToken(line, next);
+                       }
+                }
             }
-        }
+       
     }
 }
 
