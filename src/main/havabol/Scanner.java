@@ -30,7 +30,7 @@ class Scanner{
     private final FileReader fReader;    //File reader to get lines from
     private final BufferedReader brBuffer;    //Buffer to get lines from
     private final static String delimiters = " \t;:()\'\"=!<>+-*/[]#,^\n";   //delimiters to separate tokens 
-    private final static String newOperators = "and or not in notin"; 
+    private final static String[] newOperators = {"and", "or", "not", "in", "notin"}; 
     private final static String[] controlDeclare = {"Int", "Float", "String", "Bool"};
     private final static String[] controlFLow = {"if", "else", "while", "for"};
     private final static String[] controlEnd = {"endif", "endwhile", "endfor"};
@@ -75,19 +75,19 @@ class Scanner{
         
         //get the first two tokens
         if(iSourceLineNr == 1 && iColPos == 0 ){
-            currentToken.tokenStr = getToken(textLineM, currentToken);
-            nextToken.tokenStr = getToken(textLineM, nextToken);
-            
+            currentToken.tokenStr = getToken(textLineM, currentToken);        
+            nextToken.tokenStr = getToken(textLineM, nextToken);           
             checkComment(currentToken, nextToken, textLineM);
+            checkDoubleOperator(currentToken, nextToken, textLineM);
 
         }else{
             currentToken = nextToken;
             nextToken = new Token();
             nextToken.tokenStr = getToken(textLineM, nextToken);
             checkComment(currentToken, nextToken, textLineM);
+            checkDoubleOperator(currentToken, nextToken, textLineM);
         }
         
-       
         //if the token is empty, get the next line and return if no new line found
         if(currentToken.tokenStr.equals("")){
             
@@ -95,11 +95,12 @@ class Scanner{
             if(textLineM== null){             
                return "";
             }
-              
+            
             currentToken.tokenStr = getToken(textLineM, currentToken);
             nextToken.tokenStr = getToken(textLineM, nextToken);
             
             checkComment(currentToken, nextToken, textLineM);
+            checkDoubleOperator(currentToken, nextToken, textLineM);
             
             if(currentToken.tokenStr == null){
             throw new errorCatch(error);
@@ -107,8 +108,6 @@ class Scanner{
             
             
         }
-        
-       //System.out.println(currentToken.tokenStr);
        return currentToken.tokenStr;
     }
     
@@ -191,6 +190,7 @@ class Scanner{
                       }
                       
                       szBuffer += Character.toString(lineM[iScanPos]);
+                      
                       iScanPos++;
                   }
                  
@@ -251,7 +251,7 @@ class Scanner{
                              token.primClassif = Token.OPERAND;
                              token.subClassif = Token.IDENTIFIER;
                              szBuffer += Character.toString(lineM[iScanPos]);
-                             iScanPos++;  
+                             iScanPos++;                          
                     }
 
                 }
@@ -288,14 +288,14 @@ class Scanner{
                             iColPos = iScanPos;
                             
                             //Handles the new operators
-                             
-                            if(newOperators.contains(szBuffer)){
-                                token.primClassif = Token.OPERATOR;
-                                token.subClassif = 0;
-                            }     
-                            
+                            for(String szOperator : newOperators){
+                                if(szOperator.equals(szBuffer)){
+                                   token.primClassif = Token.OPERATOR;
+                                   token.subClassif = 0;   
+                                }
+                            }
+ 
                             checkBuffer(szBuffer, token);  
-              
                             return szBuffer;
                         }
                     //handles the " delimeter    
@@ -353,9 +353,12 @@ class Scanner{
                            }
                            iScanPos++;
                            iColPos = iScanPos;
+                           
                            return szBuffer;
                         }else{
+                            
                            iColPos = iScanPos; 
+                           
                            checkBuffer(szBuffer, token);  
                            return szBuffer;
                         }
@@ -371,7 +374,13 @@ class Scanner{
             return null;
    
         }
-        return "";
+        
+        if(iColPos != iMaxPos  ){
+            iColPos = iScanPos;
+            return szBuffer;
+        }else{
+             return "";
+        }
     }
     
     
@@ -439,6 +448,33 @@ class Scanner{
            current.tokenStr = getToken(line, current);
            next.tokenStr = getToken(line, next);
            checkComment(currentToken, nextToken, textLineM);
+        }
+    }
+    
+    void checkDoubleOperator(Token current, Token next, char[] line) throws errorCatch{
+        if(current.primClassif == Token.OPERATOR && next.primClassif == Token.OPERATOR ){
+            switch(current.tokenStr){
+                case "<":
+                    if(next.tokenStr.equals("=")){
+                        current.tokenStr += next.tokenStr;
+                        next.tokenStr = getToken(line, next);
+                    }
+                case ">":
+                    if(next.tokenStr.equals("=")){
+                        current.tokenStr += next.tokenStr;
+                        next.tokenStr = getToken(line, next);
+                    }
+                case "=":
+                    if(next.tokenStr.equals("=")){
+                        current.tokenStr += next.tokenStr;
+                        next.tokenStr = getToken(line, next);
+                    }
+                case "!":
+                    if(next.tokenStr.equals("=")){
+                        current.tokenStr += next.tokenStr;
+                        next.tokenStr = getToken(line, next);
+                    }
+            }
         }
     }
 }
