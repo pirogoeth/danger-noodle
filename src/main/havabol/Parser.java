@@ -42,23 +42,31 @@ public class Parser {
     void statement(Scanner scanner) throws IOException, errorCatch{
         
         while(!scanner.currentToken.tokenStr.equals(";")){
-            
-            //Checks if the token exists in the symbol table
-            if(checkSymbol(scanner.currentToken)){
+           
                 
                 //check what the current symbol is
                 switch(scanner.currentToken.primClassif){
+                    
+                    //Look for control tokens
                     case Token.CONTROL:
-                        scanner.getNext();
-                        declareStatement(scanner.currentToken);
+                        
+                        //If the control token is a declare token, add it to the
+                        //Symbol table
+                        if(scanner.currentToken.subClassif == Token.DECLARE){
+                           scanner.getNext();
+                           System.out.println(scanner.currentToken.tokenStr + " <<<<");
+                           declareStatement(scanner.currentToken);
+                           //IF the next token is a ; just retun now, nothing else to do
+                           if(scanner.nextToken.tokenStr.equals(";")){
+                               return;
+                           }
+                        }
                         break;
                     default:
-                        System.out.println(scanner.currentToken.tokenStr + "   Got here");
+                       // System.out.println(scanner.currentToken.tokenStr + "   Got here");
                     
                 }
-            }else{
-                System.out.println("Error, symbol does not exist");
-            }
+            
             scanner.getNext();
         }
         
