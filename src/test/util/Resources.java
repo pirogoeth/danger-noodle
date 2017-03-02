@@ -57,5 +57,12 @@ public class Resources {
      * @return InputStream
      */
     public static final InputStream P2_IN = streamResource("resources/p2Input.txt");
+    
+    /**
+     * Stream for `/resources/p3Input.txt`
+     *
+     * @return InputStream
+     */
+    public static final InputStream P3_IN = streamResource("resource/p3Input.txt");
 
 }
