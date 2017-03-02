@@ -125,6 +125,9 @@ class Scanner{
 
         }
        //return the current token
+       currentToken.iSourceLineNr = iSourceLineNr;
+       nextToken.iSourceLineNr = iSourceLineNr;
+
        return currentToken.tokenStr;
     }
 
@@ -282,6 +285,7 @@ class Scanner{
 
                     // Checks for \" in string literals
                     if(Character.toString(lineM[iScanPos]).equals(szQuote) && !Character.toString(lineM[iScanPos - 1]).equals("\\") ){
+                        token.iColPos = iColPos;
                         iScanPos++;
                         iColPos = iScanPos;
                         szQuote = "";
@@ -305,7 +309,7 @@ class Scanner{
                             iColPos = iScanPos;
                             continue;
                         }else {
-
+                            token.iColPos = iColPos;
                             //update the scan pos and return the buffer
                             iScanPos++;
                             iColPos = iScanPos;
@@ -347,23 +351,26 @@ class Scanner{
 
                     //handles (
                     case "(":
-
+                          token.iColPos = iColPos;
                           if(szBuffer.isEmpty()){
 
                            szBuffer += Character.toString(lineM[iScanPos]);
-                           if(iScanPos <= iMaxPos){
+                           if(iScanPos <= iMaxPos){ 
                               iScanPos++;
                               iColPos = iScanPos;
                               token.primClassif = Token.SEPARATOR;
                               //this helps with checking for matching braces
                               szBrace = "(";
                               return szBuffer;
-                           }else{
+                           }/*else{
+                               System.out.println("I got here!!!!!");
+                               token.iColPos = iColPos;
                                iScanPos++;
                                szBrace = "(";
                                return "(";
-                           }
+                           }*/
                         }else{
+                           token.iColPos = iColPos;
                            iColPos = iScanPos;
                            checkBuffer(szBuffer, token);
                            return szBuffer;
@@ -371,10 +378,10 @@ class Scanner{
 
                     //handles )
                     case ")":
+                        token.iColPos = iColPos;
                         //checks that a ( was found
                         if(szBrace.equals("(")){
                             if(szBuffer.isEmpty()){
-
                              szBuffer += Character.toString(lineM[iScanPos]);
                             if(iScanPos <= iMaxPos){
                                 iScanPos++;
@@ -382,11 +389,11 @@ class Scanner{
                                 token.primClassif = Token.SEPARATOR;
                                 szBrace = "";
                                 return szBuffer;
-                            }else{
+                            }/*else{
                                 iScanPos++;
                                 szBrace = "";
                                 return ")";
-                            }
+                            }*/
                         }else{
                            iColPos = iScanPos;
                            checkBuffer(szBuffer, token);
@@ -409,7 +416,7 @@ class Scanner{
 
                     //handles { same as ( but differnet symbol
                     case "{":
-
+                          token.iColPos = iColPos;
                           if(szBuffer.isEmpty()){
 
                            szBuffer += Character.toString(lineM[iScanPos]);
@@ -420,11 +427,11 @@ class Scanner{
                               //this helps with checking for matching braces
                               szBrace = "{";
                               return szBuffer;
-                           }else{
+                           }/*else{
                                iScanPos++;
                                szBrace = "{";
                                return "{";
-                           }
+                           }*/
                         }else{
                            iColPos = iScanPos;
                            checkBuffer(szBuffer, token);
@@ -432,10 +439,10 @@ class Scanner{
                         }
 
                     case "}":
+                        token.iColPos = iColPos;
                         //checks that a ( was found
                         if(szBrace.equals("{")){
                             if(szBuffer.isEmpty()){
-
                                 szBuffer += Character.toString(lineM[iScanPos]);
                                 if(iScanPos <= iMaxPos){
                                     iScanPos++;
@@ -443,11 +450,11 @@ class Scanner{
                                     token.primClassif = Token.SEPARATOR;
                                     szBrace = "";
                                     return szBuffer;
-                                }else{
+                                }/*else{
                                     iScanPos++;
                                     szBrace = "";
                                     return "}";
-                                }
+                                }*/
                             }else{
                                 iColPos = iScanPos;
                                 checkBuffer(szBuffer, token);
@@ -469,7 +476,7 @@ class Scanner{
                         }
 
                     case "[":
-
+                        token.iColPos = iColPos;
                         if(szBuffer.isEmpty()){
 
                             szBuffer += Character.toString(lineM[iScanPos]);
@@ -480,11 +487,11 @@ class Scanner{
                                 //this helps with checking for matching braces
                                 szBrace = "[";
                                 return szBuffer;
-                            }else{
+                            }/*else{
                                 iScanPos++;
                                 szBrace = "[";
                                 return "[";
-                            }
+                            }*/
                         }else{
                             iColPos = iScanPos;
                             checkBuffer(szBuffer, token);
@@ -492,6 +499,7 @@ class Scanner{
                         }
 
                     case "]":
+                        token.iColPos = iColPos;
                         //checks that a ( was found
                         if(szBrace.equals("[")){
                             if(szBuffer.isEmpty()){
@@ -503,11 +511,11 @@ class Scanner{
                                     token.primClassif = Token.SEPARATOR;
                                     szBrace = "";
                                     return szBuffer;
-                                }else{
+                                }/*else{
                                     iScanPos++;
                                     szBrace = "";
                                     return "]";
-                                }
+                                }*/
                             }else{
                                iColPos = iScanPos;
                                checkBuffer(szBuffer, token);
@@ -529,6 +537,7 @@ class Scanner{
 
                     //handles the ; delemiter
                     case ";" :
+                        token.iColPos = iColPos;
                         //Empties the buffer before processing itself
                         //Ends the reading of a line
                         if(szBuffer.isEmpty()){
@@ -558,6 +567,7 @@ class Scanner{
                         }
                     //Handles and other delemiter
                     default:
+                        token.iColPos = iColPos;
                         if(szBuffer.isEmpty()){
 
                            szBuffer += Character.toString(lineM[iScanPos]);
@@ -595,6 +605,7 @@ class Scanner{
 
         //This accounts for lines that do not end with a ;
         if(iColPos != iMaxPos){
+            token.iColPos = iColPos;
             iColPos = iScanPos;
             return szBuffer;
         }else{
