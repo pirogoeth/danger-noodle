@@ -13,13 +13,16 @@ import java.io.IOException;
 public class Parser {
     
     SymbolTable sbTable;
+    Scanner scan;
 
-    Parser(){
+    Parser(Scanner scan){
          sbTable = new SymbolTable();  
+         this.scan = scan;
     }
     
-    Parser(SymbolTable sbTable){
+    Parser(SymbolTable sbTable, Scanner scan){
          this.sbTable = sbTable;  
+         this.scan = scan;
     }
     
     /**
@@ -41,26 +44,33 @@ public class Parser {
     }
     
     
-    void statement(Scanner scanner) throws IOException, errorCatch{
+    void statement() throws IOException, errorCatch{
         
          //check what the current symbol is
-        switch(scanner.currentToken.primClassif){
+        switch(scan.currentToken.primClassif){
                    
            //Look for control tokens
            case Token.CONTROL:
                         
            //If the control token is a declare token, add it to the
            //Symbol table
-           switch(scanner.currentToken.subClassif){
+           switch(scan.currentToken.subClassif){
                
                //if I dentifier run declare staement code
                case Token.DECLARE:
+                   declareStatement();
                    
-                   declareStatement(scanner);
+                   
            }
-                           
+           break;
+           case Token.OPERAND:
+               
+               //System.out.println(scanner.currentToken.tokenStr + " <<<<");
+               //processExpression();
+               
+           break;               
            default:
-                       // System.out.println(scanner.currentToken.tokenStr + "   Got here");
+                       //System.out.println(scanner.currentToken.tokenStr + "   Got here");
                     
                 }
             
@@ -70,7 +80,7 @@ public class Parser {
     }
     
     //Assumes that the current token is a control declaration ie. Int, Float...
-    void declareStatement(Scanner scan) throws IOException, errorCatch{
+    void declareStatement() throws IOException, errorCatch{
         
         scan.getNext();
                 
@@ -119,4 +129,83 @@ public class Parser {
         }
             
     }
+    
+    //Assumes that the token sent in is an operand identifier 
+    /**
+    void processExpression() throws IOException, errorCatch{
+        
+        //store the opearand for storing;
+        String store = scan.currentToken.tokenStr;
+        
+        //checks for = sign                
+        scan.getNext();
+        
+        System.out.println(scan.currentToken.tokenStr + " *****");
+            //expression(scan);
+        
+    }
+    **/
+    
+    
+    /**
+    private ResultValue expr(String endSeparator){
+        scan.getNext();
+        ResultValue res = products();
+        ResultValue temp = new ResultValue();
+        while(scan.currentToken.tokenStr.equals("+")){
+        
+           scan.getNext();
+           if(scan.currentToken.primClassif != Token.OPERAND)
+               //error
+           temp = products();
+           res= Utility.add(this, res, temp);
+         }
+         return res;
+    }
+    
+    **/
+    /**
+    private ResultValue products() throws IOException, errorCatch
+    {
+        ResultValue res = operand();
+        ResultValue temp = new ResultValue();
+        while(scan.currentToken.tokenStr.equals(*){
+              String operation = currentToken.tokenStr;
+              scan.getNext();
+              if(scan.currentToken.primCalssif != Token.OPERAND){
+                 //error
+              }
+              temp = operand();
+              res = Utility.multiply(this, res, temp);
+        }
+        return res;
+     
+    }
+     
+    /**
+    private ResultValue operand() throws IOException, errorCatch
+    {
+        if(scan.currentToken.primClassif == Token.OPERAND){
+            switch(scan.currentToken.subClassif){
+                case Token.IDENTIFIER:
+                    //Get value from the memory manager and return in
+                    //res = storageMgr.getVariableValue(this,
+                    //scan.currentToken.tokenStr);
+                    //scan.getNext();
+                    //return res;
+                case Token.INTEGER:
+                case Token.FLOAT:
+                case Token.DATE:
+                case Token.STRING:
+                case Token.BOOLEAN:
+                     res = scan.currentToken.toResult();
+                     scan.getNext();
+                     return res;
+                    
+            }
+        }
+        System.out.println("Error: bad Operator");
+        return null;
+    }
+    **/
 }
