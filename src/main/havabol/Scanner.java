@@ -1,6 +1,7 @@
 package havabol;
 
 import java.io.*;
+import java.util.*;
 
 import havabol.util.Escapes;
 
@@ -37,7 +38,8 @@ class Scanner{
     private final static String[] controlDeclare = {"Int", "Float", "String", "Bool"}; //control declare values
     private final static String[] controlFLow = {"if", "else", "while", "for"};        //control flow values
     private final static String[] controlEnd = {"endif", "endwhile", "endfor"};        //control end values
-
+    ArrayList <Token> tokenList = new ArrayList();
+    ArrayList <String> lineList = new ArrayList();
     /**
      * Constructor for the scanner object
      * <p>
@@ -47,7 +49,7 @@ class Scanner{
      * @throws IOException  throws an error if trouble reading from file
      *
      */
-    Scanner(String sourceFileNm, SymbolTable symbolTable) throws IOException {
+    Scanner(String sourceFileNm, SymbolTable symbolTable) throws IOException, errorCatch {
 
       this.symbolTable = symbolTable;       //Symbol table
       this.sourceFileNm = sourceFileNm;     //stores the file name
@@ -57,7 +59,7 @@ class Scanner{
       fReader = new FileReader(fInput);     //create a new filereader
       brBuffer = new BufferedReader(fReader);   //create a newuffered reader
       textLineM = getLine();                    //get a line to store for scanning later
-
+      this.getNext();
 
     }
 
@@ -128,6 +130,7 @@ class Scanner{
        currentToken.iSourceLineNr = iSourceLineNr;
        nextToken.iSourceLineNr = iSourceLineNr;
 
+       tokenList.add(currentToken);
        return currentToken.tokenStr;
     }
 
@@ -167,6 +170,7 @@ class Scanner{
         //calculate the max length and convert to char[] for return
         iMaxPos = szLine.length();
         textLineM = szLine.toCharArray();
+        lineList.add(szLine);
         return textLineM;
     }
 

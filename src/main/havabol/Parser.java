@@ -45,37 +45,31 @@ public class Parser {
     
     
     void statement() throws IOException, errorCatch{
-        
-         //check what the current symbol is
+       // System.out.println(scan.currentToken.tokenStr);
         switch(scan.currentToken.primClassif){
-                   
-           //Look for control tokens
-           case Token.CONTROL:
-                        
-           //If the control token is a declare token, add it to the
-           //Symbol table
-           switch(scan.currentToken.subClassif){
-               
-               //if I dentifier run declare staement code
-               case Token.DECLARE:
-                   declareStatement();
-                   
-                   
-           }
-           break;
-           case Token.OPERAND:
-               
-               //System.out.println(scanner.currentToken.tokenStr + " <<<<");
-               //processExpression();
-               
-           break;               
-           default:
-                       //System.out.println(scanner.currentToken.tokenStr + "   Got here");
+            
+            case Token.CONTROL:
+                
+                switch(scan.currentToken.subClassif){
                     
+                    case Token.DECLARE:
+                        declareStatement();
                 }
+             break;
+             
+            case Token.OPERAND:
+                evalExpression(scan);
+            break;
             
-            
-        
+            case Token.FUNCTION:
+                 evalFunction(scan);
+        }
+        if(scan.currentToken.tokenStr.equals(";")){
+            scan.getNext();
+        }else{
+           // System.out.println("Error- ';' expected"); 
+           // System.exit(-1);
+        }
         
     }
     
@@ -109,6 +103,7 @@ public class Parser {
                    System.out.println("Error Expected a ;");
                    System.exit(-1);
                 }else{
+                    System.out.println("Declared " + scan.tokenList.get(scan.tokenList.size()-2).tokenStr);
                     return;
                 }
                 
@@ -130,82 +125,113 @@ public class Parser {
             
     }
     
-    //Assumes that the token sent in is an operand identifier 
-    /**
-    void processExpression() throws IOException, errorCatch{
+    //assumes that the current token is an operand followed by an = sign
+    void evalExpression(Scanner scan)throws IOException, errorCatch{
+        String first = "";
         
-        //store the opearand for storing;
-        String store = scan.currentToken.tokenStr;
-        
-        //checks for = sign                
-        scan.getNext();
-        
-        System.out.println(scan.currentToken.tokenStr + " *****");
-            //expression(scan);
-        
-    }
-    **/
-    
-    
-    /**
-    private ResultValue expr(String endSeparator){
-        scan.getNext();
-        ResultValue res = products();
-        ResultValue temp = new ResultValue();
-        while(scan.currentToken.tokenStr.equals("+")){
-        
-           scan.getNext();
-           if(scan.currentToken.primClassif != Token.OPERAND)
-               //error
-           temp = products();
-           res= Utility.add(this, res, temp);
-         }
-         return res;
-    }
-    
-    **/
-    /**
-    private ResultValue products() throws IOException, errorCatch
-    {
-        ResultValue res = operand();
-        ResultValue temp = new ResultValue();
-        while(scan.currentToken.tokenStr.equals(*){
-              String operation = currentToken.tokenStr;
-              scan.getNext();
-              if(scan.currentToken.primCalssif != Token.OPERAND){
-                 //error
-              }
-              temp = operand();
-              res = Utility.multiply(this, res, temp);
+        if(checkSymbol(scan.currentToken)){
+            first = scan.currentToken.tokenStr;
+        }else{
+            System.out.println("Operand not declared");
+            System.exit(-1);
         }
-        return res;
-     
+        
+        scan.getNext();
+        if(scan.currentToken.tokenStr.equals("=")){
+            scan.getNext();
+            simpleExpression(scan);
+            System.out.println("Need to set value of " + first + " to the value from simple expression");
+        }
     }
-     
-    /**
-    private ResultValue operand() throws IOException, errorCatch
-    {
-        if(scan.currentToken.primClassif == Token.OPERAND){
-            switch(scan.currentToken.subClassif){
-                case Token.IDENTIFIER:
-                    //Get value from the memory manager and return in
-                    //res = storageMgr.getVariableValue(this,
-                    //scan.currentToken.tokenStr);
-                    //scan.getNext();
-                    //return res;
-                case Token.INTEGER:
-                case Token.FLOAT:
-                case Token.DATE:
-                case Token.STRING:
-                case Token.BOOLEAN:
-                     res = scan.currentToken.toResult();
+    //assumes current token is an operand 
+    void simpleExpression(Scanner scan) throws IOException, errorCatch{
+        String first = "";
+        String second = "";
+        
+        first = scan.currentToken.tokenStr;
+        
+        scan.getNext();
+        
+        if(scan.currentToken.primClassif == Token.OPERATOR){
+            switch(scan.currentToken.tokenStr){
+                case "^":
                      scan.getNext();
-                     return res;
-                    
+                     if(scan.currentToken.primClassif != Token.OPERAND){
+                         System.out.println("Error, expected an operand");
+                         System.exit(-1);
+                     }else{
+                         second = scan.currentToken.tokenStr;
+                         System.out.println("Need to raise " + first + " by power of " + second + " and return it");
+                         scan.getNext();
+                     }
+                break;
+                case "*":
+                     scan.getNext();
+                     if(scan.currentToken.primClassif != Token.OPERAND){
+                         System.out.println("Error, expected an operand");
+                         System.exit(-1);
+                     }else{
+                         second = scan.currentToken.tokenStr;
+                         System.out.println("Need to multiply " + first + " by " + second + " and return it");
+                         scan.getNext();
+                     }
+                break;
+                     
+            }
+        }else{
+            if(scan.currentToken.tokenStr.equals(";")){
+               System.out.println("Need to get value of " + first + " and return it");
+            }
+            //Checks for operands followed by , or ) found in print(thing1, thing2);
+             if(scan.currentToken.tokenStr.equals(",") |scan.currentToken.tokenStr.equals(")")){
+                System.out.println("Need to get value of " + first + " and return it2");
             }
         }
-        System.out.println("Error: bad Operator");
-        return null;
+        
     }
-    **/
+    
+    void evalFunction(Scanner scan)throws IOException, errorCatch{
+        switch(scan.currentToken.subClassif){
+        
+            case Token.BUILTIN:
+                if(scan.currentToken.tokenStr.equals("print")){
+                    scan.getNext();
+                    processPrint(scan);
+                }
+        }
+    }
+    
+    //expects to be ( token just after print
+    void processPrint(Scanner scan)throws IOException, errorCatch{
+        //check for (
+        if(scan.currentToken.tokenStr.equals("(")){
+            
+            scan.getNext();
+            
+            while(!scan.currentToken.tokenStr.equals(")")){
+               if(scan.currentToken.subClassif != Token.IDENTIFIER){
+                   //scan.currentToken.printToken();
+                   System.out.print(scan.currentToken.tokenStr);
+               }else{
+                   simpleExpression(scan);
+                   System.out.println("Need to print what is returned by simpleExpression");
+               }
+               
+               //put this here to prevent one to many advances
+               if(!scan.currentToken.tokenStr.equals(")"))
+                  scan.getNext();
+            }
+            if(scan.currentToken.tokenStr.equals(")")){             
+                System.out.print("\n") ;
+                scan.getNext();
+            }else{
+                System.out.println("Error, expected a )");
+                System.exit(-1);
+            }
+            
+        }else{
+            System.out.println("Error expected a (");
+            System.exit(-1);
+        }
+    }
 }
