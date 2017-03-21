@@ -2,8 +2,8 @@ formal grammar for danger-noodle
 ================================
 
 this document will describe the prefix grammar we use for danger-noodle
-in a bottom-up form, describing the most basic pieces of a statement first,
-working up to the most general case expression.
+in a bottom-up form, describing the most basic pieces of a expression first,
+working up to the most general case statement.
 
 danger-noodle is a prefix-style language based on havabol semantics. the
 style used for defining this grammar is semi-BNF notation with regular expression
@@ -156,8 +156,11 @@ ident ::= "_" ident'
 
 ident' ::= <alnum>*?
 
-; declaration and initialization statements
-declaration ::= datatype <blank>+ ident
+; prefix, Lisp-style - declaration statements
+; a declaration in this style will also return the variable handle
+; which provides the ability to have a compound declaration/initialization expression
+; ex., `(decl testInt Int)`
+declaration ::= "(" <blank>* "decl" <blank>+ ident <blank>+ datatype <blank>* ")"
 
 ```
 
@@ -167,7 +170,7 @@ declaration ::= datatype <blank>+ ident
 
 ```
 ; subscript definitions
-subscript ::= "[" ident <blank>* integer+ "]"
+subscript ::= "[" <blank>* ident <blank>* integer+ <blank>* "]"
 
 ```
 
@@ -202,15 +205,16 @@ unary_operation  ::= "(" <blank>* unary_operator <blank>+ statement <blank>* ")"
 
 ----
 
-## statement definitions
+## expression definitions
 
 ```
-func_call  ::= "(" ident <blank>+ func_args ")"
-func_args  ::= statement func_args'
-func_args' ::= "," func_args
+func_call  ::= "(" <blank*> ident <blank>+ func_args <blank>* ")"
+func_args  ::= expression func_args'
+func_args' ::= <blank>+ func_args
              | Ø
 
-statement  ::= func_call
+; An expression is anything that returns
+expression ::= func_call
              | binary_operation
              | unary_operation
              | subscript
@@ -222,27 +226,41 @@ statement  ::= func_call
 ## initializers
 
 ```
-; match 0+ blanks, allowing for `Int i=0`, `Int i = 0`, etc.
-initializer  ::= declaration <blank>* initializer'
-initializer' ::= "=" <blank>* statement
-               | "[" positive_integer "]" ary_initial
-               | Ø
-ary_initial  ::= "=" <blank>* ary_element
-ary_element  ::= primitive <blank>* ary_element'
-ary_element' ::= "," <blank>* ary_element
+; prefix-style initializer
+; ex., (let someVar "string primitive")
+;      (let someAry {1, 2, 3, 4, 5})
+;      (let someVal nil)
+;      (let someVal (func someAry someVar))
+initializer  ::= "(" <blank>* "let" <blank>+ accessor <blank>+ initializer' <blank>* ")"
+initializer' ::= ary_literal
+               | expression
+
+; accessor for use inside initializers
+; ex., (let var ...)
+;      (let [someAry 1] 12)
+;      (let (decl thing Int) 12.0F)
+accessor     ::= ident
+               | subscript
+               | declaration
+
+; array literal
+; ex., { 1, 2, 3, 4, 5 }
+ary_literal  ::= "{" ary_element "}"
+ary_element  ::= <blank>* primitive <blank>* ary_element'
+ary_element' ::= "," ary_element
                | Ø
 ```
 
 ----
 
-## expression definition
+## statement definition
 
 ```
-assignment ::= ident <blank>* "=" <blank>* statement
-
-expression ::= initializer
+; a statement is the highest-level, most encapsulating parse target.
+; any previous part of this grammar should be able to reduce to a statement.
+statement  ::= initializer
              | assignment
-             | statement
+             | expression
 ```
 
 ----
