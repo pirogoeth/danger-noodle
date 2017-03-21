@@ -159,8 +159,10 @@ ident' ::= <alnum>*?
 ; prefix, Lisp-style - declaration statements
 ; a declaration in this style will also return the variable handle
 ; which provides the ability to have a compound declaration/initialization expression
+; very inspired by golang.
 ; ex., `(decl testInt Int)`
-declaration ::= "(" <blank>* "decl" <blank>+ ident <blank>+ datatype <blank>* ")"
+;      `(decl testInt []Int)`
+declaration ::= "(" <blank>* "decl" <blank>+ ident <blank>+ "[]"? datatype <blank>* ")"
 
 ```
 
@@ -231,6 +233,7 @@ expression ::= func_call
 ;      (let someAry {1, 2, 3, 4, 5})
 ;      (let someVal nil)
 ;      (let someVal (func someAry someVar))
+;      (let (decl ary []Float) { 1.0, 2.0, .30, .40F })
 initializer  ::= "(" <blank>* "let" <blank>+ accessor <blank>+ initializer' <blank>* ")"
 initializer' ::= ary_literal
                | expression
