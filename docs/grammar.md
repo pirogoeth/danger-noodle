@@ -141,10 +141,10 @@ primitive ::= number
 
 ```
 ; built-in datatypes
-datatype ::= Int
-           | Float
-           | String
-           | Bool
+datatype ::= "Int"
+           | "Float"
+           | "String"
+           | "Bool"
 
 ; comment line construct
 comment ::= "//" <ascii[^char(<ascii_eol>)]> <ascii_eol>
@@ -256,6 +256,55 @@ ary_element' ::= "," ary_element
 
 ----
 
+## iterative language constructs
+
+```
+; (while expression
+;   ...
+;   ...
+; end)
+while_stmt ::= "(" <blank>* "while" <blank>+ expression <white>* (statement <white>*)+? "end" ")"
+
+; (for (control as iterable)
+;   ...
+; end)
+;
+; OR
+;
+; (for (control as (someExpr))
+;   ...
+; end)
+for_cond   ::= "(" <blank>* ident <blank>+ "as" <blank>+ expression <blank>* ")"
+for_stmt   ::= "(" <blank>* "for" <blank>+ for_cond <white>* (statement <white>*)+? "end" ")"
+
+; (select (someExpr)
+;   when someValue1 (
+;     ...
+;   ) when someValue2 (
+;     ...
+;   ) default (
+;     ...
+;   )
+; end)
+select_cond ::= "(" <blank>* expression <blank>* ")"
+select_body ::= "(" <white>* (statement <white>*)+? ")"
+select_when ::= <white>* "when" <blank>+ expression <white>* select_body
+select_def  ::= <white>* "default" <blank>* select_body
+select_stmt ::= "(" "select" select_cond <white>* (select_when <white>*)+? (select_def <white>*) "end" ")"
+
+; (if (condSet) (
+;   ...
+; ) elif (condSet) (
+;   ...
+; ) else (
+;   ...
+; )end)
+if_conf     ::= (expression <white>*)+?
+if_body     ::= "
+```
+
+----
+
 ## statement definition
 
 ```
@@ -264,9 +313,13 @@ ary_element' ::= "," ary_element
 statement  ::= initializer
              | assignment
              | expression
+             | while_stmt
+             | for_stmt
+             | select_stmt
 ```
 
 ----
+
 # footnotes
 
     [1]: https://docs.oracle.com/javase/specs/jls/se7/html/jls-4.html#jls-4.2.3 "JavaSE IEEE 754 Floating Point: Format and Values"
