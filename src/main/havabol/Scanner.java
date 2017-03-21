@@ -397,7 +397,7 @@ class Scanner{
                               iColPos = iScanPos;
                               token.primClassif = Token.SEPARATOR;
                               //this helps with checking for matching braces
-                              szBrace = "(";
+                              szBrace += "(";
                               return szBuffer;
                            }/*else{
                                System.out.println("I got here!!!!!");
@@ -417,14 +417,14 @@ class Scanner{
                     case ")":
                         token.iColPos = iColPos;
                         //checks that a ( was found
-                        if(szBrace.equals("(")){
+                        if(szBrace.endsWith("(")){
                             if(szBuffer.isEmpty()){
                              szBuffer += Character.toString(lineM[iScanPos]);
                             if(iScanPos <= iMaxPos){
                                 iScanPos++;
                                 iColPos = iScanPos;
                                 token.primClassif = Token.SEPARATOR;
-                                szBrace = "";
+                                szBrace = szBrace.substring(0, szBrace.length() - 1);
                                 return szBuffer;
                             }/*else{
                                 iScanPos++;
@@ -462,7 +462,7 @@ class Scanner{
                               iColPos = iScanPos;
                               token.primClassif = Token.SEPARATOR;
                               //this helps with checking for matching braces
-                              szBrace = "{";
+                              szBrace += "{";
                               return szBuffer;
                            }/*else{
                                iScanPos++;
@@ -478,14 +478,14 @@ class Scanner{
                     case "}":
                         token.iColPos = iColPos;
                         //checks that a ( was found
-                        if(szBrace.equals("{")){
+                        if(szBrace.endsWith("{")){
                             if(szBuffer.isEmpty()){
                                 szBuffer += Character.toString(lineM[iScanPos]);
                                 if(iScanPos <= iMaxPos){
                                     iScanPos++;
                                     iColPos = iScanPos;
                                     token.primClassif = Token.SEPARATOR;
-                                    szBrace = "";
+                                    szBrace = szBrace.substring(0, szBrace.length() - 1);
                                     return szBuffer;
                                 }/*else{
                                     iScanPos++;
@@ -522,7 +522,7 @@ class Scanner{
                                 iColPos = iScanPos;
                                 token.primClassif = Token.SEPARATOR;
                                 //this helps with checking for matching braces
-                                szBrace = "[";
+                                szBrace += "[";
                                 return szBuffer;
                             }/*else{
                                 iScanPos++;
@@ -538,7 +538,7 @@ class Scanner{
                     case "]":
                         token.iColPos = iColPos;
                         //checks that a ( was found
-                        if(szBrace.equals("[")){
+                        if(szBrace.endsWith("[")){
                             if(szBuffer.isEmpty()){
 
                                 szBuffer += Character.toString(lineM[iScanPos]);
@@ -546,7 +546,7 @@ class Scanner{
                                     iScanPos++;
                                     iColPos = iScanPos;
                                     token.primClassif = Token.SEPARATOR;
-                                    szBrace = "";
+                                    szBrace = szBrace.substring(0, szBrace.length() - 1);
                                     return szBuffer;
                                 }/*else{
                                     iScanPos++;

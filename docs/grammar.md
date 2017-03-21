@@ -101,7 +101,7 @@ integer ::= positive_integer
 
 ; double-precision 64-bit IEEE 754 floating point (danger-noodle type Float)
 ; float primitive max and min see [1]
-positive_float ::= <digit>*? "." <digit>+? "F"?
+positive_float ::= <digit>*? "." <digit>+?
 negative_float ::= "-" positive_float
 
 float ::= positive_float
@@ -233,7 +233,7 @@ expression ::= func_call
 ;      (let someAry {1, 2, 3, 4, 5})
 ;      (let someVal nil)
 ;      (let someVal (func someAry someVar))
-;      (let (decl ary []Float) { 1.0, 2.0, .30, .40F })
+;      (let (decl ary []Float) { 1.0, 2.0, .30, .40 })
 initializer  ::= "(" <blank>* "let" <blank>+ accessor <blank>+ initializer' <blank>* ")"
 initializer' ::= ary_literal
                | expression
@@ -241,7 +241,7 @@ initializer' ::= ary_literal
 ; accessor for use inside initializers
 ; ex., (let var ...)
 ;      (let [someAry 1] 12)
-;      (let (decl thing Int) 12.0F)
+;      (let (decl thing Int) 12.0)
 accessor     ::= ident
                | subscript
                | declaration
