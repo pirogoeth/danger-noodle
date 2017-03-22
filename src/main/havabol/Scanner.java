@@ -1,6 +1,7 @@
 package havabol;
 
 import java.io.*;
+import java.util.*;
 
 import havabol.util.Escapes;
 
@@ -37,7 +38,8 @@ class Scanner{
     private final static String[] controlDeclare = {"Int", "Float", "String", "Bool"}; //control declare values
     private final static String[] controlFLow = {"if", "else", "while", "for"};        //control flow values
     private final static String[] controlEnd = {"endif", "endwhile", "endfor"};        //control end values
-
+    ArrayList <Token> tokenList = new ArrayList();
+    ArrayList <String> lineList = new ArrayList();
     /**
      * Constructor for the scanner object
      * <p>
@@ -47,7 +49,7 @@ class Scanner{
      * @throws IOException  throws an error if trouble reading from file
      *
      */
-    Scanner(String sourceFileNm, SymbolTable symbolTable) throws IOException {
+    Scanner(String sourceFileNm, SymbolTable symbolTable) throws IOException, errorCatch {
 
       this.symbolTable = symbolTable;       //Symbol table
       this.sourceFileNm = sourceFileNm;     //stores the file name
@@ -56,9 +58,10 @@ class Scanner{
       error = new String();                 //make a empty string for errors later
       fReader = new FileReader(fInput);     //create a new filereader
       brBuffer = new BufferedReader(fReader);   //create a newuffered reader
+      readFile();                               //Get the lines from the file
       textLineM = getLine();                    //get a line to store for scanning later
-
-
+      this.getNext();
+      
     }
 
     /**
@@ -74,10 +77,11 @@ class Scanner{
     String getNext() throws IOException, errorCatch{
 
         //get the first two tokens
-        if(iSourceLineNr == 1 && iColPos == 0 ){
+        //if(iSourceLineNr == 1 && iColPos == 0 ){
+        //System.out.println(textLineM);
+        if(currentToken.tokenStr.equals("") && nextToken.tokenStr.equals("")){
             currentToken.tokenStr = getToken(textLineM, currentToken);
             nextToken.tokenStr = getToken(textLineM, nextToken);
-
             //if the current token is null, throw an error
             if(currentToken.tokenStr == null){
             throw new errorCatch(error);
@@ -86,6 +90,7 @@ class Scanner{
             //check for comments or double operators
             checkComment(currentToken, nextToken, textLineM);
             checkDoubleOperator(currentToken, nextToken, textLineM);
+            checkUnaryMinus(currentToken, nextToken, textLineM);
 
         }else{
             //store the next token into current token and get a new
@@ -102,6 +107,7 @@ class Scanner{
             //check for comments or double operators
             checkComment(currentToken, nextToken, textLineM);
             checkDoubleOperator(currentToken, nextToken, textLineM);
+            checkUnaryMinus(currentToken, nextToken, textLineM);
         }
 
         //if the current token is empty, get the next line and return if no new line found
@@ -117,6 +123,7 @@ class Scanner{
             nextToken.tokenStr = getToken(textLineM, nextToken);
             checkComment(currentToken, nextToken, textLineM);
             checkDoubleOperator(currentToken, nextToken, textLineM);
+            checkUnaryMinus(currentToken, nextToken, textLineM);
 
             //if the current token is null, throw an error
             if(currentToken.tokenStr == null){
@@ -128,9 +135,30 @@ class Scanner{
        currentToken.iSourceLineNr = iSourceLineNr;
        nextToken.iSourceLineNr = iSourceLineNr;
 
+
+       tokenList.add(currentToken);
        return currentToken.tokenStr;
     }
 
+    void readFile() throws IOException{
+        String line;
+        line = brBuffer.readLine();
+        while(line != null){
+            lineList.add(line);
+            line = brBuffer.readLine();
+        }
+        
+    }
+    
+    void setLine(int lineNumber) throws IOException, errorCatch{
+        //did this because using arraylist
+        iSourceLineNr = lineNumber -1;
+        currentToken.tokenStr = "";
+        nextToken.tokenStr = "";
+        textLineM = getLine();
+        getNext();
+    }
+    
     /**
      * This method reads a line from the file stored in the scanner object
      * returns the line as a char[] or throws an exception if trouble reading
@@ -142,13 +170,20 @@ class Scanner{
      */
     char[] getLine() throws IOException{
 
-        //update the line number and col pos
-        iSourceLineNr++;
+        //col pos
         iColPos = 0;
 
+        if(iSourceLineNr < lineList.size()){
         //get a new line
-        szLine = brBuffer.readLine();
-
+        szLine = lineList.get(iSourceLineNr);
+        }else{
+            return null;
+        }
+        //System.out.println(szLine);
+        //Update to line pos (did this because using array list now)
+        iSourceLineNr++;
+        
+        
         //check if the new line is null
         if(szLine == null){
           return null;
@@ -197,9 +232,11 @@ class Scanner{
                if(Character.toString(lineM[iScanPos]).matches("\\d")){
 
                   //If thefirst character, set the token to integer before adding the char
-                  if(szBuffer.equals("")){
-                      token.primClassif = Token.OPERAND;
-                      token.subClassif = Token.INTEGER;
+                  if(szBuffer.equals("")){ 
+                      if(token.subClassif != Token.STRING){
+                         token.primClassif = Token.OPERAND;
+                         token.subClassif = Token.INTEGER;
+                      }
                       szBuffer += Character.toString(lineM[iScanPos]);
                       iScanPos++;
 
@@ -647,7 +684,7 @@ class Scanner{
     }
 
     /**
-     * This method calls two other mehtods to check for type of token.
+     * This method calls two other methods to check for type of token.
      * This was made to save time typing these two lines multiple times
      * <p>
      * @param szWord  the token str to check
@@ -753,7 +790,27 @@ class Scanner{
             }
 
     }
+    
+    void checkUnaryMinus(Token current, Token next, char[] line) throws errorCatch, IOException{
+         //Check that currentToken is -
+         if(current.tokenStr.equals("-")){
+             
+             //Check if previous token is an operator as well
+             //This will determine if - is urnary or not
+             if(tokenList.get(tokenList.size()-1).primClassif == Token.OPERATOR | 
+                tokenList.get(tokenList.size()-1).primClassif == Token.SEPARATOR){
+                 
+                 //Check that next token is float, int, or operand
+                 if(next.primClassif == Token.OPERAND){
+                      getNext();
+                      currentToken.tokenStr = "-" + currentToken.tokenStr;
+                      //System.out.println(currentToken.tokenStr);
+                 }
+             }
+         }
+    }
 }
+
 
 
 /**
