@@ -1,6 +1,7 @@
 package havabol;
 
 import havabol.classify.*;
+import havabol.storage.*;
 import havabol.sym.*;
 
 import java.util.*;
@@ -111,6 +112,26 @@ public class SymbolTable
     }
 
     /**
+     * Returns the related storage manager.
+     *
+     * @return StorageManager
+     */
+    public StorageManager getStorageManager()
+    {
+        return StorageManager.scoped(this);
+    }
+
+    /**
+     * Returns the parent SymbolTable, if any.
+     *
+     * @return SymbolTable
+     */
+    public SymbolTable getParent()
+    {
+        return this.parent;
+    }
+
+    /**
      * lookupSym() looks up the token for this symbol table and up all parents
      * recursively until it is found.
      *
@@ -165,6 +186,31 @@ public class SymbolTable
     public void putSymbol(String s, STEntry sym)
     {
         tab.put(s, sym);
+    }
+
+    public boolean hasSymbol(Token t)
+    {
+        return this.hasSymbol(t.tokenStr);
+    }
+
+    public boolean hasSymbol(String s)
+    {
+        boolean local = this.tab.containsKey(s);
+        if ( ! local && this.parent != null ) {
+            return this.parent.hasSymbol(s);
+        }
+
+        return local;
+    }
+
+    public boolean hasLocalSymbol(Token t)
+    {
+        return this.hasLocalSymbol(t.tokenStr);
+    }
+
+    public boolean hasLocalSymbol(String s)
+    {
+        return this.tab.containsKey(s);
     }
 
     /**
