@@ -135,6 +135,7 @@ class Scanner{
        currentToken.iSourceLineNr = iSourceLineNr;
        nextToken.iSourceLineNr = iSourceLineNr;
 
+
        tokenList.add(currentToken);
        return currentToken.tokenStr;
     }

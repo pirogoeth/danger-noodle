@@ -13,6 +13,7 @@ import java.io.IOException;
 public class Parser {
     
     SymbolTable sbTable;
+
     Scanner scan;
     Boolean bRun;
     boolean btest;
@@ -27,6 +28,7 @@ public class Parser {
          this.scan = scan;
          bRun = true;
          btest = true;
+
     }
     
     /**
@@ -48,6 +50,7 @@ public class Parser {
     }
     
     
+
     void statement() throws IOException, errorCatch{ 
         switch(scan.currentToken.primClassif){
             
@@ -84,12 +87,15 @@ public class Parser {
            // System.out.println("Error- ';' expected"); 
            // System.exit(-1);
         }
+
         
     }
     
     //Assumes that the current token is a control declaration ie. Int, Float...
     void declareStatement(Scanner scan) throws IOException, errorCatch{
+
         String type = scan.currentToken.tokenStr;
+
         
         scan.getNext();
                 
@@ -118,7 +124,9 @@ public class Parser {
                    System.out.println("Error Expected a ;");
                    System.exit(-1);
                 }else{
+
                     System.out.println("Declared " + scan.tokenList.get(scan.tokenList.size()-2).tokenStr);
+
                     return;
                 }
                 
@@ -139,6 +147,7 @@ public class Parser {
         }
             
     }
+
     
     //assumes that the current token is an operand followed by an = sign
     void evalExpression(Scanner scan)throws IOException, errorCatch{
@@ -424,4 +433,5 @@ public class Parser {
             System.exit(-1);
         }
     }
+
 }
