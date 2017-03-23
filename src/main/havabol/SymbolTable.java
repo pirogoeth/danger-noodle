@@ -175,7 +175,7 @@ public class SymbolTable
 
     public void putSymbol(STEntry sym)
     {
-        this.putSymbol(sym.getSymbol(), sym);
+        this.putSymbol(sym.getToken(), sym);
     }
 
     public void putSymbol(Token t, STEntry sym)
