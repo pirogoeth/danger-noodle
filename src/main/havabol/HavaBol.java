@@ -17,12 +17,16 @@
  */
 package havabol;
 
+import java.util.*;
+
 public class HavaBol
 {
     public static void main(String[] args)
     {
         // Create the SymbolTable
         SymbolTable symbolTable = new SymbolTable();
+
+        List<Token> tokenList = new ArrayList<>();
 
         try
         {
@@ -35,7 +39,10 @@ public class HavaBol
             Scanner scan = new Scanner(args[0], symbolTable);
             while (! scan.getNext().isEmpty())
             {
-                scan.currentToken.printToken();
+                Token t = scan.currentToken;
+                tokenList.add(t);
+
+                t.printToken();
             }
         }
         catch (Exception e)

@@ -59,6 +59,4 @@ public class STIdentifier extends STEntry {
         this(sym, declaredType, structure, ParamType.NOT_PARM, baseAddr);
     }
 
-
-
 }

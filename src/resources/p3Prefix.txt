@@ -1,0 +1,18 @@
+// This is an example of the danger-noodle prefix-style grammar.
+(decl i Int)
+(decl j Float)
+(let (decl str String) "Hello, world!")
+(let (decl fl []Float) { 1.0, 2.0, 3.0, 4.0 })
+
+(let i 0)
+(let j 10.0)
+
+(if (<= i 10)
+  (print "i lte 10")
+)
+
+(while
+  (let i (incr i))
+)
+
+

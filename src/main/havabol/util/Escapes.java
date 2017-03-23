@@ -2,8 +2,6 @@ package havabol.util;
 
 import havabol.Token;
 
-import java.util.regex.Matcher;
-
 public class Escapes {
 
     public static String generateEscapeSequences(String line) {
