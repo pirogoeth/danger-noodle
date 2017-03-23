@@ -91,23 +91,26 @@ public class Parser {
     //Assumes that the current token is a control declaration ie. Int, Float...
     void declareStatement() throws IOException, errorCatch{
 
-        String type = scan.currentToken.tokenStr;
-        scan.getNext();
+        Token declareToken = scan.currentToken;
+        STControl declareSym = (STControl) sbTable.lookupSym(declareToken);
 
-        if(scan.currentToken.primClassif != Token.OPERAND && scan.currentToken.subClassif != Token.IDENTIFIER){
+        scan.getNext();
+        Token cur = scan.currentToken;
+        STIdentifier identSym;
+
+        if(cur.primClassif != Token.OPERAND && cur.subClassif != Token.IDENTIFIER){
             System.out.println("Error expected an Identifier");
             System.exit(-1);
-        }else{
-            if(!checkSymbol(scan.currentToken)){
-                sbTable.putSymbol(scan.currentToken,
-                    new STIdentifier(
-                        scan.currentToken.tokenStr,
-                        null,  // XXX - Need to load the STControl for the declaration token preceding this!
+        } else {
+            if(!checkSymbol(cur)){
+                identSym = new STIdentifier(
+                        cur.tokenStr,
+                        declareSym,
                         Structure.PRIMITIVE,
                         ParamType.NOT_PARM,
-                        0       // XXX - This should be the real base address. Or, we can calculate it by distance from the global ST.
-                    )
+                        0
                 );
+                sbTable.putSymbol(identSym);
             }else{
                 System.out.println("Error double declaration");
                 System.exit(-1);
