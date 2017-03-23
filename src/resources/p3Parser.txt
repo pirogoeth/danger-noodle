@@ -1,0 +1,10 @@
+Int i;
+i = 10;
+
+Float f = 4.5;
+
+print("why u do dis");
+print("And then OP said:", "'I H8 U ALL!'");
+print("I can eat this much food: " # f);
+print("But OP can eat this much: " # i);
+print("And then some basic math: " # f * i);
