@@ -1,9 +1,9 @@
 
 package havabol;
 
-import havabol.classify.Primary;
-import havabol.classify.Subclass;
-import havabol.sym.STEntry;
+import havabol.classify.*;
+import havabol.sym.*;
+
 import java.io.IOException;
 
 /**
@@ -30,6 +30,7 @@ public class Parser {
          this.scan = scan;
          bRun = true;
          btest = true;
+    }
 
     /**
      * THis checks to see if the Symbol currently exists in the symbol table
@@ -57,27 +58,27 @@ public class Parser {
                 switch(scan.currentToken.subClassif){
 
                     case Token.DECLARE:
-                        declareStatement(scan);
+                        declareStatement();
                     break;
 
                     case Token.FLOW:
                          switch(scan.currentToken.tokenStr){
                              case("if"):
-                                ifStatement(scan);
+                                ifStatement();
                              break;
                              case("while"):
-                                 whileStatement(scan);
+                                 whileStatement();
                              break;
                          }
                 }
              break;
 
             case Token.OPERAND:
-                evalExpression(scan);
+                evalExpression();
             break;
 
             case Token.FUNCTION:
-                 evalFunction(scan);
+                 evalFunction();
         }
         if(scan.currentToken.tokenStr.equals(";")){
             scan.getNext();
@@ -88,18 +89,25 @@ public class Parser {
     }
 
     //Assumes that the current token is a control declaration ie. Int, Float...
-    void declareStatement(Scanner scan) throws IOException, errorCatch{
+    void declareStatement() throws IOException, errorCatch{
 
         String type = scan.currentToken.tokenStr;
         scan.getNext();
 
         if(scan.currentToken.primClassif != Token.OPERAND && scan.currentToken.subClassif != Token.IDENTIFIER){
-            System.out.println("Error expected and Identifier");
+            System.out.println("Error expected an Identifier");
             System.exit(-1);
         }else{
             if(!checkSymbol(scan.currentToken)){
                 sbTable.putSymbol(scan.currentToken,
-                new STEntry(scan.currentToken.tokenStr, Primary.OPERAND, Subclass.IDENTIFIER));
+                    new STIdentifier(
+                        scan.currentToken.tokenStr,
+                        null,  // XXX - Need to load the STControl for the declaration token preceding this!
+                        Structure.PRIMITIVE,
+                        ParamType.NOT_PARM,
+                        0       // XXX - This should be the real base address. Or, we can calculate it by distance from the global ST.
+                    )
+                );
             }else{
                 System.out.println("Error double declaration");
                 System.exit(-1);
@@ -144,7 +152,7 @@ public class Parser {
 
 
     //assumes that the current token is an operand followed by an = sign
-    void evalExpression(Scanner scan)throws IOException, errorCatch{
+    void evalExpression()throws IOException, errorCatch{
         String first = "";
         if(checkSymbol(scan.currentToken)){
             first = scan.currentToken.tokenStr;
@@ -156,13 +164,13 @@ public class Parser {
         scan.getNext();
         if(scan.currentToken.tokenStr.equals("=")){
             scan.getNext();
-            simpleExpression(scan);
+            simpleExpression();
             if(bRun)
                System.out.println("Need to set value of " + first + " to the value from simple expression");
         }
     }
     //assumes current token is an operand
-    void simpleExpression(Scanner scan) throws IOException, errorCatch{
+    void simpleExpression() throws IOException, errorCatch{
         String first = "";
         String second = "";
 
@@ -309,19 +317,19 @@ public class Parser {
                      System.out.println("Need to get value of " + first + " and return it");
                 }
     }
-    void evalFunction(Scanner scan)throws IOException, errorCatch{
+    void evalFunction()throws IOException, errorCatch{
         switch(scan.currentToken.subClassif){
 
             case Token.BUILTIN:
                 if(scan.currentToken.tokenStr.equals("print")){
                     scan.getNext();
-                    processPrint(scan);
+                    processPrint();
                 }
         }
     }
 
     //expects to be ( token just after print
-    void processPrint(Scanner scan)throws IOException, errorCatch{
+    void processPrint()throws IOException, errorCatch{
         //check for (
         if(scan.currentToken.tokenStr.equals("(")){
 
@@ -333,7 +341,7 @@ public class Parser {
                    if(bRun)
                       System.out.print(scan.currentToken.tokenStr);
                }else{
-                   simpleExpression(scan);
+                   simpleExpression();
                    if(bRun)
                       System.out.println("Need to print what is returned by simpleExpression");
                }
@@ -358,7 +366,7 @@ public class Parser {
     }
 
     //assumes if statement
-    void ifStatement(Scanner scan) throws IOException, errorCatch{
+    void ifStatement() throws IOException, errorCatch{
             Boolean bSwitch;
 
             if(bRun){
@@ -368,7 +376,7 @@ public class Parser {
             }
 
             scan.getNext();
-            simpleExpression(scan);
+            simpleExpression();
             if(scan.currentToken.tokenStr.equals(":")){
                 scan.getNext();
                 //System.out.println("For now, will always do statements, need to check if it will actually do them first");
@@ -405,10 +413,10 @@ public class Parser {
     }
 
     //assumes whule is current token
-    void whileStatement(Scanner scan) throws IOException, errorCatch{
+    void whileStatement() throws IOException, errorCatch{
         int line = scan.currentToken.iSourceLineNr;
         scan.getNext();
-        simpleExpression(scan);
+        simpleExpression();
         if(scan.currentToken.tokenStr.equals(":")){
             scan.getNext();
             while(!scan.currentToken.tokenStr.equals("endwhile")) {

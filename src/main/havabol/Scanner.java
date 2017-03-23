@@ -38,8 +38,8 @@ class Scanner{
     private final static String[] controlDeclare = {"Int", "Float", "String", "Bool"}; //control declare values
     private final static String[] controlFLow = {"if", "else", "while", "for"};        //control flow values
     private final static String[] controlEnd = {"endif", "endwhile", "endfor"};        //control end values
-    ArrayList <Token> tokenList = new ArrayList();
-    ArrayList <String> lineList = new ArrayList();
+    ArrayList <Token> tokenList = new ArrayList<>();
+    ArrayList <String> lineList = new ArrayList<>();
     /**
      * Constructor for the scanner object
      * <p>
@@ -61,7 +61,6 @@ class Scanner{
       readFile();                               //Get the lines from the file
       textLineM = getLine();                    //get a line to store for scanning later
       this.getNext();
-      
     }
 
     /**
@@ -147,9 +146,9 @@ class Scanner{
             lineList.add(line);
             line = brBuffer.readLine();
         }
-        
+
     }
-    
+
     void setLine(int lineNumber) throws IOException, errorCatch{
         //did this because using arraylist
         iSourceLineNr = lineNumber -1;
@@ -158,7 +157,7 @@ class Scanner{
         textLineM = getLine();
         getNext();
     }
-    
+
     /**
      * This method reads a line from the file stored in the scanner object
      * returns the line as a char[] or throws an exception if trouble reading
@@ -182,8 +181,8 @@ class Scanner{
         //System.out.println(szLine);
         //Update to line pos (did this because using array list now)
         iSourceLineNr++;
-        
-        
+
+
         //check if the new line is null
         if(szLine == null){
           return null;
@@ -232,7 +231,7 @@ class Scanner{
                if(Character.toString(lineM[iScanPos]).matches("\\d")){
 
                   //If thefirst character, set the token to integer before adding the char
-                  if(szBuffer.equals("")){ 
+                  if(szBuffer.equals("")){
                       if(token.subClassif != Token.STRING){
                          token.primClassif = Token.OPERAND;
                          token.subClassif = Token.INTEGER;
@@ -392,7 +391,7 @@ class Scanner{
                           if(szBuffer.isEmpty()){
 
                            szBuffer += Character.toString(lineM[iScanPos]);
-                           if(iScanPos <= iMaxPos){ 
+                           if(iScanPos <= iMaxPos){
                               iScanPos++;
                               iColPos = iScanPos;
                               token.primClassif = Token.SEPARATOR;
@@ -790,16 +789,16 @@ class Scanner{
             }
 
     }
-    
+
     void checkUnaryMinus(Token current, Token next, char[] line) throws errorCatch, IOException{
          //Check that currentToken is -
          if(current.tokenStr.equals("-")){
-             
+
              //Check if previous token is an operator as well
              //This will determine if - is urnary or not
-             if(tokenList.get(tokenList.size()-1).primClassif == Token.OPERATOR | 
+             if(tokenList.get(tokenList.size()-1).primClassif == Token.OPERATOR |
                 tokenList.get(tokenList.size()-1).primClassif == Token.SEPARATOR){
-                 
+
                  //Check that next token is float, int, or operand
                  if(next.primClassif == Token.OPERAND){
                       getNext();

@@ -26,7 +26,7 @@ wprint "Building danger-noodle to 'build/'..."
 
 [[ ! -d "build" ]] && mkdir build
 sources=$(find src -name '*.java')
-javac -g -d build -Werror -parameters ${sources}
+javac -g -d build -Werror -Xlint:unchecked -parameters ${sources}
 
 [[ $? != 0 ]] && exit 1
 

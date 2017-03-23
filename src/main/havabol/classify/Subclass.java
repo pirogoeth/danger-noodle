@@ -25,6 +25,27 @@ public enum Subclass {
     USER(14);
 
     private int classId;
+    private static final Subclass[] revMap = {
+        UNKNOWN,
+        IDENTIFIER,
+        INTEGER,
+        FLOAT,
+        BOOLEAN,
+        STRING,
+        DATE,
+        VOID,
+        null,
+        null,
+        FLOW,
+        END,
+        DECLARE,
+        BUILTIN,
+        USER,
+    };
+
+    public static Subclass subclassFromInt(int i) {
+        return revMap[i];
+    }
 
     Subclass(int classId)
     {

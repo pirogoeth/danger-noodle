@@ -180,10 +180,15 @@ public class SymbolTable
 
     public void putSymbol(Token t, STEntry sym)
     {
+        if ( t.subClassif == Subclass.IDENTIFIER.getCid() && sym instanceof STIdentifier ) {
+            StorageManager localSM = this.getStorageManager();
+            t.setStoredValue(localSM.getOrInit((STIdentifier) sym));
+        }
+
         this.putSymbol(t.tokenStr, sym);
     }
 
-    public void putSymbol(String s, STEntry sym)
+    private void putSymbol(String s, STEntry sym)
     {
         tab.put(s, sym);
     }
