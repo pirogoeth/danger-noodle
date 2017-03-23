@@ -3,6 +3,7 @@ package havabol;
 
 import havabol.classify.*;
 import havabol.sym.*;
+import havabol.util.Escapes;
 
 import java.io.IOException;
 
@@ -342,7 +343,7 @@ public class Parser {
                if(scan.currentToken.subClassif != Token.IDENTIFIER){
                    //scan.currentToken.printToken();
                    if(bRun)
-                      System.out.print(scan.currentToken.tokenStr);
+                      System.out.print(Escapes.generateEscapeSequences(scan.currentToken.tokenStr));
                }else{
                    simpleExpression();
                    if(bRun)
