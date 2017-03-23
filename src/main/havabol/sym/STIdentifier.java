@@ -8,12 +8,16 @@ import havabol.classify.*;
 public class STIdentifier extends STEntry {
 
     /**
-     * * Defines the data type for the identifier. * * @var STControl
+     * Defines the data type for the identifier.
+     *
+     * @var STControl
      */
     private STControl stDeclared = null;
+
     /**
-     * * Defines the backing type structure for this identifier. * * @var
-     * Structure
+     * Defines the backing type structure for this identifier.
+     *
+     * @var Structure
      */
     private Structure backingType = Structure.UNKNOWN;
     /**
@@ -34,6 +38,7 @@ public class STIdentifier extends STEntry {
      */
     public STIdentifier(String sym, STControl declaredType, Structure structure, ParamType paramType, int baseAddr) {
         super(sym, Primary.OPERAND, Subclass.IDENTIFIER);
+
         this.stDeclared = declaredType;
         this.backingType = structure;
         this.paramDefin = paramType;

@@ -73,10 +73,10 @@ public class Resources {
     public static final InputStream P3_IN_SE = streamResource("resources/p3InputSE.txt");
 
     /**
-     * Stream for `/resources/p3Prefix.txt`
+     * Stream for `/resources/p3Parser.txt`
      *
      * @return InputStream
      */
-    public static final InputStream P3_IN_PREFIX = streamResource("resource/p3Prefix.txt");
+    public static final InputStream P3_IN_PARSER = streamResource("resource/p3Parser.txt");
 
 }
