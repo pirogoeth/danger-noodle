@@ -31,18 +31,20 @@ public class HavaBol
         try
         {
             // Print a column heading
-            System.out.printf("%-11s %-12s %s\n"
+           /* System.out.printf("%-11s %-12s %s\n"
                     , "primClassif"
                     , "subClassif"
                     , "tokenStr");
-
+*/
             Scanner scan = new Scanner(args[0], symbolTable);
-            while (! scan.getNext().isEmpty())
+            Parser parse = new Parser(symbolTable, scan);
+            while (! scan.currentToken.tokenStr.equals(""))
             {
-                Token t = scan.currentToken;
-                tokenList.add(t);
+                parse.statement();
+                //Token t = scan.currentToken;
+                //tokenList.add(t);
 
-                t.printToken();
+                //t.printToken();
             }
         }
         catch (Exception e)

@@ -189,7 +189,7 @@ class Scanner{
         }
 
         //print a header for the line
-        System.out.format("%3d %s\n", iSourceLineNr, szLine);
+       // System.out.format("%3d %s\n", iSourceLineNr, szLine);
 
         //if the line is blank, get a new line after printing a header
         if(szLine.matches("\\s*")){
@@ -717,7 +717,7 @@ class Scanner{
      * @return boolean  true or false if the token is t or f
      */
     boolean checkBoolean(String szWord, Token token){
-        if(szWord.equals("t") || szWord.equals("f")){
+        if(szWord.equals("T") || szWord.equals("F")){
               token.primClassif = Token.OPERAND;
               token.subClassif = Token.BOOLEAN;
               return true;

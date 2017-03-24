@@ -2,8 +2,10 @@
 package havabol;
 
 import havabol.classify.*;
+import havabol.storage.SMValue;
 import havabol.sym.*;
 import havabol.util.Escapes;
+import havabol.util.Numerics;
 
 import java.io.IOException;
 
@@ -69,6 +71,7 @@ public class Parser {
                              break;
                              case("while"):
                                  whileStatement();
+                                     
                              break;
                          }
                 }
@@ -131,7 +134,7 @@ public class Parser {
                    System.exit(-1);
                 }else{
 
-                    System.out.println("Declared " + scan.tokenList.get(scan.tokenList.size()-2).tokenStr);
+              //      System.out.println("Declared " + scan.tokenList.get(scan.tokenList.size()-2).tokenStr);
 
                     return;
                 }
@@ -157,28 +160,35 @@ public class Parser {
 
     //assumes that the current token is an operand followed by an = sign
     void evalExpression()throws IOException, errorCatch{
-        String first = "";
+        Token first;
         if(checkSymbol(scan.currentToken)){
-            first = scan.currentToken.tokenStr;
+            first = scan.currentToken;
+            
+            scan.getNext();
+            if(scan.currentToken.tokenStr.equals("=")){
+            
+               scan.getNext();
+               resultValue result = simpleExpression();
+               //Put value of simple expression
+               if(!result.value.equals(""))
+                   if(bRun){
+                      sbTable.getStorageManager().getOrInit( (STIdentifier)sbTable.lookupSym(first)).set(result.value);           
+                   //   System.out.println("Added "+ result.value );
+                   }
+            }
         }else{
             System.out.println("Operand not declared");
             System.exit(-1);
         }
 
-        scan.getNext();
-        if(scan.currentToken.tokenStr.equals("=")){
-            scan.getNext();
-            simpleExpression();
-            if(bRun)
-               System.out.println("Need to set value of " + first + " to the value from simple expression");
-        }
+       
     }
     //assumes current token is an operand
-    void simpleExpression() throws IOException, errorCatch{
-        String first = "";
-        String second = "";
-
-        first = scan.currentToken.tokenStr;
+    resultValue simpleExpression() throws IOException, errorCatch{
+        Token first;
+        Token second;
+        resultValue res = new resultValue();
+        first = scan.currentToken;
 
         scan.getNext();
 
@@ -190,9 +200,35 @@ public class Parser {
                          System.out.println("Error, expected an operand");
                          System.exit(-1);
                      }else{
-                         second = scan.currentToken.tokenStr;
-                         if(bRun)
-                            System.out.println("Need to raise " + first + " by power of " + second + " and return it");
+                         second = scan.currentToken;
+                         resultValue r1;
+                         r1 = Operand(first);
+                         resultValue r2;
+                         r2 = Operand(second);
+                         if(bRun){
+                         if( Numerics.isInt(r1.value)){
+                            
+                                 int ret = (int) Math.pow(Numerics.stringAsInt(r1.value) , Numerics.stringAsInt(r2.value));
+                                 
+                                 res.value = Numerics.intAsString(ret) ;
+                                 res.type = "Int";
+                                 //System.out.println(res.value + " ////////////////////");
+                                 
+                             
+                         }else {
+                             if(Numerics.isFloat(r1.value)){
+                                  float ret = (float) Math.pow(Numerics.stringAsInt(r1.value) , Numerics.stringAsInt(r2.value));
+                                 
+                                 res.value = Numerics.floatAsString(ret) ;
+                                 res.type = "Float";
+                                 //System.out.println(res.value + " ^^^^^^^^^^^");
+                                 
+                             
+                             }
+                             
+                         }
+                         }
+                         //System.out.println(r1.value + " " + r2.value + " ^^^^^^^^^^");
                          scan.getNext();
                      }
                 break;
@@ -202,10 +238,74 @@ public class Parser {
                          System.out.println("Error, expected an operand");
                          System.exit(-1);
                      }else{
-                         second = scan.currentToken.tokenStr;
-                         if(bRun)
-                            System.out.println("Need to multiply " + first + " by " + second + " and return it");
-                         scan.getNext();
+                         second = scan.currentToken;
+                         resultValue r1;
+                         r1 = Operand(first);
+                         resultValue r2;
+                         r2 = Operand(second);
+                         if(bRun){
+                         if( Numerics.isInt(r1.value)){
+                            
+                                 int ret = Numerics.stringAsInt(r1.value) * Numerics.stringAsInt(r2.value);
+                                 
+                                 res.value = Numerics.intAsString(ret) ;
+                                 res.type = "Int";
+                                // System.out.println(res.value + " ////////////////////");
+                                 
+                             
+                         }else {
+                             if(Numerics.isFloat(r1.value)){
+                                  float ret = Numerics.stringAsFloat(r1.value) * Numerics.stringAsFloat(r2.value);
+                                 
+                                 res.value = Numerics.floatAsString(ret) ;
+                                 res.type = "Float";
+                                 //System.out.println(res.value + " ^^^^^^^^^^^");
+                                 
+                             
+                             }
+                             
+                         }
+                         }
+                        // System.out.println(r1.value + " " + r2.value + " ^^^^^^^^^^");
+                       scan.getNext();
+                     }
+                break;
+                case "/":
+                     scan.getNext();
+                     if(scan.currentToken.primClassif != Token.OPERAND){
+                         System.out.println("Error, expected an operand");
+                         System.exit(-1);
+                     }else{
+                         second = scan.currentToken;
+                         resultValue r1;
+                         r1 = Operand(first);
+                         resultValue r2;
+                         r2 = Operand(second);
+                         if(bRun){
+                         if( Numerics.isInt(r1.value)){
+                            
+                                 int ret = Numerics.stringAsInt(r1.value) / Numerics.stringAsInt(r2.value);
+                                 
+                                 res.value = Numerics.intAsString(ret) ;
+                                 res.type = "Int";
+                                // System.out.println(res.value + " ////////////////////");
+                                 
+                             
+                         }else {
+                             if(Numerics.isFloat(r1.value)){
+                                  float ret = Numerics.stringAsFloat(r1.value) / Numerics.stringAsFloat(r2.value);
+                                 
+                                 res.value = Numerics.floatAsString(ret) ;
+                                 res.type = "Float";
+                                 //System.out.println(res.value + " ^^^^^^^^^^^");
+                                 
+                             
+                             }
+                             
+                         }
+                         }
+                        // System.out.println(r1.value + " " + r2.value + " ^^^^^^^^^^");
+                       scan.getNext();
                      }
                 break;
                 case "-":
@@ -214,11 +314,39 @@ public class Parser {
                          System.out.println("Error, expected an operand");
                          System.exit(-1);
                      }else{
-                         second = scan.currentToken.tokenStr;
-                         if(bRun)
-                            System.out.println("Need to subtract " + second + " from " + first + " and return it");
-                         scan.getNext();
+                         
+                         second = scan.currentToken;
+                         resultValue r1;
+                         r1 = Operand(first);
+                         resultValue r2;
+                         r2 = Operand(second);
+                         if(bRun){
+                         if( Numerics.isInt(r1.value)){
+                            
+                                 int ret = Numerics.stringAsInt(r1.value) - Numerics.stringAsInt(r2.value);
+                                 
+                                 res.value = Numerics.intAsString(ret) ;
+                                 res.type = "Int";
+                                // System.out.println(res.value + " ////////////////////");
+                                 
+                             
+                         }else {
+                             if(Numerics.isFloat(r1.value)){
+                                  float ret = Numerics.stringAsFloat(r1.value) - Numerics.stringAsFloat(r2.value);
+                                 
+                                 res.value = Numerics.floatAsString(ret) ;
+                                 res.type = "Float";
+                                 //System.out.println(res.value + " ^^^^^^^^^^^");
+                                 
+                             
+                             }
+                             
+                         }
+                         }
+                        // System.out.println(r1.value + " " + r2.value + " ^^^^^^^^^^");
+                       scan.getNext();
                      }
+                
                 break;
                 case "==":
                     scan.getNext();
@@ -226,11 +354,47 @@ public class Parser {
                          System.out.println("Error, expected an operand");
                          System.exit(-1);
                      }else{
-                         second = scan.currentToken.tokenStr;
-                         if(bRun)
-                            System.out.println("Need to check equality of " + first + " and " + second + " and return True or Flase");
-                         scan.getNext();
-                     }
+                     
+                         second = scan.currentToken;
+                         resultValue r1;
+                         r1 = Operand(first);
+                         resultValue r2;
+                         r2 = Operand(second);
+                         if(bRun){
+                         if( r1.type.equals("Int")){            
+                                if(Numerics.stringAsInt(r1.value) == Numerics.stringAsInt(r2.value)){
+                                   res.value = "T";   
+                                }else{
+                                    res.value = "F";
+                                } 
+                                 res.type = "Boolean";
+                                 res.structure = "primative";      
+                         }else {
+                             if(r1.type.equals("Float")){
+                                 
+                                 if( Numerics.stringAsFloat(r1.value) == Numerics.stringAsFloat(r2.value)){
+                                      res.value = "T";
+                                 }else{
+                                      res.value = "F";
+                                 }          
+                                 res.structure = "Primative";
+                                 res.type = "Float";                 
+                             }else{
+                                 if(r1.type.equals("String")){
+                                    if(r1.value.compareTo(r2.value) == 0){
+                                        res.value = "T";
+                                    }else{
+                                         res.value = "F";
+                                    }
+                                 res.structure = "Primative";
+                                 res.type = "String";    
+                                 }
+                             }
+                             
+                         }
+                         }
+                    }
+                    scan.getNext();
                 break;
                 case "!=":
                     scan.getNext();
@@ -238,11 +402,47 @@ public class Parser {
                          System.out.println("Error, expected an operand");
                          System.exit(-1);
                      }else{
-                         second = scan.currentToken.tokenStr;
-                         if(bRun)
-                            System.out.println("Need to check inequality of " + first + " and " + second + " and return True or Flase");
-                         scan.getNext();
-                     }
+                     
+                         second = scan.currentToken;
+                         resultValue r1;
+                         r1 = Operand(first);
+                         resultValue r2;
+                         r2 = Operand(second);
+                         if(bRun){
+                         if( r1.type.equals("Int")){            
+                                if(Numerics.stringAsInt(r1.value) != Numerics.stringAsInt(r2.value)){
+                                   res.value = "T";   
+                                }else{
+                                    res.value = "F";
+                                } 
+                                 res.type = "Boolean";
+                                 res.structure = "primative";      
+                         }else {
+                             if(r1.type.equals("Float")){
+                                 
+                                 if( Numerics.stringAsFloat(r1.value) != Numerics.stringAsFloat(r2.value)){
+                                      res.value = "T";
+                                 }else{
+                                      res.value = "F";
+                                 }          
+                                 res.structure = "Primative";
+                                 res.type = "Float";                 
+                             }else{
+                                 if(r1.type.equals("String")){
+                                    if(r1.value.compareTo(r2.value) != 0){
+                                        res.value = "T";
+                                    }else{
+                                         res.value = "F";
+                                    }
+                                 res.structure = "Primative";
+                                 res.type = "String";    
+                                 }
+                             }
+                             
+                         }
+                         }
+                    }
+                    scan.getNext();
                 break;
                 case "+":
                      scan.getNext();
@@ -250,47 +450,231 @@ public class Parser {
                          System.out.println("Error, expected an operand");
                          System.exit(-1);
                      }else{
-                         second = scan.currentToken.tokenStr;
-                         if(bRun)
-                            System.out.println("Need to add " + first + " and " + second + " and return it");
-                         scan.getNext();
+                         
+                         second = scan.currentToken;
+                         resultValue r1;
+                         r1 = Operand(first);
+                         resultValue r2;
+                         r2 = Operand(second);
+                         if(bRun){
+                         if( Numerics.isInt(r1.value)){
+                            
+                                 int ret = Numerics.stringAsInt(r1.value) + Numerics.stringAsInt(r2.value);
+                                 
+                                 res.value = Numerics.intAsString(ret) ;
+                                 res.type = "Int";
+                                // System.out.println(res.value + " ////////////////////");
+                                 
+                             
+                         }else {
+                             if(Numerics.isFloat(r1.value)){
+                                  float ret = Numerics.stringAsFloat(r1.value) + Numerics.stringAsFloat(r2.value);
+                                 
+                                 res.value = Numerics.floatAsString(ret) ;
+                                 res.type = "Float";
+                                 //System.out.println(res.value + " ^^^^^^^^^^^");
+                                 
+                             
+                             }
+                             
+                         }
+                         }
+                        // System.out.println(r1.value + " " + r2.value + " ^^^^^^^^^^");
+                       scan.getNext();
                      }
+                
                 break;
                 case ">=":
-                     scan.getNext();
-                     if(scan.currentToken.primClassif != Token.OPERAND){
+                    scan.getNext();
+                    if(scan.currentToken.primClassif != Token.OPERAND){
                          System.out.println("Error, expected an operand");
                          System.exit(-1);
                      }else{
-                         second = scan.currentToken.tokenStr;
-                         if(bRun)
-                            System.out.println("Need to check if " + first + " is greater than or equal to " + second + " and return Ture or False");
-                         scan.getNext();
-                     }
+                     
+                         second = scan.currentToken;
+                         resultValue r1;
+                         r1 = Operand(first);
+                         resultValue r2;
+                         r2 = Operand(second);
+                         if(bRun){
+                         if( r1.type.equals("Int")){            
+                                if(Numerics.stringAsInt(r1.value) >= Numerics.stringAsInt(r2.value)){
+                                   res.value = "T";   
+                                }else{
+                                    res.value = "F";
+                                } 
+                                 res.type = "Boolean";
+                                 res.structure = "primative";      
+                         }else {
+                             if(r1.type.equals("Float")){
+                                 
+                                 if( Numerics.stringAsFloat(r1.value) >= Numerics.stringAsFloat(r2.value)){
+                                      res.value = "T";
+                                 }else{
+                                      res.value = "F";
+                                 }          
+                                 res.structure = "Primative";
+                                 res.type = "Float";                 
+                             }else{
+                                 if(r1.type.equals("String")){
+                                    if(r1.value.compareTo(r2.value) >= 0){
+                                        res.value = "T";
+                                    }else{
+                                         res.value = "F";
+                                    }
+                                 res.structure = "Primative";
+                                 res.type = "String";    
+                                 }
+                             }
+                             
+                         }
+                         }
+                    }
+                    scan.getNext();
                 break;
                 case "<=":
-                     scan.getNext();
-                     if(scan.currentToken.primClassif != Token.OPERAND){
+                    scan.getNext();
+                    if(scan.currentToken.primClassif != Token.OPERAND){
                          System.out.println("Error, expected an operand");
                          System.exit(-1);
                      }else{
-                         second = scan.currentToken.tokenStr;
-                         if(bRun)
-                            System.out.println("Need to check if " + first + " is less than or equal to " + second + " and return Ture or False");
-                         scan.getNext();
-                     }
+                     
+                         second = scan.currentToken;
+                         resultValue r1;
+                         r1 = Operand(first);
+                         resultValue r2;
+                         r2 = Operand(second);
+                         if(bRun){
+                         if( r1.type.equals("Int")){            
+                                if(Numerics.stringAsInt(r1.value) <= Numerics.stringAsInt(r2.value)){
+                                   res.value = "T";   
+                                }else{
+                                    res.value = "F";
+                                } 
+                                 res.type = "Boolean";
+                                 res.structure = "primative";      
+                         }else {
+                             if(r1.type.equals("Float")){
+                                 
+                                 if( Numerics.stringAsFloat(r1.value) <= Numerics.stringAsFloat(r2.value)){
+                                      res.value = "T";
+                                 }else{
+                                      res.value = "F";
+                                 }          
+                                 res.structure = "Primative";
+                                 res.type = "Float";                 
+                             }else{
+                                 if(r1.type.equals("String")){
+                                    if(r1.value.compareTo(r2.value) <= 0){
+                                        res.value = "T";
+                                    }else{
+                                         res.value = "F";
+                                    }
+                                 res.structure = "Primative";
+                                 res.type = "String";    
+                                 }
+                             }
+                             
+                         }
+                         }
+                    }
+                    scan.getNext();
                 break;
                 case "<":
-                     scan.getNext();
-                     if(scan.currentToken.primClassif != Token.OPERAND){
+                    scan.getNext();
+                    if(scan.currentToken.primClassif != Token.OPERAND){
                          System.out.println("Error, expected an operand");
                          System.exit(-1);
                      }else{
-                         second = scan.currentToken.tokenStr;
-                         if(bRun)
-                            System.out.println("Need to check if " + first + " is less than " + second + " and return Ture or False");
-                         scan.getNext();
-                     }
+                     
+                         second = scan.currentToken;
+                         resultValue r1;
+                         r1 = Operand(first);
+                         resultValue r2;
+                         r2 = Operand(second);
+                         if(bRun){
+                         if( r1.type.equals("Int")){            
+                                if(Numerics.stringAsInt(r1.value) < Numerics.stringAsInt(r2.value)){
+                                   res.value = "T";   
+                                }else{
+                                    res.value = "F";
+                                } 
+                                 res.type = "Boolean";
+                                 res.structure = "primative";      
+                         }else {
+                             if(r1.type.equals("Float")){
+                                 
+                                 if( Numerics.stringAsFloat(r1.value) < Numerics.stringAsFloat(r2.value)){
+                                      res.value = "T";
+                                 }else{
+                                      res.value = "F";
+                                 }          
+                                 res.structure = "Primative";
+                                 res.type = "Float";                 
+                             }else{
+                                 if(r1.type.equals("String")){
+                                    if(r1.value.compareTo(r2.value) < 0){
+                                        res.value = "T";
+                                    }else{
+                                         res.value = "F";
+                                    }
+                                 res.structure = "Primative";
+                                 res.type = "String";    
+                                 }
+                             }
+                             
+                         }
+                         }
+                    }
+                    scan.getNext();
+                break;
+                case ">":
+                    scan.getNext();
+                    if(scan.currentToken.primClassif != Token.OPERAND){
+                         System.out.println("Error, expected an operand");
+                         System.exit(-1);
+                     }else{
+                     
+                         second = scan.currentToken;
+                         resultValue r1;
+                         r1 = Operand(first);
+                         resultValue r2;
+                         r2 = Operand(second);
+                         if(bRun){
+                         if( r1.type.equals("Int")){            
+                                if(Numerics.stringAsInt(r1.value) > Numerics.stringAsInt(r2.value)){
+                                   res.value = "T";   
+                                }else{
+                                    res.value = "F";
+                                } 
+                                 res.type = "Boolean";
+                                 res.structure = "primative";      
+                         }else {
+                             if(r1.type.equals("Float")){
+                                 
+                                 if( Numerics.stringAsFloat(r1.value) > Numerics.stringAsFloat(r2.value)){
+                                      res.value = "T";
+                                 }else{
+                                      res.value = "F";
+                                 }          
+                                 res.structure = "Primative";
+                                 res.type = "Float";                 
+                             }else{
+                                 if(r1.type.equals("String")){
+                                    if(r1.value.compareTo(r2.value) > 0){
+                                        res.value = "T";
+                                    }else{
+                                         res.value = "F";
+                                    }
+                                 res.structure = "Primative";
+                                 res.type = "String";    
+                                 }
+                             }
+                             
+                         }
+                         }
+                    }
+                    scan.getNext();
                 break;
             }
         }else{
@@ -300,26 +684,96 @@ public class Parser {
             // if(scan.currentToken.tokenStr.equals(",") |scan.currentToken.tokenStr.equals(")")
             //        | scan.currentToken.tokenStr.equals(";")){
             if(scan.currentToken.primClassif == Token.SEPARATOR){
-                Operand(first);
+                if(bRun){
+                  res = Operand(first);
+                  return res;
+                }
             }else{
                 System.out.println("Error expected a separator");
                 System.exit(-1);
             }
         }
-
+     return res;
     }
-    void Operand(String first){
-        if(first.matches("-.*")){
+    resultValue Operand(Token first){
+        resultValue result = new resultValue();
+        if(first.tokenStr.matches("-.*")){
 
                    String[] mSplit;
-                   mSplit = first.split("-");
-                   first = mSplit[1];
-                   if(bRun)
-                     System.out.println("Need to get value of " + first + " negate it, and return it");
-                }else{
-                   if(bRun)
-                     System.out.println("Need to get value of " + first + " and return it");
+                   mSplit = first.tokenStr.split("-");
+                   first.tokenStr = mSplit[1];
+                   if(bRun){
+                       resultValue negative = Operand(first);
+                       if(Numerics.isInt(negative.value)) {
+                           result.type = "Int";
+                           result.structure = "Primative";
+                           result.value = "-" + negative.value;
+                       }else{
+                          if(Numerics.isFloat(negative.value)){
+                             result.type = "Float";
+                             result.structure = "Primative";
+                             result.value = "-" + negative.value;  
+                           
+                          }else
+                          {
+                              if(negative.value.equals("T")){
+                                  result.type = "Bool";
+                                  result.structure = "Primative";
+                                  result.value = "F";
+                              }else{
+                                  if(negative.value.equals("F")){
+                                  result.type = "Bool";
+                                  result.structure = "Primative";
+                                  result.value = "T";
+                              }
+                          }
+                       }
+                   
+                   }
+                   }
+                  //   System.out.println("Need to get value of " + first + " negate it, and return it");
+        }else{
+                   if(bRun){
+                       
+                     if(first.subClassif == Token.IDENTIFIER){
+                         // Class = (STIdentifier)sbTable.lookupSym(first).;
+                       // System.out.println(sbTable.lookupSym(first).);
+                          SMValue temp = sbTable.getStorageManager().get((STIdentifier)sbTable.lookupSym(first));
+                         
+                          //sbTable.getStorageManager().get((STIdentifier)sbTable.lookupSym(first));
+            
+                                 result.structure = "primative";
+                                 result.value = temp.getString();
+                                 result.type = ((STIdentifier) sbTable.lookupSym(first)).getDeclared().getSymbol();
+                     }else{
+                         switch(first.subClassif){
+                             case Token.BOOLEAN:
+                                 result.structure = "primative";
+                                 result.value = first.tokenStr;
+                                 result.type = "Bool";
+                             break;
+                             case Token.INTEGER:
+                                 result.structure = "primative";
+                                 result.value = first.tokenStr;
+                                 result.type = "Int";
+                             break;
+                             case Token.FLOAT:
+                                 result.structure = "primative";
+                                 result.value = first.tokenStr;
+                                 result.type = "FLOAT";
+                             break;  
+                              case Token.STRING:
+                                 result.structure = "primative";
+                                 result.value = first.tokenStr;
+                                 result.type = "FLOAT";
+                             break;  
+                         }
+                         //if(first.primClassif)
+                    // System.out.println("Need to get value of*** " + first.tokenStr + " and return it");
+                     }
+                   }
                 }
+        return result;
     }
     void evalFunction()throws IOException, errorCatch{
         switch(scan.currentToken.subClassif){
@@ -343,11 +797,13 @@ public class Parser {
                if(scan.currentToken.subClassif != Token.IDENTIFIER){
                    //scan.currentToken.printToken();
                    if(bRun)
-                      System.out.print(Escapes.generateEscapeSequences(scan.currentToken.tokenStr));
+                       if(!scan.currentToken.tokenStr.equals(","))
+                           System.out.print(Escapes.generateEscapeSequences(scan.currentToken.tokenStr) + " ");
                }else{
-                   simpleExpression();
-                   if(bRun)
-                      System.out.println("Need to print what is returned by simpleExpression");
+                  resultValue print;
+                  print = simpleExpression();
+                  if(bRun)
+                     System.out.print(print.value  + " ");
                }
 
                //put this here to prevent one to many advances
@@ -372,6 +828,7 @@ public class Parser {
     //assumes if statement
     void ifStatement() throws IOException, errorCatch{
             Boolean bSwitch;
+  
 
             if(bRun){
                 bSwitch = true;
@@ -380,14 +837,18 @@ public class Parser {
             }
 
             scan.getNext();
-            simpleExpression();
+            resultValue check;
+            check = simpleExpression();
+            if(check.value.equals("F")){
+                bRun = false;
+            } 
             if(scan.currentToken.tokenStr.equals(":")){
                 scan.getNext();
                 //System.out.println("For now, will always do statements, need to check if it will actually do them first");
                 while(scan.currentToken.subClassif != Token.END){
                    statement();
                   if(scan.currentToken.tokenStr.equals("else")){
-                      System.out.println("Found else switch run mode if switch is permited");
+                    //  System.out.println("Found else switch run mode if switch is permited");
                       scan.getNext();
                       if(bSwitch)
                           bRun = !bRun;
@@ -419,25 +880,38 @@ public class Parser {
     //assumes whule is current token
     void whileStatement() throws IOException, errorCatch{
         int line = scan.currentToken.iSourceLineNr;
+        
         scan.getNext();
-        simpleExpression();
+        resultValue test;
+        test = simpleExpression();
+        if(test.value.equals("F")){
+                bRun = false;
+        }
         if(scan.currentToken.tokenStr.equals(":")){
             scan.getNext();
             while(!scan.currentToken.tokenStr.equals("endwhile")) {
                 statement();
            }
-           if(btest){
-               btest = false;
-               System.out.println("Srcond while ------------\n\n");
-               scan.setLine(line);
-           }
+            
+          
            if(scan.currentToken.tokenStr.equals("endwhile")){
-               scan.getNext();
+               if(bRun){
+                   scan.setLine(line);
+                  
+               }else{
+                   scan.getNext();
+                  
+               }
            }
         }else{
             System.out.println("Error expected a :");
             System.exit(-1);
         }
+        if(test.value.equals("F")){
+                bRun = true;
+        }
+        
+       
     }
 
 }

@@ -3,6 +3,7 @@ package havabol.storage;
 import havabol.*;
 import havabol.classify.*;
 import havabol.sym.*;
+import havabol.util.*;
 
 public class SMValue {
 
@@ -19,6 +20,10 @@ public class SMValue {
     }
 
     public int getInt() {
+        if ( this.value instanceof String ) {
+            return Numerics.stringAsInt((String) this.value);
+        }
+
         return (int) this.value;
     }
 
@@ -27,6 +32,10 @@ public class SMValue {
     }
 
     public float getFloat() {
+        if ( this.value instanceof String ) {
+            return Numerics.stringAsFloat((String) this.value);
+        }
+
         return (float) this.value;
     }
 
