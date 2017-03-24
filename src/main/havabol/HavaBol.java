@@ -17,6 +17,7 @@
  */
 package havabol;
 
+import havabol.util.debugObj;
 import java.util.*;
 
 public class HavaBol
@@ -35,16 +36,16 @@ public class HavaBol
                     , "primClassif"
                     , "subClassif"
                     , "tokenStr");
-*/
-            Scanner scan = new Scanner(args[0], symbolTable);
-            Parser parse = new Parser(symbolTable, scan);
-            while (! scan.currentToken.tokenStr.equals(""))
+*/          debugObj debugy = new debugObj();
+            Scanner scan = new Scanner(args[0], symbolTable, debugy);
+            Parser parse = new Parser(symbolTable, scan , debugy);
+            while (! scan.getNext().isEmpty())
             {
-                parse.statement();
-                //Token t = scan.currentToken;
-                //tokenList.add(t);
+                //parse.statement();
+                Token t = scan.currentToken;
+                tokenList.add(t);
 
-                //t.printToken();
+                t.printToken();
             }
         }
         catch (Exception e)

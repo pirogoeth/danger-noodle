@@ -6,6 +6,7 @@ import havabol.storage.SMValue;
 import havabol.sym.*;
 import havabol.util.Escapes;
 import havabol.util.Numerics;
+import havabol.util.debugObj;
 
 import java.io.IOException;
 
@@ -19,6 +20,7 @@ public class Parser {
     Scanner scan;
     Boolean bRun;
     boolean btest;
+    debugObj debug;
 
     /**
      * Uses the global symbol table if none is provided.
@@ -28,11 +30,12 @@ public class Parser {
          this.scan = scan;
     }
 
-    Parser(SymbolTable sbTable, Scanner scan){
+    Parser(SymbolTable sbTable, Scanner scan, debugObj debug){
          this.sbTable = sbTable;
          this.scan = scan;
          bRun = true;
          btest = true;
+         this.debug = debug;
     }
 
     /**

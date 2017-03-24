@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import havabol.util.Escapes;
+import havabol.util.debugObj;
 
 /**
  *
@@ -40,6 +41,7 @@ class Scanner{
     private final static String[] controlEnd = {"endif", "endwhile", "endfor"};        //control end values
     ArrayList <Token> tokenList = new ArrayList<>();
     ArrayList <String> lineList = new ArrayList<>();
+    debugObj debugy;
     /**
      * Constructor for the scanner object
      * <p>
@@ -49,7 +51,7 @@ class Scanner{
      * @throws IOException  throws an error if trouble reading from file
      *
      */
-    Scanner(String sourceFileNm, SymbolTable symbolTable) throws IOException, errorCatch {
+    Scanner(String sourceFileNm, SymbolTable symbolTable, debugObj debug) throws IOException, errorCatch {
 
       this.symbolTable = symbolTable;       //Symbol table
       this.sourceFileNm = sourceFileNm;     //stores the file name
@@ -61,6 +63,7 @@ class Scanner{
       readFile();                               //Get the lines from the file
       textLineM = getLine();                    //get a line to store for scanning later
       this.getNext();
+      this.debugy = debug;
     }
 
     /**
@@ -136,6 +139,9 @@ class Scanner{
 
 
        tokenList.add(currentToken);
+      // if(debugy.bShowToken){
+      //     currentToken.printToken();
+      // }
        return currentToken.tokenStr;
     }
 
