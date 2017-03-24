@@ -14,10 +14,21 @@ public class debugObj {
     public boolean bShowExpr;
     public boolean bShowAssign;
     
-    public debugObj(){
+    private static debugObj instance;
+
+    public static debugObj get() {
+        if ( instance == null ) {
+            return new debugObj();
+        }
+
+        return instance;
+    }
+
+    private debugObj(){
         bShowToken = false;
         bShowExpr = false;
         bShowAssign = false;
 
+        instance = this;
     }
 }
