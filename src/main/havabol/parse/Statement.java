@@ -4,7 +4,7 @@ import havabol.Token;
 
 import java.util.*;
 
-public class Statement implements Validate {
+public class Statement implements ParseElement {
 
     private Assignment assign = null;
     private Declaration decl = null;
@@ -28,15 +28,19 @@ public class Statement implements Validate {
                  this.assign != null );
     }
 
-    public void print() {
-        System.out.println("Statement ~~>");
+    public String debug() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Statement ~~>\n");
         if ( this.decl != null ) {
-            this.decl.print();
+            sb.append("  " + this.decl.debug());
         } else if ( this.expr != null ) {
-            this.expr.print();
+            sb.append("  " + this.expr.debug());
         } else if ( this.assign != null ) {
-            this.assign.print();
+            sb.append("  " + this.assign.debug());
         }
+
+        return sb.toString();
     }
 
 }

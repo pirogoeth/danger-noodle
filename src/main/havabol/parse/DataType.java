@@ -4,7 +4,7 @@ import havabol.Token;
 
 import java.util.*;
 
-public class DataType implements Validate {
+public class DataType implements ParseElement {
 
     private Token typeToken;
 
@@ -24,13 +24,8 @@ public class DataType implements Validate {
         }
     }
 
-    public void print() {
-        System.out.println(
-                String.format(
-                    "  DataType ~> `%s`"
-                    ,this.typeToken.tokenStr
-                )
-        );
+    public String debug() {
+        return String.format("DataType ~> `%s`\n", this.typeToken.tokenStr);
     }
 
 }

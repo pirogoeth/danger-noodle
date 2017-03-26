@@ -4,7 +4,7 @@ import havabol.Token;
 
 import java.util.*;
 
-public class Declaration implements Validate {
+public class Declaration implements ParseElement {
 
     private DataType dt = null;
     private Identifier ident = null;
@@ -18,10 +18,14 @@ public class Declaration implements Validate {
         return dt != null && ident != null;
     }
 
-    public void print() {
-        System.out.println("Declaration ~>");
-        this.dt.print();
-        this.ident.print();
+    public String debug() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Declaration ~>\n");
+        sb.append("  " + this.dt.debug());
+        sb.append("  " + this.ident.debug());
+
+        return sb.toString();
     }
 
 }
