@@ -7,11 +7,17 @@ import java.util.*;
 public class Statement implements ParseElement {
 
     private Assignment assign = null;
+    private Block block = null;
     private Declaration decl = null;
     private Expression expr = null;
+    private FlowControl flow = null;
 
     public Statement(Assignment assign) {
         this.assign = assign;
+    }
+
+    public Statement(Block b) {
+        this.block = b;
     }
 
     public Statement(Declaration decl) {
@@ -22,10 +28,16 @@ public class Statement implements ParseElement {
         this.expr = expr;
     }
 
+    public Statement(FlowControl flow) {
+        this.flow = flow;
+    }
+
     public boolean isValid() {
-        return ( this.decl != null ||
-                 this.expr != null ||
-                 this.assign != null );
+        return ( this.decl != null && this.decl.isValid() ) ||
+               ( this.expr != null && this.expr.isValid() ) ||
+               ( this.assign != null && this.assign.isValid() ) ||
+               ( this.flow != null && this.flow.isValid() ) ||
+               ( this.block != null && this.block.isValid() );
     }
 
     public String debug() {
@@ -38,6 +50,10 @@ public class Statement implements ParseElement {
             sb.append("  " + this.expr.debug());
         } else if ( this.assign != null ) {
             sb.append("  " + this.assign.debug());
+        } else if ( this.flow != null ) {
+            sb.append("  " + this.flow.debug());
+        } else if ( this.block != null ) {
+            sb.append("  " + this.block.debug());
         }
 
         return sb.toString();

@@ -5,6 +5,7 @@ import havabol.Scanner;
 import havabol.SymbolTable;
 import havabol.classify.*;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -88,6 +89,21 @@ public class Parser {
     // TOKEN MANGLEMENT
 
     /**
+     * Check the token value of the next thingle.
+     */
+    private boolean isNext(String s) {
+        return this.isNext(this.tokens, s);
+    }
+
+    private boolean isNext(List<Token>t, String s) {
+        if ( this.peekNext(t).tokenStr.equals(s) ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Forces the parser to eat the next token.
      */
     private void eatNext() {
@@ -97,6 +113,35 @@ public class Parser {
     // Yeah this uses raw types, I know :(
     private void eatNext(List<Token> l) {
         l.remove(0);
+    }
+
+    /**
+     * Conditional eat.
+     */
+    private boolean eatNextIfOfType(Primary prim, Subclass sub) {
+        return this.eatNextIfOfType(this.tokens, prim, sub);
+    }
+
+    private boolean eatNextIfOfType(List<Token> l, Primary prim, Subclass sub) {
+        if ( tokenType(this.peekNext(l), prim, sub) ) {
+            this.eatNext(l);
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean eatNextIfEq(String s) {
+        return this.eatNextIfEq(this.tokens, s);
+    }
+
+    private boolean eatNextIfEq(List<Token> l, String s) {
+        if ( this.isNext(l, s) ) {
+            this.eatNext(l);
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -175,7 +220,7 @@ public class Parser {
         Expression expr = null;
         switch (Primary.primaryFromInt(t.primClassif)) {
             case CONTROL:
-                return this.parseControl(this.popNext());
+                return this.parseControl(t);
             case OPERAND:
                 expr = this.parseExpression(this.popStatement());
                 if ( !expr.isValid() ) {
@@ -212,10 +257,11 @@ public class Parser {
     private Statement parseControl(Token head) throws ParserException {
         switch (Subclass.subclassFromInt(head.subClassif)) {
             case FLOW:
-                return null;
+                return new Statement(this.parseFlowControl(this.popUntil(":")));
             case END:
                 return null;
             case DECLARE:
+                this.eatNext();
                 return this.parseDeclaration(head);
             default:
                 this.reportParseError(
@@ -225,6 +271,88 @@ public class Parser {
                 return null;
         }
 
+    }
+
+    private FlowControl parseFlowControl(List<Token> tokens) throws ParserException {
+        // At this point, the next token should be the flow delimiter.
+        this.eatNextIfEq(":");
+
+        Token flowT = this.popNext(tokens);
+
+        Expression cond;
+        Block mainBranch;
+        switch (flowT.tokenStr) {
+            case "if":
+                cond = this.parseExpression(tokens);
+                mainBranch = this.parseBlock("else", "endif");
+                Block elseBranch = null;
+
+                if ( this.isNext("else") ) {
+                    this.eatNext();
+                    this.eatNextIfEq(":");
+                    elseBranch = this.parseBlock("endif");
+                }
+
+                if ( ! this.eatNextIfEq("endif") ) {
+                    this.reportParseError(
+                            "If statement has no matching endif",
+                            flowT
+                    );
+                    return null;
+                } else {
+                    if ( ! this.eatNextIfEq(";") ) {
+                        this.reportParseError(
+                                "Unterminated end-statement",
+                                flowT
+                        );
+                        return null;
+                    }
+                }
+
+                IfControl ifStmt = new IfControl(cond, mainBranch, elseBranch);
+                return new FlowControl(ifStmt);
+            case "while":
+                cond = this.parseExpression(tokens);
+                mainBranch = this.parseBlock("endwhile");
+
+                if ( ! this.eatNextIfEq("endwhile") ) {
+                    this.reportParseError(
+                            "While statement has no matching endwhile",
+                            flowT
+                    );
+                    return null;
+                } else {
+                    if ( ! this.eatNextIfEq(";") ) {
+                        this.reportParseError(
+                                "Unterminated end-statement",
+                                flowT
+                        );
+                        return null;
+                    }
+                }
+
+                WhileControl whileStmt = new WhileControl(cond, mainBranch);
+                return new FlowControl(whileStmt);
+            case "for":
+                // do the thing
+                break;
+            case "select":
+                // do the thing
+                break;
+            default:
+                // wat
+                this.reportParseError(
+                        "Invalid control flow token",
+                        flowT
+                );
+                return null;
+        }
+
+        this.reportParseError(
+                "Flow control parser fell out of case",
+                flowT
+        );
+        return null;
     }
 
     private Statement parseDeclaration(Token head) throws ParserException {
@@ -298,33 +426,6 @@ public class Parser {
         return a;
     }
 
-    private BinaryOperation parseBinaryOperation(Token lhs, Token operator) throws ParserException {
-        Token rhs = this.popNext();
-
-        if ( tokenType(lhs, Primary.OPERAND, Subclass.IDENTIFIER) &&
-             tokenType(operator, Primary.OPERATOR, null) ) {
-
-            Expression lhsExpr = new Expression(lhs);
-            Operator operatorExpr = new Operator(operator);
-            Expression rhsExpr = new Expression(rhs);
-
-            BinaryOperation binOp = new BinaryOperation(lhsExpr, operatorExpr, rhsExpr);
-            if ( binOp.isValid() ) {
-                return binOp;
-            }
-
-            this.reportParseError(
-                    "Binary operator is invalid",
-                    lhs,
-                    operator,
-                    rhs
-            );
-            return null;
-        }
-
-        return null;
-    }
-
     private FunctionCall parseFunctionCall(List<Token> tokens) throws ParserException {
         Token handle = this.popNext(tokens);
 
@@ -384,6 +485,25 @@ public class Parser {
         }
 
         return null;
+    }
+
+    private Block parseBlock(String...until) throws ParserException {
+        List<String> delim = Arrays.asList(until);
+        List<Statement> stmts = new ArrayList<>();
+
+        while ( ! delim.contains(this.peekNext().tokenStr) ) {
+            Statement s = this.parse();
+            if ( s == null ) {
+                this.reportParseError(
+                        "Block parser encountered a null statement",
+                        this.peekNext()
+                );
+                break;
+            }
+            stmts.add(s);
+        }
+
+        return new Block(stmts);
     }
 
     private Expression parseExpression(List<Token> arg) throws ParserException {

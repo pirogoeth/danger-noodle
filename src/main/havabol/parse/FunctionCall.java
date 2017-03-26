@@ -16,18 +16,9 @@ public class FunctionCall implements ParseElement {
     }
 
     public boolean isValid() {
-        boolean argsListValid = true;
-        for ( Expression expr : this.argsList ) {
-            if ( expr.isValid() && argsListValid ) {
-                continue;
-            } else if ( !expr.isValid() && argsListValid ) {
-                argsListValid = false;
-            } else if ( !argsListValid ) {
-                break;
-            }
-        }
-
-        return this.functionName.isValid() && argsListValid;
+        return this.functionName.isValid() && this.argsList.stream()
+            .map(expr -> expr.isValid())
+            .reduce(true, (a, b) -> a && b);
     }
 
     public String debug() {
