@@ -13,3 +13,44 @@ print("And then some basic cock math: " # f * i);
 String s = "this" #
             "is" #
              "multiline";
+
+if i != 10:
+  print("i is not 10 but should it be?");
+  print("doot doot");
+  print("thanks mr skeltal");
+else:
+  print("something went horribly right");
+endif;
+
+while i >= 10:
+  print("derp");
+endwhile;
+
+// nested while
+while i >= 2:
+  while 3 > 2:
+    print("lawl");
+  endwhile;
+endwhile;
+
+// nested if
+if i == 10:
+  if f == 4.5:
+    print("yup");
+  else:
+    if i == f:
+      print("uh no");
+    endif;
+  endif;
+endif;
+
+// arrays
+Int thing[10] = 10, 20, 30, 40;
+for val in thing:
+  print("\t", val);
+endfor;
+
+// extended for loops
+for i = 0 to ELEM(thing):
+  print("\t", [thing i]);
+endfor;

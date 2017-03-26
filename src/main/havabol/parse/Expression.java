@@ -66,11 +66,11 @@ public class Expression implements ParseElement {
     }
 
     public boolean isValid() {
-        return ( ( this.binOp != null && this.binOp.isValid() ) ||
-                 ( this.ident != null && this.ident.isValid() ) ||
-                 ( this.primitive != null && this.primitive.isValid() ) ||
-                 ( this.functionCall != null && this.functionCall.isValid() ) ||
-                 ( this.assignment != null && this.assignment.isValid() ) );
+        return ( this.binOp != null && this.binOp.isValid() ) ||
+               ( this.ident != null && this.ident.isValid() ) ||
+               ( this.primitive != null && this.primitive.isValid() ) ||
+               ( this.functionCall != null && this.functionCall.isValid() ) ||
+               ( this.assignment != null && this.assignment.isValid() );
     }
 
     public String debug() {
