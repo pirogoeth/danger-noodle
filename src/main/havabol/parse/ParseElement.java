@@ -4,9 +4,9 @@ import havabol.Token;
 
 import java.util.*;
 
-public interface Validate {
+public interface ParseElement {
 
     boolean isValid();
-    void print();
+    String debug();
 
 }

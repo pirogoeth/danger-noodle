@@ -33,10 +33,17 @@ public class ParserTest
             e.printStackTrace();
         }
 
-        Parser p = new Parser(tokenList);
-        while ( p.canParse() ) {
-            Statement s = p.parse();
-            s.print();
+        System.out.println("\n -- LEXING FINISHED -- \n");
+
+        try
+        {
+            Parser p = new Parser(tokenList);
+            while ( p.canParse() ) {
+                Statement s = p.parse();
+                System.out.println(s.debug());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

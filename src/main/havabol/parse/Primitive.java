@@ -6,7 +6,7 @@ import havabol.util.*;
 
 import java.util.*;
 
-public class Primitive implements Validate {
+public class Primitive implements ParseElement {
 
     private static boolean isBool(Token t) {
         if ( ! Parser.tokenType(t, Primary.OPERAND, Subclass.BOOLEAN) ) {
@@ -43,12 +43,7 @@ public class Primitive implements Validate {
                  isString(this.primToken) );
     }
 
-    public void print() {
-        System.out.println(
-                String.format(
-                    "  Primitive ~> `%s`",
-                    this.primToken.tokenStr
-                )
-        );
+    public String debug() {
+        return String.format("Primitive ~> `%s`\n", this.primToken.tokenStr);
     }
 }

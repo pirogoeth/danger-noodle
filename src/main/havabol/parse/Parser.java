@@ -6,7 +6,28 @@ import havabol.SymbolTable;
 import havabol.classify.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+class ParserException extends Exception {
+
+    public long serialVersionUid = 1000000L;
+    private Token[] tokens;
+
+    public ParserException(String message) {
+        super(message);
+    }
+
+    public ParserException(String message, Token...contexts) {
+        super(message);
+        this.tokens = contexts;
+    }
+
+    public Token[] getCausalTokens() {
+        return this.tokens;
+    }
+
+}
 
 /**
  * Parses tokens.
@@ -30,19 +51,38 @@ public class Parser {
 
     // ERROR MANGLEMENT
 
-    private void reportParseError(String message, Token...contexts) {
+    static void reportParseError(String message, Token...contexts) throws ParserException {
         String[] contextStr = new String[contexts.length];
 
         for (int i = 0; i < contextStr.length; i++) {
             Token t = contexts[i];
-            contextStr[i] = String.format(
-                    "[%s:%d:%d]: Near token `%s`",
-                    Scanner.getInstance().sourceFileNm,
-                    t.iSourceLineNr,
-                    t.iColPos,
-                    t.tokenStr
-            );
+            if ( t != null ) {
+                contextStr[i] = String.format(
+                        "[%s:%d:%d]: Near token `%s`",
+                        Scanner.getInstance().sourceFileNm,
+                        t.iSourceLineNr,
+                        t.iColPos,
+                        t.tokenStr
+                );
+            } else {
+                contextStr[i] = "[invalid] Null token given to error reporter";
+            }
         }
+
+        StringBuilder excSb = new StringBuilder();
+
+        for (String s : contextStr) {
+            excSb.append(s + "\n");
+        }
+
+        throw new ParserException(
+                String.format(
+                    "Parse error occurred: %s\n%s",
+                    message,
+                    excSb
+                ),
+                contexts
+        );
     }
 
     // TOKEN MANGLEMENT
@@ -54,6 +94,11 @@ public class Parser {
         this.tokens.remove(0);
     }
 
+    // Yeah this uses raw types, I know :(
+    private void eatNext(List<Token> l) {
+        l.remove(0);
+    }
+
     /**
      * Pops the next token off the array.
      *
@@ -63,13 +108,59 @@ public class Parser {
         return this.tokens.remove(0);
     }
 
+    private Token popNext(List<Token> l) {
+        return l.remove(0);
+    }
+
     /**
      * Allows for single lookahead of the next token without popping.
      *
      * @return Token
      */
     private Token peekNext() {
-        return this.tokens.get(0);
+        try {
+            return this.tokens.get(0);
+        } catch (IndexOutOfBoundsException ex) {
+            return null;
+        }
+    }
+
+    private Token peekNext(List<Token> l) {
+        try {
+            return l.get(0);
+        } catch (IndexOutOfBoundsException ex) {
+            return null;
+        }
+    }
+
+    /**
+     * Gets and returns a list of tokens up to statement end.
+     *
+     * @return List<Token>
+     */
+    private List<Token> popStatement() {
+        List<Token> tokens = this.popUntil(";");
+
+        this.eatNext();
+
+        return tokens;
+    }
+
+    private List<Token> popUntil(String delim) {
+        List<Token> tokens = new ArrayList<>();
+
+        while ( ! this.peekNext().tokenStr.equals(delim) ) {
+            tokens.add(this.popNext());
+        }
+
+        return tokens;
+    }
+
+    private void restoreTokens(List<Token> tokens) {
+        Collections.reverse(tokens);
+        for (Token t : tokens) {
+            this.tokens.add(0, t);
+        }
     }
 
     // PARSER MANGLEMENT
@@ -78,22 +169,22 @@ public class Parser {
         return !this.tokens.isEmpty();
     }
 
-    public Statement parse() {
-        Token t = this.popNext();
+    public Statement parse() throws ParserException {
+        Token t = this.peekNext();
 
         Expression expr = null;
         switch (Primary.primaryFromInt(t.primClassif)) {
             case CONTROL:
-                return this.parseControl(t);
+                return this.parseControl(this.popNext());
             case OPERAND:
-                expr = this.parseOperand(t);
+                expr = this.parseExpression(this.popStatement());
                 if ( !expr.isValid() ) {
                     // Expr not valid?
                     return null;
                 }
                 return new Statement(expr);
             case FUNCTION:
-                FunctionCall funcCall = this.parseFunctionCall(t);
+                FunctionCall funcCall = this.parseFunctionCall(this.popStatement());
                 if ( !funcCall.isValid() ) {
                     // Function call not valid?
                     return null;
@@ -110,111 +201,104 @@ public class Parser {
             case SEPARATOR:
                 return null;
             default:
-                System.out.println("fuck parsing");
+                this.reportParseError(
+                        "Could not further derive statement",
+                        t
+                );
                 return null;
         }
     }
 
-    private Statement parseControl(Token t) {
-        Token next = this.popNext();
-
-        switch (Subclass.subclassFromInt(t.subClassif)) {
+    private Statement parseControl(Token head) throws ParserException {
+        switch (Subclass.subclassFromInt(head.subClassif)) {
             case FLOW:
                 return null;
             case END:
                 return null;
             case DECLARE:
-                Statement decl = this.parseDeclaration(t, next);
-                if ( decl != null && tokenType(this.peekNext(), Primary.SEPARATOR, null) ) {
-                    // Eat the next token because it is a semicolon.
-                    this.eatNext();
-                }
-                return decl;
+                return this.parseDeclaration(head);
             default:
-                System.out.println("fuck control");
+                this.reportParseError(
+                        "Failed building control elements",
+                        head
+                );
                 return null;
         }
 
     }
 
-    private Expression parseOperand(Token t) {
-        Token next = this.popNext();
+    private Statement parseDeclaration(Token head) throws ParserException {
+        List<Token> tokens = this.popStatement();
 
-        switch (Subclass.subclassFromInt(t.subClassif)) {
-            case IDENTIFIER:
-                // <identifier> <operator> <identifier|const>
-                BinaryOperation binOp = this.parseBinaryOperation(t, next);
-                if ( binOp != null && tokenType(this.peekNext(), Primary.SEPARATOR, null) ) {
-                    // Eat the next token because it is a semicolon.
-                    this.eatNext();
-                }
-                return new Expression(binOp);
-            case FLOAT:
-            case INTEGER:
-            case STRING:
-            case BOOLEAN:
-                if ( Primary.primaryFromInt(next.primClassif) == Primary.SEPARATOR ) {
-                    return new Expression(t);
-                }
+        if ( tokenType(head, Primary.CONTROL, Subclass.DECLARE) &&
+             tokenType(this.peekNext(tokens), Primary.OPERAND, Subclass.IDENTIFIER) ) {
 
-                // XXX - Process a remaining expression here!
-            default:
-                System.out.println("fuck operands ");
-                return null;
-        }
-    }
+            Token next = this.popNext(tokens);
 
-    private Statement parseDeclaration(Token p1, Token p2) {
-        if ( tokenType(p1, Primary.CONTROL, Subclass.DECLARE) &&
-             tokenType(p2, Primary.OPERAND, Subclass.IDENTIFIER) ) {
-
-            DataType dt = new DataType(p1);
-            Identifier ident = new Identifier(p2);
+            DataType dt = new DataType(head);
+            Identifier ident = new Identifier(next);
             Declaration decl = new Declaration(dt, ident);
 
             // Peek at the next token to see if this is a compound declaration
-            Token next = this.peekNext();
-            if ( tokenType(next, Primary.OPERATOR, null) && next.tokenStr.equals("=") ) {
-                return new Statement(this.parseComplexDeclaration(p1, p2));
+            Token oper = this.peekNext(tokens);
+            if ( oper != null && oper.tokenStr.equals("=") ) {
+                tokens.add(0, next);
+                tokens.add(0, head);
+                return new Statement(this.parseComplexDeclaration(tokens));
             }
 
             if ( dt.isValid() && ident.isValid() && decl.isValid() ) {
                 return new Statement(decl);
             } else {
-                System.out.println("fuck validity");
+                this.reportParseError(
+                        "Declaration is invalid",
+                        head,
+                        next,
+                        oper
+                );
                 return null;
             }
         } else {
-            System.out.println("fuck declarations");
+            this.reportParseError(
+                    "Declaration is invalid",
+                    head
+            );
             return null;
         }
     }
 
-    private Assignment parseComplexDeclaration(Token typeT, Token identT) {
+    private Assignment parseComplexDeclaration(List<Token> tokens) throws ParserException {
+        Token typeT = this.popNext(tokens);
+        Token identT = this.popNext(tokens);
+
         DataType dtype = new DataType(typeT);
         Identifier ident = new Identifier(identT);
         Declaration decl = new Declaration(dtype, ident);
 
-        Token operatorT = this.popNext();
+        Token operatorT = this.popNext(tokens);
         Operator oper = null;
 
         if ( tokenType(operatorT, Primary.OPERATOR, null) && operatorT.tokenStr.equals("=") ) {
             oper = new Operator(operatorT);
         }
 
-        Token operandT = this.popNext();
-        Expression expr = this.parseOperand(operandT);
+        Expression expr = this.parseExpression(tokens);
 
         Assignment a = new Assignment(decl, oper, expr);
         if ( a == null || !a.isValid() ) {
-            System.out.println("fuck complex declarations");
+            this.reportParseError(
+                    "Declaration is invalid",
+                    typeT,
+                    identT,
+                    operatorT
+            );
             return null;
         }
 
         return a;
     }
 
-    private BinaryOperation parseBinaryOperation(Token lhs, Token operator) {
+    private BinaryOperation parseBinaryOperation(Token lhs, Token operator) throws ParserException {
         Token rhs = this.popNext();
 
         if ( tokenType(lhs, Primary.OPERAND, Subclass.IDENTIFIER) &&
@@ -229,27 +313,37 @@ public class Parser {
                 return binOp;
             }
 
-            System.out.println("fuck binary operations");
+            this.reportParseError(
+                    "Binary operator is invalid",
+                    lhs,
+                    operator,
+                    rhs
+            );
             return null;
         }
 
         return null;
     }
 
-    private FunctionCall parseFunctionCall(Token handle) {
+    private FunctionCall parseFunctionCall(List<Token> tokens) throws ParserException {
+        Token handle = this.popNext(tokens);
+
         Identifier funcName = new Identifier(handle);
         if ( !funcName.isValid() ) {
-            System.out.println("fuck function handles");
+            this.reportParseError(
+                    "Bad function handle",
+                    handle
+            );
             return null;
         }
 
-        Token openParen = this.popNext();
+        Token openParen = this.popNext(tokens);
         if ( tokenType(openParen, Primary.SEPARATOR, null) && openParen.tokenStr.equals("(") ) {
             Token t;
             List<Expression> argsList = new ArrayList<>();
             List<Token> argTokens = new ArrayList<>();
 
-            while ((t = this.popNext()) != null) {
+            while ((t = this.popNext(tokens)) != null) {
                 if ( t.tokenStr.equals(")") ) {
                     // Flush all tokens through `parseExpression` and add to `argsList`
                     argsList.add(this.parseExpression(argTokens));
@@ -275,13 +369,14 @@ public class Parser {
                 }
             }
 
-            if ( this.peekNext().tokenStr.equals(";") ) {
-                this.eatNext();
-            }
-
             FunctionCall fCall = new FunctionCall(funcName, argsList);
             if ( !fCall.isValid() ) {
-                System.out.println("fuck function calls");
+                this.reportParseError(
+                        "Invalid function call",
+                        handle,
+                        openParen,
+                        t
+                );
                 return null;
             }
 
@@ -291,9 +386,9 @@ public class Parser {
         return null;
     }
 
-    private Expression parseExpression(List<Token> arg) {
+    private Expression parseExpression(List<Token> arg) throws ParserException {
         if ( arg.isEmpty() ) {
-            System.out.println("fucking expression arg is empty");
+            this.reportParseError("Expression parsing failed!");
             return null;
         }
 
@@ -312,17 +407,40 @@ public class Parser {
                     Expression rhs = this.parseExpression(arg);
                     BinaryOperation binOp = new BinaryOperation(lhs, oper, rhs);
 
-                    if ( !binOp.isValid() ) {
-                        System.out.println("fuck expressions getting turned into binary operations");
-                        return null;
-                    }
+                    if ( next.tokenStr.equals("=") ) {
+                        // binOp is an assignment
+                        Assignment a = new Assignment(binOp);
+                        if ( !a.isValid() ) {
+                            this.reportParseError(
+                                    "Building assignment failed",
+                                    head,
+                                    next
+                            );
+                            return null;
+                        }
 
-                    return new Expression(binOp);
+                        return new Expression(a);
+                    } else {
+                        if ( !binOp.isValid() ) {
+                            this.reportParseError(
+                                    "Building binary operation failed",
+                                    head,
+                                    next
+                            );
+                            return null;
+                        }
+
+                        return new Expression(binOp);
+                    }
                 }
 
                 break;
             default:
-                System.out.println("fuck expressions!");
+                this.reportParseError(
+                        "Building expression failed",
+                        head,
+                        next
+                );
                 return null;
         }
 

@@ -4,7 +4,7 @@ import havabol.Token;
 
 import java.util.*;
 
-public class Identifier implements Validate {
+public class Identifier implements ParseElement {
 
     private Token identToken;
 
@@ -16,13 +16,8 @@ public class Identifier implements Validate {
         return true;
     }
 
-    public void print() {
-        System.out.println(
-                String.format(
-                    "  Identifier ~> `%s`",
-                    this.identToken.tokenStr
-                )
-        );
+    public String debug() {
+        return String.format("Identifier ~> `%s`\n", this.identToken.tokenStr);
     }
 
 }

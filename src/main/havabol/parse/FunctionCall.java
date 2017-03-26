@@ -5,7 +5,7 @@ import havabol.classify.*;
 
 import java.util.*;
 
-public class FunctionCall implements Validate {
+public class FunctionCall implements ParseElement {
 
     private Identifier functionName = null;
     private List<Expression> argsList = new ArrayList<>();
@@ -30,11 +30,15 @@ public class FunctionCall implements Validate {
         return this.functionName.isValid() && argsListValid;
     }
 
-    public void print() {
-        System.out.println("FunctionCall ~>");
-        this.functionName.print();
+    public String debug() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("FunctionCall ~>\n");
+        sb.append("  " + this.functionName.debug());
         this.argsList
             .stream()
-            .forEach((expr) -> expr.print());
+            .forEach((expr) -> sb.append("  " + expr.debug()));
+
+        return sb.toString();
     }
 }

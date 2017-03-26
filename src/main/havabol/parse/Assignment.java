@@ -5,7 +5,7 @@ import havabol.classify.*;
 
 import java.util.*;
 
-public class Assignment implements Validate {
+public class Assignment implements ParseElement {
 
     private Declaration declaration;
     private Operator operator;
@@ -33,15 +33,19 @@ public class Assignment implements Validate {
         }
     }
 
-    public void print() {
-        System.out.println("Assignment ~>");
+    public String debug() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Assignment ~>\n");
         if ( this.simpleAssign != null ) {
-            this.simpleAssign.print();
+            sb.append("  " + this.simpleAssign.debug());
         } else {
-            this.declaration.print();
-            this.operator.print();
-            this.value.print();
+            sb.append("  " + this.declaration.debug());
+            sb.append("  " + this.operator.debug());
+            sb.append("  " + this.value.debug());
         }
+
+        return sb.toString();
     }
 
 }

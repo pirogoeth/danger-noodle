@@ -69,6 +69,8 @@ public class Scanner{
       readFile();                               //Get the lines from the file
       textLineM = getLine();                    //get a line to store for scanning later
       this.getNext();
+
+      instance = this;
     }
 
     /**

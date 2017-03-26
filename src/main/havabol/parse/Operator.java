@@ -4,7 +4,7 @@ import havabol.Token;
 
 import java.util.*;
 
-public class Operator implements Validate {
+public class Operator implements ParseElement {
 
     private Token operatorToken;
     private final String[] validOperators = {
@@ -27,12 +27,7 @@ public class Operator implements Validate {
         return Arrays.asList(validOperators).contains(this.operatorToken.tokenStr);
     }
 
-    public void print() {
-        System.out.println(
-                String.format(
-                    "Operator ~> `%s`",
-                    this.operatorToken.tokenStr
-                )
-        );
+    public String debug() {
+        return String.format("Operator ~> `%s`\n", this.operatorToken.tokenStr);
     }
 }

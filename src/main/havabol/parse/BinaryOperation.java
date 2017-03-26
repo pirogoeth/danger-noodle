@@ -4,7 +4,7 @@ import havabol.Token;
 
 import java.util.*;
 
-public class BinaryOperation implements Validate {
+public class BinaryOperation implements ParseElement {
 
     /**
      * Left-hand side can be an expression, in the case of comparing two constants (but why?)
@@ -38,11 +38,15 @@ public class BinaryOperation implements Validate {
                  this.rhs.isValid() );
     }
 
-    public void print() {
-        System.out.println("BinaryOperation ~>");
-        this.lhs.print();
-        this.operator.print();
-        this.rhs.print();
+    public String debug() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("BinaryOperation ~>\n");
+        sb.append("  LHS " + this.lhs.debug());
+        sb.append("  " + this.operator.debug());
+        sb.append("  RHS " + this.rhs.debug());
+
+        return sb.toString();
     }
 
 }
