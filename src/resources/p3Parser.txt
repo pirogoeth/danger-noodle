@@ -52,5 +52,8 @@ endfor;
 
 // extended for loops
 for i = 0 to ELEM(thing):
-  print("\t", [thing i]);
+  for ch in SPACES(thing):
+    print("~");
+  endfor;
+  print("\t", i);
 endfor;

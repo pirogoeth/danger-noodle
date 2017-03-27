@@ -3,6 +3,8 @@ package havabol;
 import java.io.*;
 import java.util.*;
 
+import havabol.classify.*;
+import havabol.sym.*;
 import havabol.util.Escapes;
 import havabol.util.debugObj;
 
@@ -41,13 +43,14 @@ public class Scanner{
     private final FileReader fReader;    //File reader to get lines from
     private final BufferedReader brBuffer;    //Buffer to get lines from
     private final static String delimiters = " \t;:()\'\"=!<>+-*/[]#,^\n{}";   //delimiters to separate tokens
-    private final static String[] newOperators = {"and", "or", "not", "in", "notin"};  //new operators added for part 2
+    private final static String[] newOperators = {"and", "or", "not", "in", "notin", "to"};  //new operators added for part 2
     private final static String[] controlDeclare = {"Int", "Float", "String", "Bool"}; //control declare values
     private final static String[] controlFLow = {"if", "else", "while", "for"};        //control flow values
     private final static String[] controlEnd = {"endif", "endwhile", "endfor"};        //control end values
     ArrayList <Token> tokenList = new ArrayList<>();
     ArrayList <String> lineList = new ArrayList<>();
     debugObj debug = debugObj.get();
+
     /**
      * Constructor for the scanner object
      * <p>
@@ -623,7 +626,7 @@ public class Scanner{
                            szBuffer += Character.toString(lineM[iScanPos]);
 
                            //Checks for Operators, if not found, it is classified as separator
-                           if("+ - * / < > ! = # ^ and or not in notin".contains(Character.toString(lineM[iScanPos]))){
+                           if("+ - * / < > ! = # ^ and or not in notin to".contains(Character.toString(lineM[iScanPos]))){
                                token.primClassif = Token.OPERATOR;
                            }else{
                                token.primClassif = Token.SEPARATOR;
@@ -717,9 +720,14 @@ public class Scanner{
      * @param token
      */
     private void checkFunction(String szWord, Token token){
-        if(szWord.equals("print")){
-            token.primClassif = Token.FUNCTION;
-            token.subClassif = Token.BUILTIN;
+        STEntry funcSym = symbolTable.lookupSym(szWord);
+        if ( funcSym == null ) {
+            return;
+        }
+
+        if ( funcSym instanceof STFunction ) {
+            token.primClassif = funcSym.getPrimaryClass().getCid();
+            token.subClassif = funcSym.getSubClass().getCid();
         }
     }
 
