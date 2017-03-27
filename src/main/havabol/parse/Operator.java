@@ -16,7 +16,7 @@ public class Operator implements ParseElement {
         "==", ">=", "<=", "!=",
 
         // Word operators
-        "and", "or", "not", "in", "notin",
+        "and", "or", "not", "in", "notin", "to",
     };
 
     public Operator(Token t) {

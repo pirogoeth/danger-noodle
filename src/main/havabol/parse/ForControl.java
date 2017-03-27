@@ -7,14 +7,26 @@ import java.util.*;
 
 public class ForControl implements ParseElement {
 
-    private Expression condition;
+    private Expression cond;
+    private Block body;
+
+    public ForControl(Expression cond, Block body) {
+        this.cond = cond;
+        this.body = body;
+    }
 
     public boolean isValid() {
-        return true;
+        return this.cond.isValid() && this.body.isValid();
     }
 
     public String debug() {
-        return "Control ~> not implemented";
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("For ~>\n");
+        sb.append("  Cond " + this.cond.debug());
+        sb.append("  " + this.body.debug());
+
+        return sb.toString();
     }
 
 }

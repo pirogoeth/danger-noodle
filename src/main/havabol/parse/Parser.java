@@ -334,8 +334,27 @@ public class Parser {
                 WhileControl whileStmt = new WhileControl(cond, mainBranch);
                 return new FlowControl(whileStmt);
             case "for":
-                // do the thing
-                break;
+                Expression expr = this.parseExpression(tokens);
+
+                Block forBody = this.parseBlock("endfor");
+                if ( ! this.eatNextIfEq("endfor") ) {
+                    this.reportParseError(
+                            "While statement has no matching endfor",
+                            flowT
+                    );
+                    return null;
+                } else {
+                    if ( ! this.eatNextIfEq(";") ) {
+                        this.reportParseError(
+                                "Unterminated end-statement",
+                                flowT
+                        );
+                        return null;
+                    }
+                }
+
+                ForControl forStmt = new ForControl(expr, forBody);
+                return new FlowControl(forStmt);
             case "select":
                 // do the thing
                 break;
@@ -361,9 +380,10 @@ public class Parser {
         if ( tokenType(head, Primary.CONTROL, Subclass.DECLARE) &&
              tokenType(this.peekNext(tokens), Primary.OPERAND, Subclass.IDENTIFIER) ) {
 
+            DataType dt = new DataType(head);
+
             Token next = this.popNext(tokens);
 
-            DataType dt = new DataType(head);
             Identifier ident = new Identifier(next);
             Declaration decl = new Declaration(dt, ident);
 
@@ -488,15 +508,19 @@ public class Parser {
     }
 
     private Block parseBlock(String...until) throws ParserException {
+        return this.parseBlock(this.tokens, until);
+    }
+
+    private Block parseBlock(List<Token> tokens, String...until) throws ParserException {
         List<String> delim = Arrays.asList(until);
         List<Statement> stmts = new ArrayList<>();
 
-        while ( ! delim.contains(this.peekNext().tokenStr) ) {
+        while ( ! delim.contains(this.peekNext(tokens).tokenStr) ) {
             Statement s = this.parse();
             if ( s == null ) {
                 this.reportParseError(
                         "Block parser encountered a null statement",
-                        this.peekNext()
+                        this.peekNext(tokens)
                 );
                 break;
             }
@@ -512,25 +536,26 @@ public class Parser {
             return null;
         }
 
-        Token head = arg.remove(0);
+        Token head = this.popNext(arg);
         if ( arg.isEmpty() ) {
             return new Expression(head);
         }
 
-        Token next = arg.get(0);
+        Token next = this.peekNext(arg);
 
         switch (Primary.primaryFromInt(head.primClassif)) {
             case OPERAND:
                 if ( next.primClassif == Primary.OPERATOR.getCid() ) {
                     Expression lhs = new Expression(head);
-                    Operator oper = new Operator(arg.remove(0));
+                    Operator oper = new Operator(this.popNext(arg));
+
                     Expression rhs = this.parseExpression(arg);
                     BinaryOperation binOp = new BinaryOperation(lhs, oper, rhs);
 
                     if ( next.tokenStr.equals("=") ) {
                         // binOp is an assignment
                         Assignment a = new Assignment(binOp);
-                        if ( !a.isValid() ) {
+                        if ( ! a.isValid() ) {
                             this.reportParseError(
                                     "Building assignment failed",
                                     head,
@@ -541,7 +566,7 @@ public class Parser {
 
                         return new Expression(a);
                     } else {
-                        if ( !binOp.isValid() ) {
+                        if ( ! binOp.isValid() ) {
                             this.reportParseError(
                                     "Building binary operation failed",
                                     head,
@@ -555,6 +580,20 @@ public class Parser {
                 }
 
                 break;
+            case FUNCTION:
+                arg.add(0, head);
+                FunctionCall fCall = this.parseFunctionCall(arg);
+
+                if ( ! fCall.isValid() ) {
+                    this.reportParseError(
+                            "Building function call in from expression failed",
+                            head,
+                            next
+                    );
+                    return null;
+                }
+
+                return new Expression(fCall);
             default:
                 this.reportParseError(
                         "Building expression failed",

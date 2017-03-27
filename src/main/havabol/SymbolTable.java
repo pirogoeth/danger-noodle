@@ -74,6 +74,7 @@ public class SymbolTable
         this.putSymbol(new STEntry("not", Primary.OPERATOR));
         this.putSymbol(new STEntry("in", Primary.OPERATOR));
         this.putSymbol(new STEntry("notin", Primary.OPERATOR));
+        this.putSymbol(new STEntry("to", Primary.OPERATOR));
 
         this.putSymbol(new STEntry("=", Primary.OPERATOR));
         this.putSymbol(new STEntry("%", Primary.OPERATOR));
