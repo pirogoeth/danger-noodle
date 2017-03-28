@@ -84,6 +84,7 @@ public class SymbolTable
         this.putSymbol(new STEntry("+", Primary.OPERATOR));
         this.putSymbol(new STEntry("-", Primary.OPERATOR));
         this.putSymbol(new STEntry("#", Primary.OPERATOR));
+        this.putSymbol(new STEntry("~>", Primary.OPERATOR));
 
         // Comparators builtins
         this.putSymbol(new STEntry("==", Primary.OPERATOR));

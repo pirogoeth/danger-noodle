@@ -6,11 +6,37 @@ import havabol.SymbolTable;
 import havabol.classify.*;
 import havabol.parse.*;
 
+import java.io.*;
 import java.util.*;
 
-public class ParserTest
+import test.util.Resources;
+
+public class InputSuite
 {
     public static void main(String[] args)
+    {
+        File[] inputs = {
+            Resources.P1_IN,
+            Resources.P1_IN_X1,
+            Resources.P1_IN_X2,
+            Resources.P1_IN_X3,
+            Resources.P2_IN,
+            Resources.P3_IN,
+            Resources.P3_IN_SE,
+            Resources.P3_IN_PARSER,
+        };
+
+        for (File f : inputs) {
+            try {
+                exec(f);
+            } catch (Exception e) {
+                System.out.printf("Input test '%s' failed:\n", f.getName());
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void exec(File inputf)
     {
         // Create the SymbolTable
         SymbolTable symbolTable = new SymbolTable();
@@ -19,7 +45,7 @@ public class ParserTest
 
         try
         {
-            Scanner scan = new Scanner(args[0]);
+            Scanner scan = new Scanner(inputf);
             scan.currentToken.printToken();
             tokenList.add(scan.currentToken);
 

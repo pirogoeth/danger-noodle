@@ -36,7 +36,8 @@ public class HavaBol
                     , "primClassif"
                     , "subClassif"
                     , "tokenStr");
-            */
+
+
             Scanner scan = new Scanner(args[0], symbolTable);
             Parser parse = new Parser(symbolTable, scan);
             while (scan.currentToken.tokenStr != "")
@@ -47,6 +48,7 @@ public class HavaBol
 
                 // t.printToken();
             }
+            */
         }
         catch (Exception e)
         {

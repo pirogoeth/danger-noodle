@@ -60,17 +60,20 @@ public class Scanner{
      * @throws IOException  throws an error if trouble reading from file
      *
      */
-    public Scanner(String sourceFileNm, SymbolTable symbolTable) throws IOException, errorCatch {
+    public Scanner(String sourceFileNm) throws IOException, errorCatch {
+      this(new File(sourceFileNm));
+    }
 
-      this.symbolTable = symbolTable;       //Symbol table
-      this.sourceFileNm = sourceFileNm;     //stores the file name
-      fInput = new File(sourceFileNm);      //open the file
-      szQuote = new String();               //make a empty string for later
-      error = new String();                 //make a empty string for errors later
-      fReader = new FileReader(fInput);     //create a new filereader
-      brBuffer = new BufferedReader(fReader);   //create a newuffered reader
-      readFile();                               //Get the lines from the file
-      textLineM = getLine();                    //get a line to store for scanning later
+    public Scanner(File f) throws IOException, errorCatch {
+      this.sourceFileNm = f.getName();
+      this.symbolTable = SymbolTable.getGlobal();       //Symbol table
+      fInput = f;                                       //open the file
+      szQuote = new String();                           //make a empty string for later
+      error = new String();                             //make a empty string for errors later
+      fReader = new FileReader(fInput);                 //create a new filereader
+      brBuffer = new BufferedReader(fReader);           //create a newuffered reader
+      readFile();                                       //Get the lines from the file
+      textLineM = getLine();                            //get a line to store for scanning later
       this.getNext();
 
       instance = this;
