@@ -1,5 +1,7 @@
 package test.util;
 
+import java.net.URISyntaxException;
+
 import java.io.*;
 import java.util.*;
 
@@ -17,66 +19,70 @@ public class Resources {
      * the classloader path.
      *
      * @param String fPath File path to open.
-     * @return InputStream
+     * @return File
      */
-    private static InputStream streamResource(String fPath) {
-        return instance.getClass().getClassLoader().getResourceAsStream(fPath);
+    private static File openResource(String fPath) {
+        try {
+            return new File(instance.getClass().getClassLoader().getResource(fPath).toURI());
+        } catch (URISyntaxException ex) {
+            return null;
+        }
     }
 
     /**
      * Stream for `/resources/p1Input.txt`
      *
-     * @return InputStream
+     * @return File
      */
-    public static final InputStream P1_IN = streamResource("resources/p1Input.txt");
+    public static final File P1_IN = openResource("resources/p1Input.txt");
 
     /**
      * Stream for `/resources/p1InputX1.txt`
      *
-     * @return InputStream
+     * @return File
      */
-    public static final InputStream P1_IN_X1 = streamResource("resources/p1InputX1.txt");
+    public static final File P1_IN_X1 = openResource("resources/p1InputX1.txt");
 
     /**
      * Stream for `/resources/p1InputX2.txt`
      *
-     * @return InputStream
+     * @return File
      */
-    public static final InputStream P1_IN_X2 = streamResource("resources/p1InputX2.txt");
+    public static final File P1_IN_X2 = openResource("resources/p1InputX2.txt");
 
     /**
      * Stream for `/resources/p1InputX3.txt`
      *
-     * @return InputStream
+     * @return File
      */
-    public static final InputStream P1_IN_X3 = streamResource("resources/p1InputX3.txt");
+    public static final File P1_IN_X3 = openResource("resources/p1InputX3.txt");
 
     /**
      * Stream for `/resources/p2Input.txt`
      *
-     * @return InputStream
+     * @return File
      */
-    public static final InputStream P2_IN = streamResource("resources/p2Input.txt");
+    public static final File P2_IN = openResource("resources/p2Input.txt");
 
     /**
      * Stream for `/resources/p3Input.txt`
      *
-     * @return InputStream
+     * @return File
      */
-    public static final InputStream P3_IN = streamResource("resources/p3Input.txt");
+    public static final File P3_IN = openResource("resources/p3Input.txt");
 
     /**
      * Stream for `/resources/p3InputSE.txt`
      *
-     * @return InputStream
+     * @return File
      */
-    public static final InputStream P3_IN_SE = streamResource("resources/p3InputSE.txt");
+    public static final File P3_IN_SE = openResource("resources/p3InputSE.txt");
 
     /**
      * Stream for `/resources/p3Parser.txt`
      *
-     * @return InputStream
+     * @return File
      */
-    public static final InputStream P3_IN_PARSER = streamResource("resource/p3Parser.txt");
+    public static final File P3_IN_PARSER = openResource("resource/p3Parser.txt");
 
 }
