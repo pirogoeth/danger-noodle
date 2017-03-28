@@ -57,3 +57,14 @@ for i = 0 to ELEM(thing):
   endfor;
   print("\t", i);
 endfor;
+
+// lazy evaluation test
+if i == SPLIT("this test"):
+  print(i # "\n");
+endif;
+
+func SPLIT(String s) ~> String[]:
+  // do the thing
+endfunc;
+
+
