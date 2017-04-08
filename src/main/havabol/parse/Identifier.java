@@ -1,6 +1,7 @@
 package havabol.parse;
 
 import havabol.Token;
+import static havabol.util.Text.*;
 
 import java.util.*;
 
@@ -16,8 +17,14 @@ public class Identifier implements ParseElement {
         return true;
     }
 
-    public String debug() {
-        return String.format("Identifier ~> `%s`\n", this.identToken.tokenStr);
+    public String debug(int indent) {
+        return lpads(
+            indent,
+            String.format(
+                "Identifier ~> `%s`\n",
+                this.identToken.tokenStr
+            )
+        );
     }
 
 }

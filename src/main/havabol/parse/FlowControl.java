@@ -2,6 +2,7 @@ package havabol.parse;
 
 import havabol.Token;
 import havabol.classify.*;
+import static havabol.util.Text.*;
 
 import java.util.*;
 
@@ -35,18 +36,18 @@ public class FlowControl implements ParseElement {
                ( this.selectBlock != null && this.selectBlock.isValid() );
     }
 
-    public String debug() {
+    public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("FlowControl ~>\n");
+        sb.append(lpads(indent, "FlowControl ~>\n"));
         if ( this.ifBlock != null ) {
-            sb.append("  " + this.ifBlock.debug());
+            sb.append(this.ifBlock.debug(indent + 2));
         } else if ( this.whileBlock != null ) {
-            sb.append(this.whileBlock.debug());
+            sb.append(this.whileBlock.debug(indent + 2));
         } else if ( this.forBlock != null ) {
-            sb.append("  " + this.forBlock.debug());
+            sb.append(this.forBlock.debug(indent + 2));
         } else if ( this.selectBlock != null ) {
-            sb.append("  " + this.selectBlock.debug());
+            sb.append(this.selectBlock.debug(indent + 2));
         }
 
         return sb.toString();

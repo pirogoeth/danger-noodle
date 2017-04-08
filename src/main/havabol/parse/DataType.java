@@ -1,6 +1,7 @@
 package havabol.parse;
 
 import havabol.Token;
+import static havabol.util.Text.*;
 
 import java.util.*;
 
@@ -24,8 +25,14 @@ public class DataType implements ParseElement {
         }
     }
 
-    public String debug() {
-        return String.format("DataType ~> `%s`\n", this.typeToken.tokenStr);
+    public String debug(int indent) {
+        return lpads(
+            indent,
+            String.format(
+                "DataType ~> `%s`\n",
+                this.typeToken.tokenStr
+            )
+        );
     }
 
 }

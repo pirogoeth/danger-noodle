@@ -1,6 +1,7 @@
 package havabol.parse;
 
 import havabol.Token;
+import static havabol.util.Text.*;
 
 import java.util.*;
 
@@ -41,19 +42,23 @@ public class Statement implements ParseElement {
     }
 
     public String debug() {
+        return this.debug(0);
+    }
+
+    public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Statement ~~>\n");
+        sb.append(lpads(indent, "Statement ~~>\n"));
         if ( this.decl != null ) {
-            sb.append("  " + this.decl.debug());
+            sb.append(this.decl.debug(indent + 2));
         } else if ( this.expr != null ) {
-            sb.append("  " + this.expr.debug());
+            sb.append(this.expr.debug(indent + 2));
         } else if ( this.assign != null ) {
-            sb.append("  " + this.assign.debug());
+            sb.append(this.assign.debug(indent + 2));
         } else if ( this.flow != null ) {
-            sb.append("  " + this.flow.debug());
+            sb.append(this.flow.debug(indent + 2));
         } else if ( this.block != null ) {
-            sb.append("  " + this.block.debug());
+            sb.append(this.block.debug(indent + 2));
         }
 
         return sb.toString();

@@ -1,6 +1,7 @@
 package havabol.parse;
 
 import havabol.Token;
+import static havabol.util.Text.*;
 
 import java.util.*;
 
@@ -27,7 +28,13 @@ public class Operator implements ParseElement {
         return Arrays.asList(validOperators).contains(this.operatorToken.tokenStr);
     }
 
-    public String debug() {
-        return String.format("Operator ~> `%s`\n", this.operatorToken.tokenStr);
+    public String debug(int indent) {
+        return lpads(
+            indent,
+            String.format(
+                "Operator ~> `%s`\n",
+                this.operatorToken.tokenStr
+            )
+        );
     }
 }

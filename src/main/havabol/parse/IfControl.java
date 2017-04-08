@@ -2,6 +2,7 @@ package havabol.parse;
 
 import havabol.Token;
 import havabol.classify.*;
+import static havabol.util.Text.*;
 
 import java.util.*;
 
@@ -28,16 +29,16 @@ public class IfControl implements ParseElement {
                ( this.elseBranch != null && this.elseBranch.isValid() );
     }
 
-    public String debug() {
+    public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("If ~>\n");
-        sb.append("  " + this.condition.debug());
-        sb.append("  " + this.trueBranch.debug());
+        sb.append(lpads(indent, "If ~>\n"));
+        sb.append(this.condition.debug(indent + 2));
+        sb.append(this.trueBranch.debug(indent + 4));
 
         if ( this.elseBranch != null ) {
-            sb.append("  Else ~>\n");
-            sb.append("  " + this.elseBranch.debug());
+            sb.append(lpads(indent, "Else ~>\n"));
+            sb.append(this.elseBranch.debug(indent + 2));
         }
 
         return sb.toString();

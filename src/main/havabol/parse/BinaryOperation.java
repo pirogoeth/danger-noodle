@@ -1,6 +1,7 @@
 package havabol.parse;
 
 import havabol.Token;
+import static havabol.util.Text.*;
 
 import java.util.*;
 
@@ -38,13 +39,15 @@ public class BinaryOperation implements ParseElement {
                  this.rhs.isValid() );
     }
 
-    public String debug() {
+    public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("BinaryOperation ~>\n");
-        sb.append("  LHS " + this.lhs.debug());
-        sb.append("  " + this.operator.debug());
-        sb.append("  RHS " + this.rhs.debug());
+        sb.append(lpads(indent, "BinaryOperation ~>\n"));
+        sb.append(lpads(indent + 2, "LHS ~>\n"));
+        sb.append(this.lhs.debug(indent + 4));
+        sb.append(this.operator.debug(indent + 2));
+        sb.append(lpads(indent + 2, "RHS ~>\n"));
+        sb.append(this.rhs.debug(indent + 4));
 
         return sb.toString();
     }

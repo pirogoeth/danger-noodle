@@ -7,6 +7,6 @@ import java.util.*;
 public interface ParseElement {
 
     boolean isValid();
-    String debug();
+    String debug(int indent);
 
 }

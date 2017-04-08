@@ -2,6 +2,7 @@ package havabol.parse;
 
 import havabol.Token;
 import havabol.classify.*;
+import static havabol.util.Text.*;
 
 import java.util.*;
 
@@ -20,14 +21,14 @@ public class WhileControl implements ParseElement {
                ( this.loopBranch != null && this.loopBranch.isValid() );
     }
 
-    public String debug() {
+    public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("While ~>\n");
-        sb.append("  " + this.condition.debug());
+        sb.append(lpads(indent, "While ~>\n"));
+        sb.append(this.condition.debug(indent + 2));
 
-        sb.append("Do ~>\n");
-        sb.append("  " + this.loopBranch.debug());
+        sb.append(lpads(indent + 2, "Do ~>\n"));
+        sb.append(this.loopBranch.debug(indent + 4));
 
         return sb.toString();
     }

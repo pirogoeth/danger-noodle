@@ -3,6 +3,7 @@ package havabol.parse;
 import havabol.Token;
 import havabol.classify.*;
 import havabol.util.*;
+import static havabol.util.Text.*;
 
 import java.util.*;
 
@@ -43,7 +44,13 @@ public class Primitive implements ParseElement {
                  isString(this.primToken) );
     }
 
-    public String debug() {
-        return String.format("Primitive ~> `%s`\n", this.primToken.tokenStr);
+    public String debug(int indent) {
+        return lpads(
+            indent,
+            String.format(
+                "Primitive ~> `%s`\n",
+                this.primToken.tokenStr
+            )
+        );
     }
 }
