@@ -1,6 +1,7 @@
 package havabol.parse;
 
 import havabol.Token;
+import static havabol.util.Text.*;
 
 import java.util.*;
 
@@ -18,12 +19,12 @@ public class Declaration implements ParseElement {
         return dt != null && ident != null;
     }
 
-    public String debug() {
+    public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Declaration ~>\n");
-        sb.append("  " + this.dt.debug());
-        sb.append("  " + this.ident.debug());
+        sb.append(lpads(indent, "Declaration ~>\n"));
+        sb.append(this.dt.debug(indent + 2));
+        sb.append(this.ident.debug(indent + 2));
 
         return sb.toString();
     }

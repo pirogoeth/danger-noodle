@@ -2,6 +2,7 @@ package havabol.parse;
 
 import havabol.Token;
 import havabol.classify.*;
+import static havabol.util.Text.*;
 
 import java.util.*;
 
@@ -33,16 +34,16 @@ public class Assignment implements ParseElement {
         }
     }
 
-    public String debug() {
+    public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Assignment ~>\n");
+        sb.append(lpads(indent, "Assignment ~>\n"));
         if ( this.simpleAssign != null ) {
-            sb.append("  " + this.simpleAssign.debug());
+            sb.append(this.simpleAssign.debug(indent + 2));
         } else {
-            sb.append("  " + this.declaration.debug());
-            sb.append("  " + this.operator.debug());
-            sb.append("  " + this.value.debug());
+            sb.append(this.declaration.debug(indent + 2));
+            sb.append(this.operator.debug(indent + 2));
+            sb.append(this.value.debug(indent + 2));
         }
 
         return sb.toString();

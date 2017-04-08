@@ -2,6 +2,7 @@ package havabol.parse;
 
 import havabol.Token;
 import havabol.classify.*;
+import static havabol.util.Text.*;
 
 import java.util.*;
 
@@ -21,14 +22,15 @@ public class FunctionCall implements ParseElement {
             .reduce(true, (a, b) -> a && b);
     }
 
-    public String debug() {
+    public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("FunctionCall ~>\n");
-        sb.append("  " + this.functionName.debug());
+        sb.append(lpads(indent, "FunctionCall ~>\n"));
+        sb.append(this.functionName.debug(indent + 2));
+        sb.append(lpads(indent + 2, "Args ~>\n"));
         this.argsList
             .stream()
-            .forEach((expr) -> sb.append("  " + expr.debug()));
+            .forEach((expr) -> sb.append(expr.debug(indent + 4)));
 
         return sb.toString();
     }

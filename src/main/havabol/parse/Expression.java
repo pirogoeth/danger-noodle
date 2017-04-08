@@ -2,6 +2,7 @@ package havabol.parse;
 
 import havabol.Token;
 import havabol.classify.*;
+import static havabol.util.Text.*;
 
 import java.util.*;
 
@@ -73,20 +74,20 @@ public class Expression implements ParseElement {
                ( this.assignment != null && this.assignment.isValid() );
     }
 
-    public String debug() {
+    public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Expression ~>\n");
+        sb.append(lpads(indent, "Expression ~>\n"));
         if ( this.ident != null ) {
-            sb.append("  " + this.ident.debug());
+            sb.append(this.ident.debug(indent + 2));
         } else if ( this.binOp != null ) {
-            sb.append("  " + this.binOp.debug());
+            sb.append(this.binOp.debug(indent + 2));
         } else if ( this.primitive != null ) {
-            sb.append("  " + this.primitive.debug());
+            sb.append(this.primitive.debug(indent + 2));
         } else if ( this.functionCall != null ) {
-            sb.append("  " + this.functionCall.debug());
+            sb.append(this.functionCall.debug(indent + 2));
         } else if ( this.assignment != null ) {
-            sb.append("  " + this.assignment.debug());
+            sb.append(this.assignment.debug(indent + 2));
         }
 
         return sb.toString();

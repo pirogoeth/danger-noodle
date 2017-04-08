@@ -13,7 +13,7 @@ public class SelectControl implements ParseElement {
         return true;
     }
 
-    public String debug() {
+    public String debug(int indent) {
         return "Control ~> not implemented";
     }
 
