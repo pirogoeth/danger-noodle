@@ -4,6 +4,7 @@ import havabol.Token;
 import havabol.Scanner;
 import havabol.SymbolTable;
 import havabol.classify.*;
+import havabol.util.*;
 
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -264,11 +265,20 @@ public class Parser {
      * @return List<Token>
      */
     private List<Token> popStatement() {
-        List<Token> tokens = this.popUntil(";");
+        return this.popStatement(this.tokens);
+    }
+
+    /**
+     * Gets and returns a list of tokens up to statement end.
+     *
+     * @return List<Token>
+     */
+    private List<Token> popStatement(List<Token> tokens) {
+        List<Token> newTokens = this.popUntil(tokens, ";");
 
         this.eatNext();
 
-        return tokens;
+        return newTokens;
     }
 
     /**
@@ -279,13 +289,56 @@ public class Parser {
      * @return List<Token>
      */
     private List<Token> popUntil(String delim) {
-        List<Token> tokens = new ArrayList<>();
+        return this.popUntil(this.tokens, delim);
+    }
 
-        while ( ! this.peekNext().tokenStr.equals(delim) ) {
-            tokens.add(this.popNext());
+    /**
+     * Gets and returns a list of tokens up to the next delimiter.
+     *
+     * @param List<Token> tokens
+     * @param String delim
+     *
+     * @return List<Token>
+     */
+    private List<Token> popUntil(List<Token> tokens, String delim) {
+        List<Token> newTokens = new ArrayList<>();
+
+        while ( ! this.peekNext(tokens).tokenStr.equals(delim) ) {
+            newTokens.add(this.popNext(tokens));
         }
 
-        return tokens;
+        return newTokens;
+    }
+
+    /**
+     * Gets and returns a list of tokens up to the next set of delimiters.
+     *
+     * @param String delims
+     *
+     * @return List<Token>
+     */
+    private List<Token> popUntil(String...delims) {
+        return this.popUntil(this.tokens, delims);
+    }
+
+    /**
+     * Gets and returns a list of tokens up to the next set of delimiters.
+     *
+     * @param List<Token> tokens
+     * @param String delims
+     *
+     * @return List<Token>
+     */
+    private List<Token> popUntil(List<Token> tokens, String...delims) {
+        List<Token> newTokens = new ArrayList<>();
+
+        List<String> delimsList = Arrays.asList(delims);
+
+        while ( ! delimsList.contains(this.peekNext(tokens).tokenStr) ) {
+            newTokens.add(this.popNext(tokens));
+        }
+
+        return newTokens;
     }
 
     // PARSER MANGLEMENT
@@ -296,7 +349,11 @@ public class Parser {
      * @return boolean
      */
     public boolean canParse() {
-        return !this.tokens.isEmpty();
+        return this.canParse(this.tokens);
+    }
+
+    public boolean canParse(List<Token> tokens) {
+        return !tokens.isEmpty();
     }
 
     /**
@@ -339,7 +396,7 @@ public class Parser {
             case SEPARATOR:
                 return null;
             default:
-                this.reportParseError(
+                reportParseError(
                         "Could not further derive statement",
                         t
                 );
@@ -368,7 +425,7 @@ public class Parser {
                 this.eatNext();
                 return this.parseDeclaration(head);
             default:
-                this.reportParseError(
+                reportParseError(
                         "Failed building control elements",
                         head
                 );
@@ -408,14 +465,14 @@ public class Parser {
                 }
 
                 if ( ! this.eatNextIfEq("endif") ) {
-                    this.reportParseError(
+                    reportParseError(
                             "If statement has no matching endif",
                             flowT
                     );
                     return null;
                 } else {
                     if ( ! this.eatNextIfEq(";") ) {
-                        this.reportParseError(
+                        reportParseError(
                                 "Unterminated end-statement",
                                 flowT
                         );
@@ -430,14 +487,14 @@ public class Parser {
                 mainBranch = this.parseBlock("endwhile");
 
                 if ( ! this.eatNextIfEq("endwhile") ) {
-                    this.reportParseError(
+                    reportParseError(
                             "While statement has no matching endwhile",
                             flowT
                     );
                     return null;
                 } else {
                     if ( ! this.eatNextIfEq(";") ) {
-                        this.reportParseError(
+                        reportParseError(
                                 "Unterminated end-statement",
                                 flowT
                         );
@@ -452,14 +509,14 @@ public class Parser {
 
                 Block forBody = this.parseBlock("endfor");
                 if ( ! this.eatNextIfEq("endfor") ) {
-                    this.reportParseError(
+                    reportParseError(
                             "While statement has no matching endfor",
                             flowT
                     );
                     return null;
                 } else {
                     if ( ! this.eatNextIfEq(";") ) {
-                        this.reportParseError(
+                        reportParseError(
                                 "Unterminated end-statement",
                                 flowT
                         );
@@ -474,14 +531,14 @@ public class Parser {
                 break;
             default:
                 // wat
-                this.reportParseError(
+                reportParseError(
                         "Invalid control flow token",
                         flowT
                 );
                 return null;
         }
 
-        this.reportParseError(
+        reportParseError(
                 "Flow control parser fell out of case",
                 flowT
         );
@@ -501,7 +558,21 @@ public class Parser {
         List<Token> tokens = this.popStatement();
 
         if ( tokenType(head, Primary.CONTROL, Subclass.DECLARE) &&
-             tokenType(this.peekNext(tokens), Primary.OPERAND, Subclass.IDENTIFIER) ) {
+             tokenType(this.peekNext(tokens), Primary.SEPARATOR, null) ) {
+
+            tokens.add(0, head);
+            Statement st = this.parseArrayDecl(tokens);
+            if ( st.isValid() ) {
+                return st;
+            } else {
+                reportParseError(
+                        "Array declaration is invalid",
+                        head
+                );
+                return null;
+            }
+        } else if ( tokenType(head, Primary.CONTROL, Subclass.DECLARE) &&
+                    tokenType(this.peekNext(tokens), Primary.OPERAND, Subclass.IDENTIFIER) ) {
 
             DataType dt = new DataType(head);
 
@@ -521,7 +592,7 @@ public class Parser {
             if ( dt.isValid() && ident.isValid() && decl.isValid() ) {
                 return new Statement(decl);
             } else {
-                this.reportParseError(
+                reportParseError(
                         "Declaration is invalid",
                         head,
                         next,
@@ -530,7 +601,7 @@ public class Parser {
                 return null;
             }
         } else {
-            this.reportParseError(
+            reportParseError(
                     "Declaration is invalid",
                     head
             );
@@ -571,7 +642,7 @@ public class Parser {
 
         Assignment a = new Assignment(decl, oper, expr);
         if ( a == null || !a.isValid() ) {
-            this.reportParseError(
+            reportParseError(
                     "Declaration is invalid",
                     typeT,
                     identT,
@@ -581,6 +652,107 @@ public class Parser {
         }
 
         return a;
+    }
+
+    /**
+     * Parses a compound array declaration which may or may not include an assignment.
+     *
+     * Example:
+     *
+     *      {@code Int[] ary = 1, 2, 3, 4, 5;}
+     *
+     * @param List<Token> tokens
+     *
+     * @return Statement
+     *
+     * @throws ParserException
+     */
+    private Statement parseArrayDecl(List<Token> tokens) throws ParserException {
+        // Try to parse into a array assignment, otherwise, explode.
+        Token head = this.popNext(tokens);
+
+        if ( ! this.eatNextIfEq(tokens, "[") ) {
+            reportParseError(
+                    "Invalid following separator - use `[]` to create an array",
+                    head,
+                    this.peekNext(tokens)
+            );
+            return null;
+        }
+
+        // Now the next token should be a primitive (int), but if it is empty (next token is ']')
+        // then this is an unbounded array.
+        DataType dt = new DataType(head);
+        int arySize = -1;
+
+        if ( ! this.eatNextIfEq(tokens, "]") ) {
+            // Something within the brackets
+            if ( ! this.tokenType(this.peekNext(tokens), Primary.OPERAND, Subclass.INTEGER) ) {
+                reportParseError(
+                        String.format(
+                            "Unexpected token `%s`, expected Integer primitive",
+                            this.peekNext(tokens).tokenStr
+                        ),
+                        head,
+                        this.peekNext(tokens)
+                );
+            } else {
+                Token t = this.popNext(tokens);
+                arySize = Numerics.tokenAsInt(t);
+
+                if ( ! this.eatNextIfEq(tokens, "]") ) {
+                    reportParseError(
+                            String.format(
+                                "Unexpected token `%s` after array size, expected `]`",
+                                this.peekNext(tokens).tokenStr
+                            ),
+                            head,
+                            t,
+                            this.peekNext(tokens)
+                    );
+                }
+            }
+        }
+
+        Token identT = this.popNext(tokens);
+        Identifier ident = new Identifier(identT);
+        Declaration dec = new Declaration(dt, ident, true, arySize);
+        Expression value;
+
+        // Peek at the next token to see if this is a compound declaration
+        Token operT = this.peekNext(tokens);
+        if ( operT == null ) {
+            // End of declaration
+            return new Statement(dec);
+        }
+
+        // Otherwise, check for a compound array declaration
+        if ( this.eatNextIfEq(tokens, "=") ) {
+            value = this.parseExpression(tokens);
+            Assignment a = new Assignment(dec, new Operator(operT), value);
+            if ( a.isValid() ) {
+                return new Statement(a);
+            } else {
+                reportParseError(
+                        "Assignment statement not valid",
+                        head,
+                        identT,
+                        operT
+                );
+                return null;
+            }
+        } else {
+            if ( dec.isValid() ) {
+                return new Statement(dec);
+            } else {
+                reportParseError(
+                        "Declaration not valid",
+                        head,
+                        identT
+                );
+                return null;
+            }
+        }
     }
 
     /**
@@ -598,7 +770,7 @@ public class Parser {
 
         Identifier funcName = new Identifier(handle);
         if ( !funcName.isValid() ) {
-            this.reportParseError(
+            reportParseError(
                     "Bad function handle",
                     handle
             );
@@ -639,7 +811,7 @@ public class Parser {
 
             FunctionCall fCall = new FunctionCall(funcName, argsList);
             if ( !fCall.isValid() ) {
-                this.reportParseError(
+                reportParseError(
                         "Invalid function call",
                         handle,
                         openParen,
@@ -685,7 +857,7 @@ public class Parser {
         while ( ! delim.contains(this.peekNext(tokens).tokenStr) ) {
             Statement s = this.parse();
             if ( s == null ) {
-                this.reportParseError(
+                reportParseError(
                         "Block parser encountered a null statement",
                         this.peekNext(tokens)
                 );
@@ -709,7 +881,7 @@ public class Parser {
      */
     private Expression parseExpression(List<Token> arg) throws ParserException {
         if ( arg.isEmpty() ) {
-            this.reportParseError("Expression parsing failed!");
+            reportParseError("Expression parsing failed!");
             return null;
         }
 
@@ -733,7 +905,7 @@ public class Parser {
                         // binOp is an assignment
                         Assignment a = new Assignment(binOp);
                         if ( ! a.isValid() ) {
-                            this.reportParseError(
+                            reportParseError(
                                     "Building assignment failed",
                                     head,
                                     next
@@ -744,7 +916,7 @@ public class Parser {
                         return new Expression(a);
                     } else {
                         if ( ! binOp.isValid() ) {
-                            this.reportParseError(
+                            reportParseError(
                                     "Building binary operation failed",
                                     head,
                                     next
@@ -754,6 +926,130 @@ public class Parser {
 
                         return new Expression(binOp);
                     }
+                } else if ( next.primClassif == Primary.SEPARATOR.getCid() ) {
+                    switch (next.tokenStr) {
+                        case ",":  // Array notation
+                            Array ary = new Array();
+                            ary.addItem(new Primitive(head));
+
+                            while ( this.canParse(arg) ) {
+                                Token t = this.popNext(arg);
+                                switch (Primary.primaryFromInt(t.primClassif)) {
+                                    case OPERAND:
+                                        ary.addItem(new Primitive(t));
+                                        break;
+                                    case SEPARATOR:
+                                        continue;
+                                    default:
+                                        reportParseError(
+                                                "Invalid token in array construct",
+                                                t
+                                        );
+                                        return null;
+                                }
+                            }
+
+                            return new Expression(ary);
+                        case "[":  // subscripted identifier
+                            // eat the first token since it is the subscript open bracket
+                            this.eatNext(arg);
+
+                            // first upcoming token should be some sort of expression
+                            // the next delimiter token (`:`) will mark the end of the begin expression
+                            // of the subscript
+                            Subscript sub;
+
+                            List<Token> exprBeginPartT = this.popUntil(arg, ":", "]");
+                            Expression exprBegin = this.parseExpression(exprBeginPartT);
+
+                            List<Token> exprEndPartT;
+                            Expression exprEnd = null;
+
+                            // Depending on the next token, we can create the subscript to attach
+                            // to the identifier.
+                            if ( this.eatNextIfEq(arg, ":") ) {
+                                // There's an end part of the subscript!
+                                exprEndPartT = this.popUntil(arg, "]");
+                                exprEnd = this.parseExpression(exprEndPartT);
+                            }
+
+                            if ( this.eatNextIfEq(arg, "]") ) {
+                                // Finish the subscript
+                                sub = new Subscript(exprBegin, exprEnd);
+                                Identifier i = new Identifier(head, sub);
+                                if ( i.isValid() ) {
+                                    Expression lhs = new Expression(i);
+
+                                    if ( ! this.canParse(arg) ) {
+                                        return lhs;
+                                    }
+
+                                    Token operT = this.popNext(arg);
+                                    Operator oper = new Operator(operT);
+
+                                    Expression rhs = this.parseExpression(arg);
+                                    BinaryOperation binOp = new BinaryOperation(lhs, oper, rhs);
+
+                                    if ( operT.tokenStr.equals("=") ) {
+                                        // binOp is an assignment
+                                        Assignment a = new Assignment(binOp);
+                                        if ( ! a.isValid() ) {
+                                            reportParseError(
+                                                    "Building assignment failed",
+                                                    head,
+                                                    next
+                                            );
+                                            return null;
+                                        }
+
+                                        return new Expression(a);
+                                    } else {
+                                        if ( ! binOp.isValid() ) {
+                                            reportParseError(
+                                                    "Building binary operation failed",
+                                                    head,
+                                                    next
+                                            );
+                                            return null;
+                                        }
+
+                                        return new Expression(binOp);
+                                    }
+                                } else {
+                                    reportParseError(
+                                            "Identifier is not valid",
+                                            head,
+                                            next
+                                    );
+                                    return null;
+                                }
+                            } else {
+                                reportParseError(
+                                        String.format(
+                                            "Unexpected token `%s`, expected `]`",
+                                            this.peekNext(arg)
+                                        ),
+                                        head,
+                                        next
+                                );
+                                return null;
+                            }
+                        case "(":  // function call..
+                            // this should be a function call since an open paren follows it.
+                            // reclassify the head token and build the function call.
+                            //
+                            // Since it was not recognized by the Scanner as a function call,
+                            // it *has* to be a user defined function.
+                            head.primClassif = Primary.FUNCTION.getCid();
+                            head.subClassif = Subclass.USER.getCid();
+
+                            // Re-call parseExpression to parse the newly known function call!
+                            arg.add(0, head);
+
+                            return this.parseExpression(arg);
+                        default:
+                            break; // doot doot
+                    }
                 }
 
                 break;
@@ -762,7 +1058,7 @@ public class Parser {
                 FunctionCall fCall = this.parseFunctionCall(arg);
 
                 if ( ! fCall.isValid() ) {
-                    this.reportParseError(
+                    reportParseError(
                             "Building function call in from expression failed",
                             head,
                             next
@@ -772,13 +1068,19 @@ public class Parser {
 
                 return new Expression(fCall);
             default:
-                this.reportParseError(
+                reportParseError(
                         "Building expression failed",
                         head,
                         next
                 );
                 return null;
         }
+
+        reportParseError(
+                "Expression parser fell out of switch, bailing out",
+                head,
+                next
+        );
 
         return null;
     }
