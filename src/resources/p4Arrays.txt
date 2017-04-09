@@ -1,0 +1,26 @@
+// unbounded array
+Int[] allTheThings;
+
+// Bounded, uninitialized
+Int[10] someOfTheThings;
+
+// Unbounded, initialized
+Int[] moreOfTheThings = 1, 2, 3, 4;
+
+// Bounded, initialized
+Int[5] compoundDecl = 1, 2, 3, 4, 5;
+
+// only assignment
+allTheThings = 5, 4, 3, 2, 1;
+
+// [1, 3, 3, 4, 5]
+nums[1] = 3;
+
+// [1, 1, 1, 1, 1]
+nums = 1;
+
+Int someSingle = nums[3];
+
+// overwrite two elements in an array
+// [1, 2, 3, 5, 4]
+compoundDecl[3:4] = 5, 4;

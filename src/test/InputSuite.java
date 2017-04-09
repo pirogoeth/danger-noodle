@@ -24,6 +24,8 @@ public class InputSuite
             Resources.P3_IN,
             Resources.P3_IN_SE,
             Resources.P3_IN_PARSER,
+            Resources.P4_IN_ARRAYS,
+            Resources.P4_IN_EVAL,
         };
 
         for (File f : inputs) {
@@ -32,45 +34,37 @@ public class InputSuite
             } catch (Exception e) {
                 System.out.printf("Input test '%s' failed:\n", f.getName());
                 e.printStackTrace();
+                return;
             }
         }
     }
 
-    public static void exec(File inputf)
+    public static void exec(File inputf) throws Exception
     {
         // Create the SymbolTable
         SymbolTable symbolTable = new SymbolTable();
-
         List<Token> tokenList = new ArrayList<>();
+        List<Statement> stmtList = new ArrayList<>();
 
-        try
+        Scanner scan = new Scanner(inputf);
+        scan.currentToken.printToken();
+        tokenList.add(scan.currentToken);
+
+        while (! scan.getNext().isEmpty())
         {
-            Scanner scan = new Scanner(inputf);
             scan.currentToken.printToken();
             tokenList.add(scan.currentToken);
-
-            while (! scan.getNext().isEmpty())
-            {
-                scan.currentToken.printToken();
-                tokenList.add(scan.currentToken);
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
         }
 
         System.out.println("\n -- LEXING FINISHED -- \n");
 
-        try
-        {
-            Parser p = new Parser(tokenList);
-            while ( p.canParse() ) {
-                Statement s = p.parse();
-                System.out.println(s.debug());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        Parser p = new Parser(tokenList);
+        while ( p.canParse() ) {
+            Statement s = p.parse();
+            stmtList.add(s);
+            System.out.println(s.debug());
         }
+
+        System.out.println("\n -- PARSING FINISHED -- \n");
     }
 }

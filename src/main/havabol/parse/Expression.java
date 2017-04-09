@@ -10,6 +10,7 @@ public class Expression implements ParseElement {
 
     private Token t;
 
+    private Array array;
     private Assignment assignment;
     private Primitive primitive;
     private BinaryOperation binOp;
@@ -66,12 +67,17 @@ public class Expression implements ParseElement {
         this.functionCall = funcCall;
     }
 
+    public Expression(Array ary) {
+        this.array = ary;
+    }
+
     public boolean isValid() {
         return ( this.binOp != null && this.binOp.isValid() ) ||
                ( this.ident != null && this.ident.isValid() ) ||
                ( this.primitive != null && this.primitive.isValid() ) ||
                ( this.functionCall != null && this.functionCall.isValid() ) ||
-               ( this.assignment != null && this.assignment.isValid() );
+               ( this.assignment != null && this.assignment.isValid() ) ||
+               ( this.array != null && this.array.isValid() );
     }
 
     public String debug(int indent) {
@@ -88,6 +94,8 @@ public class Expression implements ParseElement {
             sb.append(this.functionCall.debug(indent + 2));
         } else if ( this.assignment != null ) {
             sb.append(this.assignment.debug(indent + 2));
+        } else if ( this.array != null ) {
+            sb.append(this.array.debug(indent + 2));
         }
 
         return sb.toString();

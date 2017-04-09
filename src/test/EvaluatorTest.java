@@ -4,11 +4,12 @@ import havabol.Token;
 import havabol.Scanner;
 import havabol.SymbolTable;
 import havabol.classify.*;
+import havabol.eval.*;
 import havabol.parse.*;
 
 import java.util.*;
 
-public class ParserTest
+public class EvaluatorTest
 {
     public static void main(String[] args)
     {
@@ -37,12 +38,27 @@ public class ParserTest
 
         System.out.println("\n -- LEXING FINISHED -- \n");
 
+        List<Statement> stmts = new ArrayList<>();
+
         try
         {
             Parser p = new Parser(tokenList);
             while ( p.canParse() ) {
                 Statement s = p.parse();
+                stmts.add(s);
                 System.out.println(s.debug());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        System.out.println("\n -- PARSING FINISHED -- \n");
+
+        try {
+            Evaluator e = new Evaluator(stmts);
+            while ( e.canEval() ) {
+                break;
             }
         } catch (Exception e) {
             e.printStackTrace();

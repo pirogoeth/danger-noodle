@@ -63,8 +63,8 @@ if i == SPLIT("this test"):
   print(i # "\n");
 endif;
 
-func SPLIT(String s) ~> String[]:
+def String[] SPLIT(String s):
   // do the thing
-endfunc;
+enddef;
 
 

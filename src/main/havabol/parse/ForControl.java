@@ -24,9 +24,9 @@ public class ForControl implements ParseElement {
         StringBuilder sb = new StringBuilder();
 
         sb.append(lpads(indent, "For ~>\n"));
-        sb.append(lpads(indent, "Cond ::\n"));
+        sb.append(lpads(indent, "COND ::\n"));
         sb.append(this.cond.debug(indent + 2));
-        sb.append(lpads(indent, "Exec ::\n"));
+        sb.append(lpads(indent, "EXEC ::\n"));
         sb.append(this.body.debug(indent + 2));
 
         return sb.toString();
