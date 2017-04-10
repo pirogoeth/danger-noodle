@@ -10,4 +10,6 @@ public interface TypeInterface<T> extends Debuggable {
     void setValue(T val);
     T getValue();
 
+    String getRepr();
+
 }

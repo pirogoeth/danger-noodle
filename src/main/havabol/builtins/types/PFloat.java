@@ -28,10 +28,14 @@ public class PFloat implements TypeInterface<Float> {
     public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(lpads(indent, "Primitive type Boolean =>\n"));
-        sb.append(lpads(indent + 2, String.format("Value ==> `%b`\n", this.value)));
+        sb.append(lpads(indent, "Primitive type Float =>\n"));
+        sb.append(lpads(indent + 2, String.format("Value ==> `%.2f`\n", this.value)));
 
         return sb.toString();
+    }
+
+    public String getRepr() {
+        return Numerics.floatAsString(this.value);
     }
 
 }

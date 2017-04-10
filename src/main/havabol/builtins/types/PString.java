@@ -28,10 +28,14 @@ public class PString implements TypeInterface<String> {
     public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(lpads(indent, "Primitive type Boolean =>\n"));
-        sb.append(lpads(indent + 2, String.format("Value ==> `%b`\n", this.value)));
+        sb.append(lpads(indent, "Primitive type String =>\n"));
+        sb.append(lpads(indent + 2, String.format("Value ==> `%s`\n", this.value)));
 
         return sb.toString();
+    }
+
+    public String getRepr() {
+        return String.format("\"%s\"", this.value);
     }
 
 }

@@ -28,10 +28,14 @@ public class PInteger implements TypeInterface<Integer> {
     public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(lpads(indent, "Primitive type Boolean =>\n"));
-        sb.append(lpads(indent + 2, String.format("Value ==> `%b`\n", this.value)));
+        sb.append(lpads(indent, "Primitive type Int =>\n"));
+        sb.append(lpads(indent + 2, String.format("Value ==> `%d`\n", this.value)));
 
         return sb.toString();
+    }
+
+    public String getRepr() {
+        return Numerics.intAsString(this.value);
     }
 
 }
