@@ -821,8 +821,7 @@ public class Scanner{
 
              //Check if previous token is an operator as well
              //This will determine if - is urnary or not
-             if(tokenList.get(tokenList.size()-1).primClassif == Token.OPERATOR |
-                tokenList.get(tokenList.size()-1).primClassif == Token.SEPARATOR){
+             if(tokenList.get(tokenList.size()-1).primClassif == Token.OPERATOR){
 
                  //Check that next token is float, int, or operand
                  if(next.primClassif == Token.OPERAND){
