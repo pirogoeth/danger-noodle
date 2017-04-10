@@ -2,10 +2,10 @@ package test;
 
 import havabol.Token;
 import havabol.Scanner;
-import havabol.SymbolTable;
 import havabol.classify.*;
 import havabol.eval.*;
 import havabol.parse.*;
+import havabol.sym.*;
 
 import java.util.*;
 
@@ -55,10 +55,14 @@ public class EvaluatorTest
 
         System.out.println("\n -- PARSING FINISHED -- \n");
 
+        List<EvalResult> res = new ArrayList<>();
+
         try {
             Evaluator e = new Evaluator(stmts);
             while ( e.canEval() ) {
-                break;
+                EvalResult er = e.evaluate();
+                res.add(er);
+                System.out.println(er.debug());
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -11,6 +11,7 @@ import java.util.ArrayList;
  *
  * @author fish
  */
+@SuppressWarnings("unchecked")
 class arrayContainer {
 
      public boolean bounded;   //determines if array is bounded or unbounded

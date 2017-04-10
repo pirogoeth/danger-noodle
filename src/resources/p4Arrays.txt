@@ -24,3 +24,6 @@ Int someSingle = nums[3];
 // overwrite two elements in an array
 // [1, 2, 3, 5, 4]
 compoundDecl[3:4] = 5, 4;
+
+// uber-complex super-declaration
+String myString = myStringArray[LENGTH(myStringArray[0]) - 7] + " hello " + myStringArray[1];

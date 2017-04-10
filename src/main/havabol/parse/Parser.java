@@ -2,39 +2,14 @@ package havabol.parse;
 
 import havabol.Token;
 import havabol.Scanner;
-import havabol.SymbolTable;
 import havabol.classify.*;
+import havabol.sym.*;
 import havabol.util.*;
 
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-/**
- * ParserException exposes a series of tokens and a message
- * that can be used to generate context for finding the error
- * inside code.
- */
-class ParserException extends Exception {
-
-    public long serialVersionUid = 1000000L;
-    private Token[] tokens;
-
-    public ParserException(String message) {
-        super(message);
-    }
-
-    public ParserException(String message, Token...contexts) {
-        super(message);
-        this.tokens = contexts;
-    }
-
-    public Token[] getCausalTokens() {
-        return this.tokens;
-    }
-
-}
 
 /**
  * Parses tokens.
@@ -231,10 +206,14 @@ public class Parser {
      * @return Token
      */
     private Token popNext() {
-        return this.tokens.remove(0);
+        return this.popNext(this.tokens);
     }
 
     private Token popNext(List<Token> l) {
+        if ( l.isEmpty() ) {
+            return null;
+        }
+
         return l.remove(0);
     }
 
@@ -303,7 +282,43 @@ public class Parser {
     private List<Token> popUntil(List<Token> tokens, String delim) {
         List<Token> newTokens = new ArrayList<>();
 
-        while ( ! this.peekNext(tokens).tokenStr.equals(delim) ) {
+        Token t;
+        while ( (t = this.peekNext(tokens)) != null && ! t.tokenStr.equals(delim) ) {
+            newTokens.add(this.popNext(tokens));
+        }
+
+        return newTokens;
+    }
+
+    /**
+     * Pops until the last occurrence of a token.
+     *
+     * @param String delim
+     *
+     * @return List<Token>
+     */
+    private List<Token> popUntilLast(String delim) {
+        return this.popUntilLast(this.tokens, delim);
+    }
+
+    /**
+     * Pops until the last occurrence of a token.
+     *
+     * @param String delim
+     *
+     * @return List<Token>
+     */
+    private List<Token> popUntilLast(List<Token> tokens, String delim) {
+        List<Token> newTokens = new ArrayList<>();
+
+        int idx = tokens.size() - 1;
+        for ( ; idx >= 0; idx-- ) {
+            if ( tokens.get(idx).tokenStr.equals(delim) ) {
+                break;
+            }
+        }
+
+        for ( int i = 0; i < idx; i++ ) {
             newTokens.add(this.popNext(tokens));
         }
 
@@ -339,6 +354,35 @@ public class Parser {
         }
 
         return newTokens;
+    }
+
+    /**
+     * Determines whether or not a tokens list contains the String value.
+     *
+     * @param String value
+     *
+     * @return boolean
+     */
+    private boolean containsToken(String value) {
+        return this.containsToken(this.tokens, value);
+    }
+
+    /**
+     * Determines whether or not a tokens list contains the String value.
+     *
+     * @param List<Token> tokens
+     * @param String value
+     *
+     * @return boolean
+     */
+    private boolean containsToken(List<Token> tokens, String value) {
+        for (Token t : tokens) {
+            if ( t.tokenStr.equals(value) ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // PARSER MANGLEMENT
@@ -768,6 +812,10 @@ public class Parser {
     private FunctionCall parseFunctionCall(List<Token> tokens) throws ParserException {
         Token handle = this.popNext(tokens);
 
+        System.out.println("FUNCCALL");
+        handle.printToken();
+        System.out.println();
+
         Identifier funcName = new Identifier(handle);
         if ( !funcName.isValid() ) {
             reportParseError(
@@ -779,34 +827,37 @@ public class Parser {
 
         Token openParen = this.popNext(tokens);
         if ( tokenType(openParen, Primary.SEPARATOR, null) && openParen.tokenStr.equals("(") ) {
-            Token t;
             List<Expression> argsList = new ArrayList<>();
-            List<Token> argTokens = new ArrayList<>();
+            List<Token> argTokens = this.popUntilLast(tokens, ")");
 
-            while ((t = this.popNext(tokens)) != null) {
-                if ( t.tokenStr.equals(")") ) {
-                    // Flush all tokens through `parseExpression` and add to `argsList`
-                    argsList.add(this.parseExpression(argTokens));
-
-                    // Clear out argTokens
-                    argTokens = new ArrayList<>();
-
-                    break;
-                }
-
-                switch (t.tokenStr) {
-                    case ",":
-                        // Flush all tokens through `parseExpression` and add to `argsList`
-                        argsList.add(this.parseExpression(argTokens));
-
-                        // Clear out argTokens
-                        argTokens = new ArrayList<>();
-
+            List<Token> exprBuf;
+            while ( this.canParse(argTokens) ) {
+                Token cur = this.peekNext(argTokens);
+                System.out.println("CURRENT PARSE");
+                argTokens.stream().forEach(t -> t.printToken());
+                switch (Primary.primaryFromInt(cur.primClassif)) {
+                    case FUNCTION:
+                        exprBuf = this.popUntil(argTokens, ")");
                         break;
+                    case SEPARATOR:
+                        this.eatNextIfEq(argTokens, ",");
                     default:
-                        argTokens.add(t);
+                        exprBuf = this.popUntil(argTokens, ",");
                         break;
                 }
+
+                if ( exprBuf == null ) {
+                    reportParseError(
+                        "Expression buffer is null - this should not happen!",
+                        handle,
+                        openParen
+                    );
+                    return null;
+                }
+
+                System.out.println("PARSE EXPR");
+                exprBuf.stream().forEach(t -> t.printToken());
+                argsList.add(this.parseExpression(exprBuf));
             }
 
             FunctionCall fCall = new FunctionCall(funcName, argsList);
@@ -814,8 +865,7 @@ public class Parser {
                 reportParseError(
                         "Invalid function call",
                         handle,
-                        openParen,
-                        t
+                        openParen
                 );
                 return null;
             }
@@ -880,8 +930,10 @@ public class Parser {
      * @throws ParserException
      */
     private Expression parseExpression(List<Token> arg) throws ParserException {
+        System.out.println("PARSE EXPR FOR");
+        arg.stream().forEach(t -> t.printToken());
         if ( arg.isEmpty() ) {
-            reportParseError("Expression parsing failed!");
+            reportParseError("Expression parsing failed - empty token list!");
             return null;
         }
 

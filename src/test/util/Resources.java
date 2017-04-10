@@ -137,4 +137,11 @@ public class Resources {
      */
     public static final File P4_IN_EVAL = openResource("resources/p4Eval.txt");
 
+    /**
+     * Stream for `/resources/p4Edge.txt`
+     *
+     * @return File
+     */
+    public static final File P4_IN_EDGE = openResource("resources/p4Edge.txt");
+
 }

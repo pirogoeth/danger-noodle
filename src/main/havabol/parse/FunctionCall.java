@@ -2,6 +2,9 @@ package havabol.parse;
 
 import havabol.Token;
 import havabol.classify.*;
+import havabol.common.*;
+import havabol.common.function.*;
+import havabol.sym.*;
 import static havabol.util.Text.*;
 
 import java.util.*;
@@ -14,6 +17,27 @@ public class FunctionCall implements ParseElement {
     public FunctionCall(Identifier functionName, List<Expression> argsList) {
         this.functionName = functionName;
         this.argsList = argsList;
+    }
+
+    public FunctionInterface resolveFunctionHandle() {
+        return this.resolveFunctionHandle(SymbolTable.getGlobal());
+    }
+
+    public FunctionInterface resolveFunctionHandle(SymbolTable symScope) {
+        LookupTable tab = LookupTable.getFor(symScope);
+        STFunction stFunc = null;
+        STEntry tmp = symScope.lookupSym(this.functionName.getIdentT());
+        if ( tmp instanceof STFunction ) {
+            stFunc = (STFunction) tmp;
+        } else {
+            // XXX - Should throw an ExecException
+        }
+
+        return tab.lookupFunction(stFunc);
+    }
+
+    public List<Expression> getArgs() {
+        return this.argsList;
     }
 
     public boolean isValid() {

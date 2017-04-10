@@ -2,9 +2,9 @@ package test;
 
 import havabol.Token;
 import havabol.Scanner;
-import havabol.SymbolTable;
 import havabol.classify.*;
 import havabol.parse.*;
+import havabol.sym.*;
 
 import java.io.*;
 import java.util.*;

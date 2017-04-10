@@ -1,0 +1,21 @@
+package havabol.common.type;
+
+import static havabol.util.Text.*;
+
+public class PrimitiveType implements TypeInterface {
+
+    public String repr() {
+        return String.format("PRIMITIVE\n");
+    }
+
+    public String debug(int indent) {
+        return lpads(
+            indent,
+            String.format(
+                "Primitive Type => `%s`\n",
+                this.repr()
+            )
+        );
+    }
+
+}

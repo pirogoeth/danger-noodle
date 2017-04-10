@@ -17,6 +17,7 @@
  */
 package havabol;
 
+import havabol.sym.*;
 import havabol.util.debugObj;
 import java.util.*;
 

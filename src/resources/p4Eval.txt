@@ -1,2 +1,5 @@
 // Base case :^)
 print("Hello, world!");
+
+// Next!
+print("Length of 'hello world':", LENGTH("hello world"));
