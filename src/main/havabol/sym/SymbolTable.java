@@ -1,10 +1,11 @@
-package havabol;
+package havabol.sym;
 
+import havabol.Token;
 import havabol.classify.*;
 import havabol.storage.*;
-import havabol.sym.*;
 
 import java.util.*;
+import java.util.stream.*;
 
 /**
  * @author Sean Johnson <sean.johnson@maio.me>
@@ -131,6 +132,16 @@ public class SymbolTable
     public SymbolTable getParent()
     {
         return this.parent;
+    }
+
+    /**
+     * Return a stream view of the STEntry items in the symbol map.
+     *
+     * @return Stream<STEntry>
+     */
+    public Stream<STEntry> symbolStream()
+    {
+        return this.tab.values().stream();
     }
 
     /**

@@ -8,6 +8,7 @@ import java.util.*;
 
 public class Expression implements ParseElement {
 
+    private ExpressionType exprType = ExpressionType.UNKNOWN;
     private Token t;
 
     private Array array;
@@ -23,12 +24,14 @@ public class Expression implements ParseElement {
                 switch (Subclass.subclassFromInt(t.subClassif)) {
                     case IDENTIFIER:
                         this.ident = new Identifier(t);
+                        this.exprType = ExpressionType.IDENTIFIER;
                         break;
                     case INTEGER:
                     case STRING:
                     case BOOLEAN:
                     case FLOAT:
                         this.primitive = new Primitive(t);
+                        this.exprType = ExpressionType.PRIMITIVE;
                         break;
                     default:
                         Parser.reportParseError(
@@ -49,26 +52,42 @@ public class Expression implements ParseElement {
 
     public Expression(Primitive prim) {
         this.primitive = prim;
+
+        this.exprType = ExpressionType.PRIMITIVE;
     }
 
     public Expression(Assignment a) {
         this.assignment = a;
+
+        this.exprType = ExpressionType.ASSIGNMENT;
     }
 
     public Expression(Identifier ident) {
         this.ident = ident;
+
+        this.exprType = ExpressionType.IDENTIFIER;
     }
 
     public Expression(BinaryOperation binOp) {
         this.binOp = binOp;
+
+        this.exprType = ExpressionType.BINARY_OP;
     }
 
     public Expression(FunctionCall funcCall) {
         this.functionCall = funcCall;
+
+        this.exprType = ExpressionType.FUNC_CALL;
     }
 
     public Expression(Array ary) {
         this.array = ary;
+
+        this.exprType = ExpressionType.ARRAY;
+    }
+
+    public ExpressionType getExpressionType() {
+        return this.exprType;
     }
 
     public boolean isValid() {
@@ -99,6 +118,32 @@ public class Expression implements ParseElement {
         }
 
         return sb.toString();
+    }
+
+    // Getters for derivations of Expression
+
+    public Array getArray() {
+        return this.array;
+    }
+
+    public Assignment getAssignment() {
+        return this.assignment;
+    }
+
+    public BinaryOperation getBinaryOperation() {
+        return this.binOp;
+    }
+
+    public FunctionCall getFunctionCall() {
+        return this.functionCall;
+    }
+
+    public Identifier getIdentifier() {
+        return this.ident;
+    }
+
+    public Primitive getPrimitive() {
+        return this.primitive;
     }
 
 }

@@ -1,0 +1,13 @@
+// edge case 1 - expected behaviour: success
+String name1 = "Javier";
+String name1 = "Shane";
+
+// edge case 2 - expected behaviour:
+String name2 = "Javier";
+String name2;
+print(name2);
+
+// edge case 3 - expected behaviour:
+Int x1 = 5;
+String x1 = x;
+print(x1);

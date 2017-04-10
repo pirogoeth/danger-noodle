@@ -20,6 +20,10 @@ public class Identifier implements ParseElement {
         this.subscript = sub;
     }
 
+    public Token getIdentT() {
+        return this.identToken;
+    }
+
     public boolean isValid() {
         return ( this.subscript != null && this.subscript.isValid() ) || true;
     }
