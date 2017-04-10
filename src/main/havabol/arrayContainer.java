@@ -60,6 +60,10 @@ class arrayContainer {
      // otherwise use insert
      public void addInt(int thingToadd){
         if(this.type.equals("Int")){
+            if(this.maxSize == this.length){
+                System.out.println("Error trying to add an elemnt out of array bounds");
+                System.exit(-1);
+            }
                 this.items.set(this.length, thingToadd);
                 this.numElements++;
                 this.length++;
@@ -119,15 +123,15 @@ class arrayContainer {
          
          if(temp < this.maxSize){
              if(temp < 0){
-                 temp = this.maxSize + temp; 
+                 temp = this.maxSize - temp; 
              }
              this.items.set(temp, add);
              this.validBits.set(temp, true);
-             if(index >this.length){
-                 this.length = index;
-             }
+           
+                 this.length++;
+             
          }else{
-             System.out.println("Error index is out fo bounds");
+             System.out.println("Error index is out of bounds");
              System.exit(-1);
          }
      }
@@ -272,7 +276,7 @@ class arrayContainer {
         double ret = 0;
         
              if(validBits.get(index)){
-                ret = (double) this.items.get(index);
+                ret = (float) this.items.get(index);
              }else{
                  System.out.println("Value has not be initialied");
                  System.exit(-1);
@@ -292,40 +296,158 @@ class arrayContainer {
         return ret;
     }
 
-    public void addScalarInt(int scalar){
-        if(this.type.equals("Int") || this.type.equals("Float")){
-            for(int i = 0; i < this.validBits.size(); i ++){
-                if(this.validBits.get(i)){
-                    if(this.type.equals("Int")){
-                       this.items.set(i, (int) this.items.get(i) + scalar);
-                    }
-                    if(this.type.equals("Float")){
-                        this.items.set(i, (double) this.items.get(i) + scalar);
-                    }
+    public void intScalar(int scalar){
+        if(!this.type.equals("Int")){
+             System.out.println("Error attempt to set scalar to non int array");
+             System.exit(-1);
+         }
+        
+        for(int i = 0; i < this.maxSize; i++){
+            this.items.set(i, scalar);
+            this.validBits.set(i, true);
+        }
+        this.length = this.maxSize;
+    }
+    
+    public void stringScalar(String scalar){
+        if(!this.type.equals("String")){
+             System.out.println("Error attempt to set scalar to non String array");
+             System.exit(-1);
+         }
+        
+        for(int i = 0; i < this.maxSize; i++){
+            this.items.set(i, scalar);
+            this.validBits.set(i, true);
+        }
+        this.length = this.maxSize;
+    }
+    
+    public void floatScalar(float scalar){
+        if(!this.type.equals("Float")){
+             System.out.println("Error attempt to set scalar to non float array");
+             System.exit(-1);
+         }
+        
+        for(int i = 0; i < this.maxSize; i++){
+            this.items.set(i, scalar);
+            this.validBits.set(i, true);
+        }
+        this.length = this.maxSize;
+    }
+    
+    public void booleanScalar(boolean scalar){
+        if(!this.type.equals("Boolean")){
+             System.out.println("Error attempt to set scalar to non boolean array");
+             System.exit(-1);
+         }
+        
+        for(int i = 0; i < this.maxSize; i++){
+            this.items.set(i, scalar);
+            this.validBits.set(i, true);
+        }
+        this.length = this.maxSize;
+    }
+    
+    
+    public void assignArray(arrayContainer other){
+        int temp = 0;
+      
+        if(this.length > other.length){
+            //
+            //assigning smaller to larger array
+            //
+            for(int i = 0; i < other.maxSize; i++){
+                if(other.validBits.get(i)){
+                    //System.out.println(other.items.get(i));
+                    this.items.set(i, other.items.get(i));
+                    this.validBits.set(i, true);
                 }
+                temp = i;
+                
             }
+            this.length = other.length;
+            for(int i = temp + 1; i < this.maxSize; i++){
+                this.validBits.set(i, false);
+            }
+            
+       
+        }else{
+            //
+            //assigning larger to smaller array
+            //
+            
+            for(int i = 0; i < this.maxSize; i++){
+                if(other.validBits.get(i)){
+                    this.items.set(i, other.items.get(i));
+                    this.validBits.set(i, true);
+                }
+                temp = i;
+            }
+       
         }
     }
     
-    public void addScalarDouble(double scalar){
-        if(this.type.equals("Int") || this.type.equals("Float")){
-            for(int i = 0; i < this.validBits.size(); i ++){
-                if(this.validBits.get(i)){
-                    if(this.type.equals("Int")){
-                        
-                       this.items.set(i, (int) (this.getIntValue(i) + scalar));
-                       //System.out.println("Here");
-                    }else{
-                    if(this.type.equals("Float")){
-                        System.out.println("Here2");
-                        this.items.set(i, ((double) this.items.get(i) + scalar));
-                    }
-                    }
-                }
+    public void assignArraySlice(arrayContainer other, int start, int end){
+      String test = "10";
+        int temp = 0;
+        int count = 0;
+        for(int i = start; i <= end; i++){
+            //skips assinging lines that are greater than the max of on array
+            if(i >= this.maxSize || i >= other.maxSize){
+                continue;
             }
+            if(other.validBits.get(i) && ! (count > this.maxSize))
+            {
+               this.items.set(temp, other.items.get(i));
+               count++;
+            }
+            temp++;
+            
+            //System.out.println(other.items.get(i));
         }
+        this.length = count;
+       
+        for(int i = count; i < this.maxSize; i++){
+                this.validBits.set(i, false);
+            }
+        
     }
     
+    int getIntElem(){
+        if(!this.type.equals("Int")){
+            System.out.println("Error trying to get int from non int array");
+            System.exit(-1);
+        }
+        return this.getIntValue(this.length);
+    }
+    
+    float getFloatElem(){
+        if(!this.type.equals("Float")){
+            System.out.println("Error trying to get float from non float array");
+            System.exit(-1);
+        }
+        return (float) this.getFloatValue(this.length);
+    }
+    
+    String getStringElem(){
+        if(!this.type.equals("String")){
+            System.out.println("Error trying to get string from non string array");
+            System.exit(-1);
+        }
+        return  this.getStringValue(this.length);
+    }
+    
+     boolean getBooleanElem(){
+        if(!this.type.equals("Boolean")){
+            System.out.println("Error trying to get boolean from non boolean array");
+            System.exit(-1);
+        }
+        return this.getBooleanValue(this.length);
+    }
+     
+    public int getMaxSize(){
+        return this.maxSize;
+    }
 }
  
 
