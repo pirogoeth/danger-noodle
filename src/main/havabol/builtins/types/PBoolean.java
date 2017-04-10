@@ -34,4 +34,12 @@ public class PBoolean implements TypeInterface<Boolean> {
         return sb.toString();
     }
 
+    public String getRepr() {
+        if ( this.value ) {
+            return "T";
+        } else {
+            return "F";
+        }
+    }
+
 }

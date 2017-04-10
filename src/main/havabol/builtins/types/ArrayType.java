@@ -38,4 +38,18 @@ public class ArrayType implements TypeInterface<List<TypeInterface>> {
         return sb.toString();
     }
 
+    public String getRepr() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("[");
+        for (int i = 0; i < this.value.size() ; i++) {
+            sb.append(this.value.get(i).getRepr());
+            if ( i < this.value.size() - 1 ) {
+                sb.append(", ");
+            }
+        }
+
+        return sb.toString();
+    }
+
 }
