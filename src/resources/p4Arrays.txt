@@ -26,4 +26,4 @@ Int someSingle = nums[3];
 compoundDecl[3:4] = 5, 4;
 
 // uber-complex super-declaration
-String myString = myStringArray[LENGTH(myStringArray[0]) - 7] + " hello " + myStringArray[1];
+String myString = myStringArray[LENGTH(myStringArray[0]) - 7] # " hello " # myStringArray[1];

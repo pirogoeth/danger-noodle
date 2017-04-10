@@ -9,7 +9,9 @@ import havabol.util.*;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Parses tokens.
@@ -93,6 +95,8 @@ public class Parser {
 
     // TOKEN MANGLEMENT
 
+    // def isNext.
+
     /**
      * Check the string value of the next token.
      *
@@ -112,13 +116,20 @@ public class Parser {
      *
      * @return boolean
      */
-    private boolean isNext(List<Token> t, String s) {
-        if ( this.peekNext(t).tokenStr.equals(s) ) {
+    private boolean isNext(List<Token> tokens, String s) {
+        Token t = this.peekNext(tokens);
+        if ( t == null ) {
+            return false;
+        }
+
+        if ( t.tokenStr.equals(s) ) {
             return true;
         }
 
         return false;
     }
+
+    // def eatNext.
 
     /**
      * Forces the parser to eat the next token.
@@ -137,6 +148,8 @@ public class Parser {
     private void eatNext(List<Token> l) {
         l.remove(0);
     }
+
+    // def eatNextIfOfType.
 
     /**
      * Forces the parser to eat the next token if the token's primary and
@@ -170,6 +183,8 @@ public class Parser {
         return false;
     }
 
+    // def eatNextIfEq.
+
     /**
      * Forces the parser to eat the next token if the token's string value
      * matches the given string value.
@@ -200,6 +215,8 @@ public class Parser {
         return false;
     }
 
+    // def popNext.
+
     /**
      * Pops the next token off the array.
      *
@@ -216,6 +233,8 @@ public class Parser {
 
         return l.remove(0);
     }
+
+    // def peekNext.
 
     /**
      * Allows for single lookahead of the next token without popping.
@@ -238,6 +257,8 @@ public class Parser {
         }
     }
 
+    // def popStatement.
+
     /**
      * Gets and returns a list of tokens up to statement end.
      *
@@ -259,6 +280,8 @@ public class Parser {
 
         return newTokens;
     }
+
+    // def popUntil.
 
     /**
      * Gets and returns a list of tokens up to the next delimiter.
@@ -289,6 +312,40 @@ public class Parser {
 
         return newTokens;
     }
+
+    /**
+     * Gets and returns a list of tokens up to the next set of delimiters.
+     *
+     * @param String delims
+     *
+     * @return List<Token>
+     */
+    private List<Token> popUntil(String...delims) {
+        return this.popUntil(this.tokens, delims);
+    }
+
+    /**
+     * Gets and returns a list of tokens up to the next set of delimiters.
+     *
+     * @param List<Token> tokens
+     * @param String delims
+     *
+     * @return List<Token>
+     */
+    private List<Token> popUntil(List<Token> tokens, String...delims) {
+        List<Token> newTokens = new ArrayList<>();
+
+        List<String> delimsList = Arrays.asList(delims);
+
+        Token t;
+        while ( (t = this.peekNext(tokens)) != null && ! delimsList.contains(t.tokenStr) ) {
+            newTokens.add(this.popNext(tokens));
+        }
+
+        return newTokens;
+    }
+
+    // def popUntilLast.
 
     /**
      * Pops until the last occurrence of a token.
@@ -325,36 +382,126 @@ public class Parser {
         return newTokens;
     }
 
+    // def popUntilMatch.
+
     /**
-     * Gets and returns a list of tokens up to the next set of delimiters.
-     *
-     * @param String delims
+     * Pops until a match is found for the string value of the current token.
+     * Current token may have one of the following values: [ (
      *
      * @return List<Token>
      */
-    private List<Token> popUntil(String...delims) {
-        return this.popUntil(this.tokens, delims);
+    private List<Token> popUntilMatch() {
+        return this.popUntilMatch(this.tokens);
     }
 
     /**
-     * Gets and returns a list of tokens up to the next set of delimiters.
-     *
-     * @param List<Token> tokens
-     * @param String delims
+     * Pops until a match is found for the string value of the current token.
+     * Current token may have one of the following values: [ (
      *
      * @return List<Token>
      */
-    private List<Token> popUntil(List<Token> tokens, String...delims) {
+    private List<Token> popUntilMatch(List<Token> tokens) {
+        Token cur = this.peekNext(tokens);
+        if ( cur == null ) {
+            return null;
+        }
+
+        return this.popUntilMatch(tokens, cur.tokenStr);
+    }
+
+    /**
+     * Pops until the matching occurrence of a closer for a token set.
+     * Bracket may be one of: [ (
+     *
+     * @param String bracket
+     *
+     * @return List<Token>
+     */
+    private List<Token> popUntilMatch(String bracket) {
+        return this.popUntilMatch(this.tokens, bracket);
+    }
+
+    /**
+     * Pops until the matching occurrence of a closer for a token set.
+     * Bracket may be one of: [ (
+     *
+     * @param List<Token> tokens
+     * @param String bracket
+     *
+     * @return List<Token>
+     */
+    private List<Token> popUntilMatch(List<Token> tokens, String bracket) {
         List<Token> newTokens = new ArrayList<>();
+        Map<String, String> sets = new HashMap<>();
+        sets.put("(", ")");
+        sets.put("[", "]");
 
-        List<String> delimsList = Arrays.asList(delims);
+        int bCount = 0;
 
-        while ( ! delimsList.contains(this.peekNext(tokens).tokenStr) ) {
-            newTokens.add(this.popNext(tokens));
+        // First iteration here should always put bCount at 1.
+        Token t;
+        while ( this.canParse(tokens) ) {
+            t = this.popNext(tokens);
+
+            if ( t.tokenStr.equals(bracket) ) {
+                bCount++;
+            } else if ( t.tokenStr.equals(sets.get(bracket)) ) {
+                bCount--;
+            }
+
+            newTokens.add(t);
+
+            if ( bCount == 0 ) {
+                break;
+            }
         }
 
         return newTokens;
     }
+
+    // def eatOuterMatching.
+
+    /**
+     * Eats the first matching outer tokens to strip away into the inner expression.
+     * Current token may have one of the following values: [ (
+     *
+     * @return List<Token>
+     */
+    private List<Token> eatOuterMatching() {
+        return this.eatOuterMatching(this.tokens);
+    }
+
+    /**
+     * Eats the first matching outer tokens to strip away into the inner expression.
+     * Current token may have one of the following values: [ (
+     *
+     * @param List<Token> tokens
+     *
+     * @return List<Token>
+     */
+    private List<Token> eatOuterMatching(List<Token> tokens) {
+        List<Token> newTokens = new ArrayList<>();
+        newTokens.addAll(tokens);
+
+        Map<String, String> sets = new HashMap<>();
+        sets.put("(", ")");
+        sets.put("[", "]");
+
+        Token begin = this.peekNext(tokens);
+        Token end = tokens.get(tokens.size() - 1);
+        for (Map.Entry entry : sets.entrySet()) {
+            if ( begin.tokenStr.equals(entry.getKey()) && end.tokenStr.equals(entry.getValue()) ) {
+                newTokens.remove(newTokens.size() - 1);
+                newTokens.remove(0);
+
+                return newTokens;
+            }
+        }
+
+        return newTokens;
+    }
+
+    // def containsToken.
 
     /**
      * Determines whether or not a tokens list contains the String value.
@@ -386,6 +533,8 @@ public class Parser {
     }
 
     // PARSER MANGLEMENT
+
+    // def canParse.
 
     /**
      * Returns if the parser's internal token list is empty or not.
@@ -812,10 +961,6 @@ public class Parser {
     private FunctionCall parseFunctionCall(List<Token> tokens) throws ParserException {
         Token handle = this.popNext(tokens);
 
-        System.out.println("FUNCCALL");
-        handle.printToken();
-        System.out.println();
-
         Identifier funcName = new Identifier(handle);
         if ( !funcName.isValid() ) {
             reportParseError(
@@ -833,8 +978,6 @@ public class Parser {
             List<Token> exprBuf;
             while ( this.canParse(argTokens) ) {
                 Token cur = this.peekNext(argTokens);
-                System.out.println("CURRENT PARSE");
-                argTokens.stream().forEach(t -> t.printToken());
                 switch (Primary.primaryFromInt(cur.primClassif)) {
                     case FUNCTION:
                         exprBuf = this.popUntil(argTokens, ")");
@@ -855,8 +998,6 @@ public class Parser {
                     return null;
                 }
 
-                System.out.println("PARSE EXPR");
-                exprBuf.stream().forEach(t -> t.printToken());
                 argsList.add(this.parseExpression(exprBuf));
             }
 
@@ -930,8 +1071,6 @@ public class Parser {
      * @throws ParserException
      */
     private Expression parseExpression(List<Token> arg) throws ParserException {
-        System.out.println("PARSE EXPR FOR");
-        arg.stream().forEach(t -> t.printToken());
         if ( arg.isEmpty() ) {
             reportParseError("Expression parsing failed - empty token list!");
             return null;
@@ -1003,86 +1142,52 @@ public class Parser {
 
                             return new Expression(ary);
                         case "[":  // subscripted identifier
-                            // eat the first token since it is the subscript open bracket
-                            this.eatNext(arg);
+                            Subscript sub = this.parseSubscript(arg);
 
-                            // first upcoming token should be some sort of expression
-                            // the next delimiter token (`:`) will mark the end of the begin expression
-                            // of the subscript
-                            Subscript sub;
+                            Identifier i = new Identifier(head, sub);
+                            if ( i.isValid() ) {
+                                Expression lhs = new Expression(i);
 
-                            List<Token> exprBeginPartT = this.popUntil(arg, ":", "]");
-                            Expression exprBegin = this.parseExpression(exprBeginPartT);
+                                if ( ! this.canParse(arg) ) {
+                                    return lhs;
+                                }
 
-                            List<Token> exprEndPartT;
-                            Expression exprEnd = null;
+                                Token operT = this.popNext(arg);
+                                Operator oper = new Operator(operT);
 
-                            // Depending on the next token, we can create the subscript to attach
-                            // to the identifier.
-                            if ( this.eatNextIfEq(arg, ":") ) {
-                                // There's an end part of the subscript!
-                                exprEndPartT = this.popUntil(arg, "]");
-                                exprEnd = this.parseExpression(exprEndPartT);
-                            }
+                                Expression rhs = this.parseExpression(arg);
+                                BinaryOperation binOp = new BinaryOperation(lhs, oper, rhs);
 
-                            if ( this.eatNextIfEq(arg, "]") ) {
-                                // Finish the subscript
-                                sub = new Subscript(exprBegin, exprEnd);
-                                Identifier i = new Identifier(head, sub);
-                                if ( i.isValid() ) {
-                                    Expression lhs = new Expression(i);
-
-                                    if ( ! this.canParse(arg) ) {
-                                        return lhs;
-                                    }
-
-                                    Token operT = this.popNext(arg);
-                                    Operator oper = new Operator(operT);
-
-                                    Expression rhs = this.parseExpression(arg);
-                                    BinaryOperation binOp = new BinaryOperation(lhs, oper, rhs);
-
-                                    if ( operT.tokenStr.equals("=") ) {
-                                        // binOp is an assignment
-                                        Assignment a = new Assignment(binOp);
-                                        if ( ! a.isValid() ) {
-                                            reportParseError(
-                                                    "Building assignment failed",
-                                                    head,
-                                                    next
-                                            );
-                                            return null;
-                                        }
-
-                                        return new Expression(a);
-                                    } else {
-                                        if ( ! binOp.isValid() ) {
-                                            reportParseError(
-                                                    "Building binary operation failed",
-                                                    head,
-                                                    next
-                                            );
-                                            return null;
-                                        }
-
-                                        return new Expression(binOp);
-                                    }
-                                } else {
-                                    reportParseError(
-                                            "Identifier is not valid",
+                                if ( operT.tokenStr.equals("=") ) {
+                                    // binOp is an assignment
+                                    Assignment a = new Assignment(binOp);
+                                    if ( ! a.isValid() ) {
+                                        reportParseError(
+                                            "Building assignment in subscript failed",
                                             head,
                                             next
-                                    );
-                                    return null;
+                                        );
+                                        return null;
+                                    }
+
+                                    return new Expression(a);
+                                } else {
+                                    if ( ! binOp.isValid() ) {
+                                        reportParseError(
+                                            "Building binary operation inside subscript failed",
+                                            head,
+                                            next
+                                        );
+                                        return null;
+                                    }
+
+                                    return new Expression(binOp);
                                 }
                             } else {
                                 reportParseError(
-                                        String.format(
-                                            "Unexpected token `%s`, expected `]`",
-                                            this.peekNext(arg)
-                                        ),
-                                        head,
-                                        next
+                                    "Identifier is not valid",
+                                    head,
+                                    next
                                 );
                                 return null;
                             }
@@ -1136,4 +1241,47 @@ public class Parser {
 
         return null;
     }
+
+    private Subscript parseSubscript(List<Token> tokens) throws ParserException {
+        List<Token> sArgT = this.eatOuterMatching(this.popUntilMatch(tokens));
+
+        // first upcoming token should be some sort of expression
+        // the next delimiter token (`:`) will mark the end of the begin expression
+        // of the subscript
+        Subscript sub;
+
+        List<Token> exprBeginPartT = this.popUntil(sArgT, ":");
+        Expression exprBegin = this.parseExpression(exprBeginPartT);
+
+        Expression exprEnd = null;
+
+        // Depending on the next token, we can create the subscript to attach
+        // to the identifier.
+        if ( this.eatNextIfEq(sArgT, ":") ) {
+            // There's an end part of the subscript!
+
+            // Because `popUntil` actually eats tokens from `sArgT` and
+            // `sArgT` has the outer match eaten, we just need the remainder of `sArgT`.
+            //   List<Token> exprEndPartT;
+            //   exprEndPartT = this.popUntil(sArgT, "]");
+            exprEnd = this.parseExpression(sArgT);
+        }
+
+        if ( this.peekNext(sArgT) == null ) {
+            // Finish the subscript
+            sub = new Subscript(exprBegin, exprEnd);
+        } else {
+            reportParseError(
+                String.format(
+                    "Unexpected token `%s`, expected end-of-subscript (`]`)",
+                    this.peekNext(sArgT)
+                ),
+                this.peekNext(sArgT)
+            );
+            return null;
+        }
+
+        return sub;
+    }
+
 }

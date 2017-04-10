@@ -31,22 +31,15 @@ public class Identifier implements ParseElement {
     public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 
+        sb.append(lpads(indent,
+            String.format(
+                "Identifier ~> `%s`\n",
+                this.identToken.tokenStr
+            )
+        ));
+
         if ( this.subscript != null ) {
-            sb.append(lpads(indent,
-                String.format(
-                    "Identifier ~> `%s`\n",
-                    this.identToken.tokenStr
-                )
-            ));
-            sb.append(this.subscript.debug(indent));
-        } else {
-            sb.append(lpads(
-                indent,
-                String.format(
-                    "Identifier ~> `%s`\n",
-                    this.identToken.tokenStr
-                )
-            ));
+            sb.append(this.subscript.debug(indent + 2));
         }
 
         return sb.toString();
