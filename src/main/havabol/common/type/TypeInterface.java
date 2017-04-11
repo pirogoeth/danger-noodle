@@ -11,5 +11,6 @@ public interface TypeInterface<T> extends Debuggable {
     T getValue();
 
     String getRepr();
+    TypeInterface<T> clone();
 
 }

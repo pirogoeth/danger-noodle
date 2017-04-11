@@ -42,4 +42,10 @@ public class PBoolean implements TypeInterface<Boolean> {
         }
     }
 
+    public TypeInterface<Boolean> clone() {
+        PBoolean b = new PBoolean();
+        b.setValue(this.getValue());
+        return b;
+    }
+
 }

@@ -38,4 +38,10 @@ public class PInteger implements TypeInterface<Integer> {
         return Numerics.intAsString(this.value);
     }
 
+    public TypeInterface<Integer> clone() {
+        PInteger i = new PInteger();
+        i.setValue(this.getValue());
+        return i;
+    }
+
 }

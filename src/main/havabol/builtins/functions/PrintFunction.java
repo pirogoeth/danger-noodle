@@ -51,8 +51,8 @@ public class PrintFunction implements FunctionInterface {
                     System.out.print(String.format("%d", i));
                     break;
                 case FLOAT:
-                    float f = ((PFloat) ti).getValue();
-                    System.out.print(String.format("%.2f", f));
+                    double d = ((PFloat) ti).getValue();
+                    System.out.print(String.format("%.2f", d));
                     break;
                 case BOOLEAN:
                     boolean b = ((PBoolean) ti).getValue();
