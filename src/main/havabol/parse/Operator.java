@@ -24,6 +24,10 @@ public class Operator implements ParseElement {
         this.operatorToken = t;
     }
 
+    public String getOperator() {
+        return this.operatorToken.tokenStr;
+    }
+
     public boolean isValid() {
         return Arrays.asList(validOperators).contains(this.operatorToken.tokenStr);
     }

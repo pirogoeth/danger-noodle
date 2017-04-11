@@ -14,6 +14,8 @@ print(i, f, b, s);
 Int[5] iAry = 5, 4, 3, 2, 1;
 print(iAry);
 
+5 + "4";
+
 // array subscript assignment
 iAry[0] = 4;
 

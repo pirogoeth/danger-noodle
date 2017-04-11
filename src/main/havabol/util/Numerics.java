@@ -167,6 +167,8 @@ public class Numerics
      * PRIMITIVE NUMERICS FUNCTIONS
      */
 
+    // def intPrim.
+
     public static PInteger intPrim(int i) {
         PInteger pi = new PInteger();
         pi.setValue(i);
@@ -187,6 +189,12 @@ public class Numerics
         return intPrim(b.getValue());
     }
 
+    public static PInteger intPrim(PInteger i) {
+        return i;
+    }
+
+    // def floatPrim.
+
     public static PFloat floatPrim(double d) {
         PFloat f = new PFloat();
         f.setValue(d);
@@ -205,6 +213,10 @@ public class Numerics
 
     public static PFloat floatPrim(PBoolean b) {
         return floatPrim(b.getValue());
+    }
+
+    public static PFloat floatPrim(PFloat f) {
+        return f;
     }
 
 }

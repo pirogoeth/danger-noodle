@@ -3,9 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package main.havabol.util;
+package havabol.util;
 
-import havabol.common.type.TypeInterface;
+import havabol.builtins.types.*;
+import havabol.common.type.*;
+import havabol.classify.*;
+import static havabol.util.Numerics.*;
+import static havabol.util.Text.*;
 
 /**
  *
@@ -18,12 +22,41 @@ public class Operators {
     
     
     
-    public TypeInterface add(TypeInterface first, TypeInterface second){
-        
-        
-       
-        
-        
-        
+    public static TypeInterface add(TypeInterface first, TypeInterface second) {
+        switch (first.getFormalType()) {
+            case FLOAT:
+                PFloat floatB, floatRes;
+                switch (second.getFormalType()) {
+                    case INTEGER:
+                        floatB = floatPrim((PInteger) second);
+                        break;
+                    case FLOAT:
+                        floatB = (PFloat) second;
+                        break;
+                    default:
+                        // XXX - EXPLODE!
+                        return null;
+                }
+                floatRes = floatPrim(((PFloat) first).getValue() + floatB.getValue());
+                return floatRes;
+            case INTEGER:
+                PInteger intB, intRes;
+                switch (second.getFormalType()) {
+                    case INTEGER:
+                        intB = (PInteger) second;
+                        break;
+                    case FLOAT:
+                        intB = intPrim((PFloat) second);
+                        break;
+                    default:
+                        // XXX - EXPLODE!
+                        return null;
+                }
+                intRes = intPrim(((PInteger) first).getValue() + intB.getValue());
+                return intRes;
+            default:
+                // XXX - We need a narrow exception class for this.
+                return null;
+        }
     }
 }

@@ -32,10 +32,10 @@ public class Array implements ParseElement {
         ArrayType ary = new ArrayType();
         ary.initialize(this.elements.size());
         for (Primitive p : this.elements) {
-            ary.append(p.getEvaluable().getReturn());
+            ary.append(p.getEvaluable().getResult());
         }
 
-        res.setReturn(ary);
+        res.setResult(ary);
         return res;
     }
 

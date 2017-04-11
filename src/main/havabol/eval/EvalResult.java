@@ -34,10 +34,6 @@ public class EvalResult implements Debuggable {
         return this.retVal;
     }
 
-    public TypeInterface getReturn() {
-        return this.retVal;
-    }
-
     public STIdentifier getResultIdent() {
         return this.resultIdentifier;
     }
@@ -50,7 +46,7 @@ public class EvalResult implements Debuggable {
         this.srcExpr = src;
     }
 
-    public void setReturn(TypeInterface ret) {
+    public void setResult(TypeInterface ret) {
         this.retVal = ret;
     }
 
