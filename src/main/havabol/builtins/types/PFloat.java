@@ -38,4 +38,10 @@ public class PFloat implements TypeInterface<Double> {
         return Numerics.floatAsString(this.value);
     }
 
+    public TypeInterface<Double> clone() {
+        PFloat f = new PFloat();
+        f.setValue(this.getValue());
+        return f;
+    }
+
 }

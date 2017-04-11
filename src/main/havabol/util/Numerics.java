@@ -1,6 +1,7 @@
 package havabol.util;
 
 import havabol.Token;
+import havabol.builtins.types.*;
 
 import java.util.*;
 
@@ -148,7 +149,7 @@ public class Numerics
      * @return String
      */
     public static String floatAsString(double d) {
-        return Double.toString(f);
+        return Double.toString(d);
     }
 
     /**
@@ -167,14 +168,14 @@ public class Numerics
      */
 
     public static PInteger intPrim(int i) {
-        PInteger i = new PInteger();
-        i.setValue(i);
-        return i;
+        PInteger pi = new PInteger();
+        pi.setValue(i);
+        return pi;
     }
 
     public static PInteger intPrim(PFloat f) {
         PInteger i = new PInteger();
-        i.setValue((int) f.getValue());
+        i.setValue(new Double(f.getValue()).intValue());
         return i;
     }
 
@@ -194,7 +195,7 @@ public class Numerics
 
     public static PFloat floatPrim(PInteger i) {
         PFloat f = new PFloat();
-        f.setValue((double) i.getValue());
+        f.setValue(new Integer(i.getValue()).doubleValue());
         return f;
     }
 

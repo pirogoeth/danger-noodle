@@ -29,7 +29,7 @@ public class SMValue {
     }
 
     public ReturnType getContainerType() {
-        return this.retType;
+        return this.containType;
     }
 
     // COERCION
@@ -37,11 +37,11 @@ public class SMValue {
     public PInteger coerceInt() {
         switch (this.value.getFormalType()) {
             case STRING:
-                return intPrim(stringAsInt(this.value.getValue()));
+                return intPrim(stringAsInt((String) this.value.getValue()));
             case FLOAT:
-                return intPrim((PInteger) this.value);
+                return intPrim((PFloat) this.value);
             case INTEGER:
-                return this.value;
+                return (PInteger) this.value;
             case BOOLEAN:
                 return intPrim((PBoolean) this.value);
             default:
@@ -53,15 +53,17 @@ public class SMValue {
     }
 
     public PString coerceString() {
-        return (PString) this.value.getRepr();
+        PString repr = new PString();
+        repr.setValue(this.value.getRepr());
+        return repr;
     }
 
     public PFloat coerceFloat() {
         switch (this.value.getFormalType()) {
             case STRING:
-                return floatPrim(stringAsInt(this.value.getValue()));
+                return floatPrim(stringAsInt((String) this.value.getValue()));
             case FLOAT:
-                return this.value;
+                return (PFloat) this.value;
             case INTEGER:
                 return floatPrim((PInteger) this.value);
             case BOOLEAN:
@@ -77,9 +79,9 @@ public class SMValue {
     public PBoolean coerceBool() {
         switch (this.value.getFormalType()) {
             case BOOLEAN:
-                return this.value;
+                return (PBoolean) this.value;
             default:
-                // I really do not care enough to implement the rest right now.
+                // XXX - I really do not care enough to implement the rest right now.
                 break;
         }
 

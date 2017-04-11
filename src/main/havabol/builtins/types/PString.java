@@ -38,4 +38,10 @@ public class PString implements TypeInterface<String> {
         return String.format("\"%s\"", this.value);
     }
 
+    public TypeInterface<String> clone() {
+        PString s = new PString();
+        s.setValue(this.getValue());
+        return s;
+    }
+
 }
