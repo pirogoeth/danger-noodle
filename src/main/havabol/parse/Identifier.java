@@ -39,7 +39,7 @@ public class Identifier implements ParseElement {
         ));
 
         if ( this.subscript != null ) {
-            sb.append(this.subscript.debug(indent + 2));
+            sb.append(this.subscript.debug(indent));
         }
 
         return sb.toString();

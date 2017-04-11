@@ -33,6 +33,18 @@ public class BinaryOperation implements ParseElement {
         this.rhs = rhs;
     }
 
+    public Expression getLHS() {
+        return this.lhs;
+    }
+
+    public Operator getOper() {
+        return this.operator;
+    }
+
+    public Expression getRHS() {
+        return this.rhs;
+    }
+
     public boolean isValid() {
         return ( this.lhs.isValid() &&
                  this.operator.isValid() &&

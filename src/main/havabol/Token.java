@@ -12,7 +12,6 @@ public class Token
     public int subClassif = 0;
     public int iSourceLineNr = 0;
     public int iColPos = 0;
-    private SMValue storedValue;
     // Constants for primClassif
     public static final int OPERAND = 1;    // constants, identifier
     public static final int OPERATOR = 2;   // + - * / < > = !
@@ -78,23 +77,6 @@ public class Token
     public Token()
     {
         this("");   // invoke the other constructor
-    }
-
-    /**
-     * This only matters when a Token is an identifier.
-     */
-    public SMValue getStoredValue()
-    {
-        if (this.subClassif != IDENTIFIER) {
-            return null;
-        }
-
-        return this.storedValue;
-    }
-
-    public void setStoredValue(SMValue stored)
-    {
-        this.storedValue = stored;
     }
 
     public void printToken()

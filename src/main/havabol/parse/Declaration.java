@@ -41,6 +41,14 @@ public class Declaration implements ParseElement {
         return this.arrayBound;
     }
 
+    public DataType getDataType() {
+        return this.dt;
+    }
+
+    public Identifier getIdentifier() {
+        return this.ident;
+    }
+
     public boolean isValid() {
         return dt != null && ident != null;
     }

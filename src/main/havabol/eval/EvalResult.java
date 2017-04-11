@@ -20,6 +20,7 @@ public class EvalResult implements Debuggable {
     private Expression srcExpr;
 
     private TypeInterface retVal;
+    private STIdentifier resultIdentifier;
 
     public EvalResult(ReturnType rtype) {
         this.resultType = rtype;
@@ -33,6 +34,14 @@ public class EvalResult implements Debuggable {
         return this.retVal;
     }
 
+    public TypeInterface getReturn() {
+        return this.retVal;
+    }
+
+    public STIdentifier getResultIdent() {
+        return this.resultIdentifier;
+    }
+
     public void setSource(Statement src) {
         this.srcStmt = src;
     }
@@ -43,6 +52,10 @@ public class EvalResult implements Debuggable {
 
     public void setReturn(TypeInterface ret) {
         this.retVal = ret;
+    }
+
+    public void setResultIdent(STIdentifier ident) {
+        this.resultIdentifier = ident;
     }
 
     public String debug(int indent) {

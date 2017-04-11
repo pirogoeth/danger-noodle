@@ -26,7 +26,7 @@ public class HavaBol
     public static void main(String[] args)
     {
         // Create the SymbolTable
-        SymbolTable symbolTable = new SymbolTable();
+        SymbolTable symbolTable = SymbolTable.getGlobal();
 
         List<Token> tokenList = new ArrayList<>();
 

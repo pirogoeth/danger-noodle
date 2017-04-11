@@ -1,6 +1,7 @@
 package havabol.eval;
 
 import havabol.*;
+import havabol.builtins.types.*;
 import havabol.classify.*;
 import havabol.common.*;
 import havabol.common.function.*;
@@ -15,6 +16,8 @@ import java.util.List;
 
 public class Evaluator {
 
+    private SymbolTable symTab;
+    private StorageManager store;
     private List<Statement> stmtList;
 
     /**
@@ -61,7 +64,13 @@ public class Evaluator {
     }
 
     public Evaluator(List<Statement> stmts) {
+        this(stmts, SymbolTable.getGlobal());
+    }
+
+    public Evaluator(List<Statement> stmts, SymbolTable symTab) {
         this.stmtList = stmts;
+        this.symTab = symTab;
+        this.store = StorageManager.scoped(this.symTab);
     }
 
     private Statement popNext() {
@@ -72,7 +81,7 @@ public class Evaluator {
         return ( this.stmtList != null && ! this.stmtList.isEmpty() );
     }
 
-    public EvalResult evaluate() throws ParserException, EvalException {
+    public EvalResult evaluate() throws Exception, ParserException, EvalException {
         if ( ! this.canEval() ) {
             return null;
         }
@@ -90,7 +99,7 @@ public class Evaluator {
         return this.evalStatement(stmt);
     }
 
-    private EvalResult evalStatement(Statement stmt) throws ParserException, EvalException {
+    private EvalResult evalStatement(Statement stmt) throws Exception, ParserException, EvalException {
         if ( stmt == null ) {
             // This really should not *ever* happen.
             reportEvalError(
@@ -127,19 +136,159 @@ public class Evaluator {
         return null;
     }
 
-    private EvalResult evaluateAssignment(Statement stmt) throws EvalException {
+    private EvalResult evaluateAssignment(Statement stmt) throws Exception, ParserException, EvalException {
+        Assignment assign = stmt.getAssignment();
+        if ( assign == null ) {
+            // This really should not *ever* happen.
+            reportEvalError(
+                "assignment evaluator was given a statement with null assignment",
+                stmt
+            );
+            return null;
+        }
+
+        EvalResult res = this.evaluateAssignment(assign);
+        res.setSource(stmt);
+        return res;
+    }
+
+    private EvalResult evaluateAssignment(Assignment assign) throws Exception, ParserException, EvalException {
+        EvalResult res, target, val;
+
+        if ( assign.isCompoundAssignment() ) {  // declaration
+            Declaration decl = assign.getDeclaration();
+
+            if ( decl.isArray() ) {
+                res = new EvalResult(ReturnType.ARRAY);
+            } else {
+                res = new EvalResult(decl.getDataType().getReturnType());
+            }
+            target = this.evaluateDeclaration(decl);
+            val = this.evaluateExpression(assign.getAssignedExpr());
+            if ( val.getResultType() == ReturnType.ARRAY ) {
+                ((ArrayType) val.getResult()).setBoundType(decl.getDataType().getReturnType());
+            }
+
+            STIdentifier newIdent = target.getResultIdent();
+            SMValue stVal = this.store.getOrInit(newIdent);
+            if ( val.getResultType() != res.getResultType() ) {
+                reportEvalError(
+                    String.format(
+                        "Can not perform assignment - type mismatch (given %s, expected %s)",
+                        val.getResultType().name(),
+                        res.getResultType().name()
+                    ),
+                    assign
+                );
+                return null;
+            }
+
+            TypeInterface valRet = val.getReturn();
+
+            stVal.set(valRet);
+            res.setReturn(valRet);
+            res.setResultIdent(newIdent);
+        } else {  // simple assignment
+            target = this.evaluateExpression(assign.getAssigneeExpr());
+
+            STIdentifier setIdent = target.getResultIdent();
+            STControl stDecl = setIdent.getDeclared();
+            res = new EvalResult(stDecl.getDataType());
+
+            SMValue stVal = this.store.get(setIdent);
+            if ( stVal == null ) {
+                reportEvalError(
+                    String.format(
+                        "Tried to assign undeclared variable `%s`",
+                        setIdent.getSymbol()
+                    ),
+                    assign
+                );
+                return null;
+            }
+
+            val = this.evaluateExpression(assign.getAssignedExpr());
+            if ( val.getResultType() != stDecl.getDataType() ) {
+                reportEvalError(
+                    String.format(
+                        "Can not perform assignment - type mismatch (given %s, expected %s)",
+                        val.getResultType().name(),
+                        res.getResultType().name()
+                    ),
+                    assign
+                );
+                return null;
+            }
+
+            TypeInterface valRet = val.getReturn();
+
+            stVal.set(val.getReturn());
+            res.setReturn(valRet);
+            res.setResultIdent(setIdent);
+        }
+
+        return res;
+    }
+
+    private EvalResult evaluateBlock(Statement stmt) throws ParserException, EvalException {
         return null;
     }
 
-    private EvalResult evaluateBlock(Statement stmt) throws EvalException {
-        return null;
+    private EvalResult evaluateDeclaration(Statement stmt) throws ParserException, EvalException {
+        Declaration decl = stmt.getDeclaration();
+        if ( decl == null ) {
+            // This should actually *never* happen.
+            reportEvalError(
+                "declaration evaluator was given a statement with null declaration",
+                stmt
+            );
+            return null;
+        }
+
+        EvalResult res = this.evaluateDeclaration(decl);
+        res.setSource(stmt);
+        return res;
     }
 
-    private EvalResult evaluateDeclaration(Statement stmt) throws EvalException {
-        return null;
+    private EvalResult evaluateDeclaration(Declaration decl) throws ParserException, EvalException {
+        // Declarations are simple. Just grab the TypeInterface from the DataType,
+        // create a new symbol table entry, and set the SMValue to the new TypeInterface.
+        //
+        // Declarations need to return an affected symbol through EvalResult, most likely.
+
+        EvalResult res = new EvalResult(ReturnType.VOID);
+        DataType dt = decl.getDataType();
+        Identifier ident = decl.getIdentifier();
+
+        Token identT = ident.getIdentT();
+        Structure backing;
+        if ( decl.isArray() ) {
+            if ( decl.isUnboundedArray() ) {
+                backing = Structure.VARIA_ARY;
+            } else {
+                backing = Structure.FIXED_ARY;
+            }
+        } else {
+            backing = Structure.PRIMITIVE;
+        }
+
+        // XXX - Need to get STControl for DataType.
+        STIdentifier identS = new STIdentifier(
+            identT.tokenStr,
+            dt.getSTControl(),
+            backing,
+            this.symTab.getBaseAddress()
+        );
+        this.symTab.putSymbol(identS);
+        SMValue v = this.store.get(identS);
+        v.set(null);
+
+        res.setResultIdent(identS);
+
+        return res;
     }
 
-    private EvalResult evaluateExpression(Statement stmt) throws ParserException, EvalException {
+    private EvalResult evaluateExpression(Statement stmt) throws Exception, ParserException, EvalException {
         Expression expr = stmt.getExpression();
         if ( expr == null ) {
             // This really should not *ever* happen.
@@ -153,7 +302,7 @@ public class Evaluator {
         return this.evaluateExpression(expr);
     }
 
-    private EvalResult evaluateExpression(Expression expr) throws ParserException, EvalException {
+    private EvalResult evaluateExpression(Expression expr) throws Exception, ParserException, EvalException {
         if ( expr == null ) {
             // This really should not *ever* happen.
             reportEvalError(
@@ -173,6 +322,15 @@ public class Evaluator {
                     args[i] = this.evaluateExpression(argExprs.get(i));
                 }
 
+                if ( ! fi.validateArguments(args) ) {
+                    reportEvalError(
+                        "Could not execute function call",
+                        fc,
+                        fi
+                    );
+                    return null;
+                }
+
                 EvalResult fcRes = fi.execute(args);
                 fcRes.setSource(expr);
 
@@ -180,9 +338,25 @@ public class Evaluator {
             case PRIMITIVE:
                 Primitive prim = expr.getPrimitive();
                 EvalResult primRes = prim.getEvaluable();
+
                 primRes.setSource(expr);
 
                 return primRes;
+            case IDENTIFIER:
+                Identifier identExpr = expr.getIdentifier();
+                STIdentifier identS = (STIdentifier) this.symTab.lookupSym(identExpr.getIdentT());
+                SMValue identV = this.store.get(identS);
+
+                EvalResult iRes = new EvalResult(identV.get().getFormalType());
+                iRes.setResultIdent(identS);
+                iRes.setReturn(identV.get());
+                return iRes;
+            case ARRAY:
+                Array aryExpr = expr.getArray();
+                EvalResult aryRes = aryExpr.getEvaluable();
+
+                aryRes.setSource(expr);
+                return aryRes;
             default:
                 break;
         }

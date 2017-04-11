@@ -40,6 +40,18 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         return ReturnType.ARRAY;
     }
 
+    private void fillWithValue(TypeInterface typeIf) {
+        this.value.clear();
+
+        for (int i = 0 ; i < this.maxCap ; i++) {
+            if ( typeIf != null ) {
+                this.value.add(0, typeIf.clone());
+            } else {
+                this.value.add(0, typeIf);
+            }
+        }
+    }
+
     /**
      * Sets up the underlying array and limits.
      */
@@ -48,6 +60,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         this.maxCap = capacity;
 
         this.value = new ArrayList<>(this.maxCap);
+        this.fillWithValue(null);
     }
 
     public void setValue(ArrayList<TypeInterface> l) {
@@ -81,6 +94,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
                 sb.append(", ");
             }
         }
+        sb.append("]");
 
         return sb.toString();
     }
@@ -115,7 +129,8 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
 
     // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
     public EvalResult append(TypeInterface item) throws Exception {
-        this.insert(this.value.size() - 1, item);
+        int freeIdx = this.value.indexOf(null);
+        this.insert(freeIdx, item);
 
         return new EvalResult(ReturnType.VOID);
     }
@@ -126,7 +141,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
             index = wrapIndex(this.maxCap, index);
         }
 
-        if ( item.getFormalType() != this.getBoundType() ) {
+        if ( this.getBoundType() != null && item.getFormalType() != this.getBoundType() ) {
             // XXX - Throw an error here because arrays must be homogenous.
             throw new Exception(
                 String.format(
@@ -137,17 +152,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
             );
         }
 
-        if ( this.value.size() == this.maxCap ) {
-            // XXX - Throw an error here because the array has a max capacity.
-            throw new Exception(
-                String.format(
-                    "Array has a max capacity of %d",
-                    this.maxCap
-                )
-            );
-        }
-
-        this.value.add(index, item);
+        this.value.set(index, item);
 
         return new EvalResult(ReturnType.VOID);
     }
@@ -209,17 +214,21 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
     }
 
     // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
-    public EvalResult getSlice(int beginIndex, int endIndex) {
-        // XXX - IMPLEMENT!
-        //
+    public EvalResult getSlice(int beginIndex, int endIndex) throws Exception {
+        final List<TypeInterface> tmpL = this.value.subList(beginIndex, endIndex);
+
+        ArrayType slice = new ArrayType();
+        slice.initialize(tmpL.size());
+        slice.setBoundType(this.getBoundType());
+        slice.setValue(new ArrayList<TypeInterface>(tmpL));
 
         EvalResult res = new EvalResult(this.getFormalType());
-        res.setReturn(null);
+        res.setReturn(slice);
         return res;
     }
 
     // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
-    public EvalResult setSlice(int beginIndex, int endIndex, ArrayType slice) {
+    public EvalResult setSlice(int beginIndex, int endIndex, ArrayType slice) throws Exception {
         // XXX - IMPLEMENT!
         //
 
@@ -228,11 +237,32 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
     }
 
     // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
-    public EvalResult setFromArray(ArrayType ary) {
+    public EvalResult setFromArray(ArrayType ary) throws Exception {
         // XXX - IMPLEMENT!
         //
 
         EvalResult res = new EvalResult(ReturnType.VOID);
         return res;
     }
+
+    // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
+    public EvalResult setFromScalar(TypeInterface item) throws Exception {
+        if ( this.getBoundType() != null && item.getFormalType() != this.getBoundType() ) {
+            // XXX - Throw an error here because arrays must be homogenous.
+            throw new Exception(
+                String.format(
+                    "Array must contain all of same type - expected %s, got %s",
+                    this.getBoundType().name(),
+                    this.getFormalType().name()
+                )
+            );
+        }
+
+        this.fillWithValue(item);
+
+        EvalResult res = new EvalResult(this.getFormalType());
+        res.setReturn(this);
+        return res;
+    }
+
 }
