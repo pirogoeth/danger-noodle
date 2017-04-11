@@ -183,10 +183,10 @@ public class Evaluator {
                 return null;
             }
 
-            TypeInterface valRet = val.getReturn();
+            TypeInterface valRet = val.getResult();
 
             stVal.set(valRet);
-            res.setReturn(valRet);
+            res.setResult(valRet);
             res.setResultIdent(newIdent);
         } else {  // simple assignment
             target = this.evaluateExpression(assign.getAssigneeExpr());
@@ -220,10 +220,10 @@ public class Evaluator {
                 return null;
             }
 
-            TypeInterface valRet = val.getReturn();
+            TypeInterface valRet = val.getResult();
 
-            stVal.set(val.getReturn());
-            res.setReturn(valRet);
+            stVal.set(val.getResult());
+            res.setResult(valRet);
             res.setResultIdent(setIdent);
         }
 
@@ -312,6 +312,21 @@ public class Evaluator {
         }
 
         switch (expr.getExpressionType()) {
+            case BINARY_OP:
+                BinaryOperation binOp = expr.getBinaryOperation();
+                EvalResult lhs, rhs, res;
+                lhs = this.evaluateExpression(binOp.getLHS());
+                rhs = this.evaluateExpression(binOp.getRHS());
+
+                switch (binOp.getOper().getOperator()) {
+                    case "+":
+                        TypeInterface aRes = Operators.add(lhs.getResult(), rhs.getResult());
+                        res = new EvalResult(aRes.getFormalType());
+                        res.setResult(aRes);
+                        return res;
+                    default:
+                        return null;
+                }
             case FUNC_CALL:
                 FunctionCall fc = expr.getFunctionCall();
                 FunctionInterface fi = fc.resolveFunctionHandle();
@@ -349,7 +364,7 @@ public class Evaluator {
 
                 EvalResult iRes = new EvalResult(identV.get().getFormalType());
                 iRes.setResultIdent(identS);
-                iRes.setReturn(identV.get());
+                iRes.setResult(identV.get());
                 return iRes;
             case ARRAY:
                 Array aryExpr = expr.getArray();

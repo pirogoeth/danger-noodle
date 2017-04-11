@@ -70,22 +70,22 @@ public class Primitive implements ParseElement {
             res = new EvalResult(ReturnType.STRING);
             PString ti = new PString();
             ti.setValue(this.primToken.tokenStr);
-            res.setReturn(ti);
+            res.setResult(ti);
         } else if ( isBool(this.primToken) ) {
             res = new EvalResult(ReturnType.BOOLEAN);
             PBoolean ti = new PBoolean();
             ti.setValue(asBool(this.primToken));
-            res.setReturn(ti);
+            res.setResult(ti);
         } else if ( Numerics.isInt(this.primToken) ) {
             res = new EvalResult(ReturnType.INTEGER);
             PInteger ti = new PInteger();
             ti.setValue(Numerics.tokenAsInt(this.primToken));
-            res.setReturn(ti);
+            res.setResult(ti);
         } else if ( Numerics.isFloat(this.primToken) ) {
             res = new EvalResult(ReturnType.FLOAT);
             PFloat ti = new PFloat();
             ti.setValue(Numerics.tokenAsFloat(this.primToken));
-            res.setReturn(ti);
+            res.setResult(ti);
         } else {
             Parser.reportParseError(
                 "Token is of unknown type, could not marshal to EvalResult",

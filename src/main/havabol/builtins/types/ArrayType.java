@@ -186,7 +186,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         }
 
         EvalResult res = new EvalResult(this.getBoundType());
-        res.setReturn(val);
+        res.setResult(val);
         return res;
     }
 
@@ -209,7 +209,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
 
         TypeInterface val = this.value.remove(index);
         EvalResult res = new EvalResult(this.getBoundType());
-        res.setReturn(val);
+        res.setResult(val);
         return res;
     }
 
@@ -223,7 +223,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         slice.setValue(new ArrayList<TypeInterface>(tmpL));
 
         EvalResult res = new EvalResult(this.getFormalType());
-        res.setReturn(slice);
+        res.setResult(slice);
         return res;
     }
 
@@ -261,7 +261,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         this.fillWithValue(item);
 
         EvalResult res = new EvalResult(this.getFormalType());
-        res.setReturn(this);
+        res.setResult(this);
         return res;
     }
 
