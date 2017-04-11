@@ -3,7 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package main.havabol;
+package havabol;
+
+import havabol.classify.*;
 
 import java.util.ArrayList;
 
@@ -15,7 +17,7 @@ import java.util.ArrayList;
 class arrayContainer {
 
      public boolean bounded;   //determines if array is bounded or unbounded
-     String type;              //type of array ie. Int, String...
+     ReturnType type;              //type of array ie. Int, String...
      int numElements;          //Keeps track of the number of items in the array
      int length;               //Keeps track of the index of the last item in the array
      int maxSize;              //Keeps track of the upper bound of the array
@@ -24,11 +26,9 @@ class arrayContainer {
 
      //if a list of items and a boolean are given it tells that the array should 
      //be unbounded
-     arrayContainer(boolean bounded, int size, String type){
-         if(bounded){
-             this.bounded = true; 
-         }    
+     arrayContainer(boolean bounded, int size, ReturnType type){
          makeValidBits(size);
+         this.bounded = bounded;
          this.maxSize = size;
          this.numElements = 0;
          this.length = 0;
@@ -37,19 +37,19 @@ class arrayContainer {
          switch(type){
              
              case "Int":
-                 items = new <Integer> ArrayList();
+                 items = new ArrayList<Integer>();
                  this.addBlankint(size);
                  break;
              case "String":
-                 items = new <String> ArrayList();
+                 items = new ArrayList<String>();
                  this.addBlankint(size);
                  break;
              case "Float":
-                 items = new <Float> ArrayList();
+                 items = new ArrayList<Float>();
                  this.addBlankint(size);
                  break;
              case "Boolean":
-                 items = new <Boolean> ArrayList();
+                 items = new ArrayList<Boolean>();
                  this.addBlankint(size);
                  break;
          }

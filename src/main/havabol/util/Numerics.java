@@ -20,7 +20,7 @@ public class Numerics
     }
 
     /**
-     * Determine if the value represented by this string is a float.
+     * Determine if the value represented by this string is a primitive float (java double).
      *
      * @param String s
      *
@@ -28,7 +28,7 @@ public class Numerics
      */
     public static boolean isFloat(String s) {
         try {
-            Float.parseFloat(s);
+            Double.parseDouble(s);
             return true;
         } catch (Exception ex) {
             return false;
@@ -95,8 +95,8 @@ public class Numerics
                     )
                 );
             } else {
-                float f = Float.parseFloat(s);
-                return (int) f;
+                double d = Double.parseDouble(s);
+                return (int) d;
             }
         } else {
             return Integer.parseInt(s);
@@ -108,9 +108,9 @@ public class Numerics
      *
      * @param Token t
      *
-     * @return float
+     * @return double
      */
-    public static float tokenAsFloat(Token t) {
+    public static double tokenAsFloat(Token t) {
         return stringAsFloat(t.tokenStr);
     }
 
@@ -119,9 +119,9 @@ public class Numerics
      *
      * @param Token t
      *
-     * @return float
+     * @return double
      */
-    public static float stringAsFloat(String s) {
+    public static double stringAsFloat(String s) {
         if ( !isFloat(s) ) {
             // Try to coerce to int before float
             if ( !isInt(s) ) {
@@ -133,10 +133,10 @@ public class Numerics
                 );
             } else {
                 int i = Integer.parseInt(s);
-                return (float) i;
+                return (double) i;
             }
         } else {
-            return Float.parseFloat(s);
+            return Double.parseDouble(s);
         }
     }
 
@@ -147,8 +147,8 @@ public class Numerics
      *
      * @return String
      */
-    public static String floatAsString(float f) {
-        return Float.toString(f);
+    public static String floatAsString(double d) {
+        return Double.toString(f);
     }
 
     /**
@@ -161,4 +161,49 @@ public class Numerics
     public static String intAsString(int i) {
         return Integer.toString(i);
     }
+
+    /*
+     * PRIMITIVE NUMERICS FUNCTIONS
+     */
+
+    public static PInteger intPrim(int i) {
+        PInteger i = new PInteger();
+        i.setValue(i);
+        return i;
+    }
+
+    public static PInteger intPrim(PFloat f) {
+        PInteger i = new PInteger();
+        i.setValue((int) f.getValue());
+        return i;
+    }
+
+    public static PInteger intPrim(boolean b) {
+        return b ? intPrim(1) : intPrim(0);
+    }
+
+    public static PInteger intPrim(PBoolean b) {
+        return intPrim(b.getValue());
+    }
+
+    public static PFloat floatPrim(double d) {
+        PFloat f = new PFloat();
+        f.setValue(d);
+        return f;
+    }
+
+    public static PFloat floatPrim(PInteger i) {
+        PFloat f = new PFloat();
+        f.setValue((double) i.getValue());
+        return f;
+    }
+
+    public static PFloat floatPrim(boolean b) {
+        return b ? floatPrim(1d) : floatPrim(0d);
+    }
+
+    public static PFloat floatPrim(PBoolean b) {
+        return floatPrim(b.getValue());
+    }
+
 }

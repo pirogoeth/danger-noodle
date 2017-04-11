@@ -9,19 +9,19 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class PFloat implements TypeInterface<Float> {
+public class PFloat implements TypeInterface<Double> {
 
-    private Float value;
+    private Double value;
 
     public ReturnType getFormalType() {
         return ReturnType.FLOAT;
     }
 
-    public void setValue(Float f) {
-        this.value = f;
+    public void setValue(Double d) {
+        this.value = d;
     }
 
-    public Float getValue() {
+    public Double getValue() {
         return this.value;
     }
 
