@@ -32,12 +32,12 @@ public class SymbolTable
     // if a symbol is not defined in the current scope, we can look upward!
     private SymbolTable parent = null;
 
-    public SymbolTable()
+    private SymbolTable()
     {
         this(true);
     }
 
-    public SymbolTable(boolean isGlobalTable)
+    private SymbolTable(boolean isGlobalTable)
     {
         if ( isGlobalTable ) {
             this.initGlobal();
@@ -47,7 +47,7 @@ public class SymbolTable
         // Any other initialization?
     }
 
-    public SymbolTable(SymbolTable parent)
+    private SymbolTable(SymbolTable parent)
     {
         // If the symbol table we are creating has a parent, it is NOT the
         // global table.
@@ -85,7 +85,6 @@ public class SymbolTable
         this.putSymbol(new STEntry("+", Primary.OPERATOR));
         this.putSymbol(new STEntry("-", Primary.OPERATOR));
         this.putSymbol(new STEntry("#", Primary.OPERATOR));
-        this.putSymbol(new STEntry("~>", Primary.OPERATOR));
 
         // Comparators builtins
         this.putSymbol(new STEntry("==", Primary.OPERATOR));
@@ -101,7 +100,6 @@ public class SymbolTable
         // TODO - Add a varargs argtype subclass?
         this.putSymbol(new STFunction("print", Subclass.BUILTIN, Subclass.VOID));
         this.putSymbol(new STFunction("LENGTH", Subclass.BUILTIN, Subclass.INTEGER));
-        this.putSymbol(new STFunction("MAXLENGTH", Subclass.BUILTIN, Subclass.INTEGER));
         this.putSymbol(new STFunction("SPACES", Subclass.BUILTIN, Subclass.INTEGER));
         this.putSymbol(new STFunction("ELEM", Subclass.BUILTIN, Subclass.INTEGER));
         this.putSymbol(new STFunction("MAXELEM", Subclass.BUILTIN, Subclass.INTEGER));
@@ -132,6 +130,32 @@ public class SymbolTable
     public SymbolTable getParent()
     {
         return this.parent;
+    }
+
+    /**
+     * Return a new child table with this as a linked parent.
+     *
+     * @return SymbolTable
+     */
+    public SymbolTable getNewChild()
+    {
+        return new SymbolTable(this);
+    }
+
+    /**
+     * Calculates the base address relative to the parent SymbolTable.
+     * You can determine which is the global table or not based on which
+     * table has no further parent.
+     *
+     * @return int
+     */
+    public int getBaseAddress()
+    {
+        if ( this.parent == null ) {
+            return 0;
+        } else {
+            return 1 + this.parent.getBaseAddress();
+        }
     }
 
     /**
@@ -195,7 +219,7 @@ public class SymbolTable
     {
         if ( t.subClassif == Subclass.IDENTIFIER.getCid() && sym instanceof STIdentifier ) {
             StorageManager localSM = this.getStorageManager();
-            t.setStoredValue(localSM.getOrInit((STIdentifier) sym));
+            localSM.getOrInit((STIdentifier) sym);
         }
 
         this.putSymbol(t.tokenStr, sym);

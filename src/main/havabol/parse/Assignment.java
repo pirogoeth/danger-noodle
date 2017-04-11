@@ -24,6 +24,26 @@ public class Assignment implements ParseElement {
         this.value = expr;
     }
 
+    public boolean isCompoundAssignment() {
+        return ( this.value != null && this.declaration != null && this.operator != null );
+    }
+
+    public Declaration getDeclaration() {
+        return this.declaration;
+    }
+
+    public Expression getAssigneeExpr() {
+        return this.simpleAssign.getLHS();
+    }
+
+    public Expression getAssignedExpr() {
+        if ( this.isCompoundAssignment() ) {
+            return this.value;
+        } else {
+            return this.simpleAssign.getRHS();
+        }
+    }
+
     public boolean isValid() {
         if ( this.simpleAssign != null ) {
             return this.simpleAssign.isValid();

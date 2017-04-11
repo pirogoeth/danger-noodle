@@ -56,7 +56,10 @@ public class PrintFunction implements FunctionInterface {
                     break;
                 case BOOLEAN:
                     boolean b = ((PBoolean) ti).getValue();
-                    System.out.print(String.format("%b", b));
+                    System.out.print(String.format("%s", b ? "T" : "F"));
+                    break;
+                case ARRAY:
+                    System.out.print(((ArrayType) ti).getRepr());
                     break;
                 default:
                     // wat -- this should probably raise an error

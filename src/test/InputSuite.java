@@ -42,7 +42,7 @@ public class InputSuite
     public static void exec(File inputf) throws Exception
     {
         // Create the SymbolTable
-        SymbolTable symbolTable = new SymbolTable();
+        SymbolTable symbolTable = SymbolTable.getGlobal();
         List<Token> tokenList = new ArrayList<>();
         List<Statement> stmtList = new ArrayList<>();
 

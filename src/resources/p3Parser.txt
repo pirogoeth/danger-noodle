@@ -63,8 +63,9 @@ if i == SPLIT("this test"):
   print(i # "\n");
 endif;
 
-def String[] SPLIT(String s):
+// UDF not implemented
+// def String[] SPLIT(String s):
   // do the thing
-enddef;
+// enddef;
 
 

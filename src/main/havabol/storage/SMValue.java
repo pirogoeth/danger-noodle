@@ -28,10 +28,6 @@ public class SMValue {
         return this.value;
     }
 
-    public ReturnType getContainerType() {
-        return this.containType;
-    }
-
     // COERCION
 
     public PInteger coerceInt() {

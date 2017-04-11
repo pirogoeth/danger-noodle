@@ -1,5 +1,33 @@
 // Base case :^)
 print("Hello, world!");
 
+// Declare a variable or five.
+Int i = 15;
+Float f = 2.04;
+Bool b = T;
+String s = "doot doot thanx mr. skeltal";
+
+// Some coercion tests
+print(i, f, b, s);
+
+// Need some array love.
+Int[5] iAry = 5, 4, 3, 2, 1;
+print(iAry);
+
+// array subscript assignment
+iAry[0] = 4;
+
+// Some separated thingies.
+Int i2;
+Float f2;
+
+// Assign them later!
+i2 = 123;
+f2 = 543.21;
+
+// Some coercion tests
+print(i2);
+print(f2);
+
 // Next!
 print("Length of 'hello world':", LENGTH("hello world"));

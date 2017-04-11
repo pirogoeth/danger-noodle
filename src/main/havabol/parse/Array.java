@@ -1,7 +1,10 @@
 package havabol.parse;
 
 import havabol.Token;
+import havabol.builtins.types.*;
 import havabol.classify.*;
+import havabol.eval.*;
+import havabol.util.*;
 import static havabol.util.Text.*;
 
 import java.util.*;
@@ -21,6 +24,19 @@ public class Array implements ParseElement {
 
     public Stream<Primitive> stream() {
         return this.elements.stream();
+    }
+
+    public EvalResult getEvaluable() throws Exception, ParserException {
+        EvalResult res = new EvalResult(ReturnType.ARRAY);
+
+        ArrayType ary = new ArrayType();
+        ary.initialize(this.elements.size());
+        for (Primitive p : this.elements) {
+            ary.append(p.getEvaluable().getReturn());
+        }
+
+        res.setReturn(ary);
+        return res;
     }
 
     public void addItem(Primitive pr) {
