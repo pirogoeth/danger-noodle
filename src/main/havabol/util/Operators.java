@@ -33,6 +33,9 @@ public class Operators {
                     case FLOAT:
                         floatB = (PFloat) second;
                         break;
+                    case STRING:
+                        floatB = floatPrim((PString) second);
+                        break;
                     default:
                         // XXX - EXPLODE!
                         return null;
@@ -47,6 +50,9 @@ public class Operators {
                         break;
                     case FLOAT:
                         intB = intPrim((PFloat) second);
+                        break;
+                    case STRING:
+                        intB = intPrim((PString) second);
                         break;
                     default:
                         // XXX - EXPLODE!
