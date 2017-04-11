@@ -193,6 +193,10 @@ public class Numerics
         return i;
     }
 
+    public static PInteger intPrim(PString s) {
+        return intPrim(stringAsInt(s.getValue()));
+    }
+
     // def floatPrim.
 
     public static PFloat floatPrim(double d) {
@@ -217,6 +221,10 @@ public class Numerics
 
     public static PFloat floatPrim(PFloat f) {
         return f;
+    }
+
+    public static PFloat floatPrim(PString s) {
+        return floatPrim(stringAsFloat(s.getValue()));
     }
 
 }
