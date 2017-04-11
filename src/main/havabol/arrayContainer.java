@@ -6,7 +6,7 @@
 package main.havabol;
 
 import java.util.ArrayList;
-
+import main.havabol.util.Numerics;
 /**
  *
  * @author fish
@@ -44,7 +44,7 @@ class arrayContainer {
                  this.addBlankint(size);
                  break;
              case "Float":
-                 items = new <Float> ArrayList();
+                 items = new <Double> ArrayList();
                  this.addBlankint(size);
                  break;
              case "Boolean":
@@ -358,9 +358,111 @@ class arrayContainer {
             //
             for(int i = 0; i < other.maxSize; i++){
                 if(other.validBits.get(i)){
+                    
+                  switch(this.type){
+                    case("Int"):
+                        switch(other.type){ 
+                            case("Int"):
+                              this.items.set(i, other.items.get(i));
+                              this.validBits.set(i, true);    
+                            break;
+                            
+                            case("String"):
+              
+                               this.items.set(i, Integer.parseInt((String) other.items.get(i))); 
+                               this.validBits.set(i, true); 
+                            break;
+                            
+                            case("Float"):
+                                double tempd;
+                                tempd = (double) other.items.get(i);
+                                this.items.set(i, (int) tempd);
+                                this.validBits.set(i, true);  
+                            break;
+                            
+                            case("Boolean"):
+                                System.out.println("Booleans can not be assigned to int arrays");
+                                System.exit(-1);
+                        }
+                        
+                    break;
+                    case("String"):
+                        switch(other.type){
+                            case("Int"):
+                              this.items.set(i, Integer.toString( (int) other.items.get(i)));
+                              this.validBits.set(i, true);    
+                            break;
+                            case("Float"):
+                              this.items.set(i, Double.toString( (double) other.items.get(i)));
+                              this.validBits.set(i, true);   
+                            break;
+                            case("String"):
+                              this.items.set(i, other.items.get(i));
+                              this.validBits.set(i, true);    
+                            break;
+                            
+                            case("Boolean"):
+                               this.items.set(i, Boolean.toString( (boolean) other.items.get(i)));
+                               this.validBits.set(i, true);    
+                            break;
+                        }
+                    break;
+                    
+                    case("Float"):
+                        
+                         switch(other.type){ 
+                            case("Int"):
+                              this.items.set(i, (double) other.items.get(i));
+                              this.validBits.set(i, true);    
+                            break;
+                            
+                            case("String"):
+              
+                               this.items.set(i, Double.parseDouble((String) other.items.get(i))); 
+                               this.validBits.set(i, true); 
+                            break;
+                            
+                            case("Float"):
+                  
+                                this.items.set(i,  other.items.get(i));
+                                this.validBits.set(i, true);  
+                            break;
+                            
+                            case("Boolean"):
+                                System.out.println("Booleans can not be assigned to float arrays");
+                                System.exit(-1);
+                        }
+                         
+                    break;
+                        
+                    case("Boolean"):
+                        switch(other.type){ 
+                            case("Int"):
+                              System.out.println("Ints can not be assigned to boolean arrays");
+                                System.exit(-1);    
+                            break;
+                            
+                            case("String"):
+              
+                               this.items.set(i, Double.parseDouble((String) other.items.get(i))); 
+                               this.validBits.set(i, true); 
+                            break;
+                            
+                            case("Float"):
+                                System.out.println("Floats can not be assigned to boolean arrays");
+                                System.exit(-1);  
+                            break;
+                            
+                            case("Boolean"):
+                                this.items.set(i,  other.items.get(i));
+                                this.validBits.set(i, true);
+                                
+                        }
+                    break;
+                    }
                     //System.out.println(other.items.get(i));
-                    this.items.set(i, other.items.get(i));
-                    this.validBits.set(i, true);
+                    //this.items.set(i, other.items.get(i));
+                    //this.validBits.set(i, true);
                 }
                 temp = i;
                 
@@ -378,14 +480,120 @@ class arrayContainer {
             
             for(int i = 0; i < this.maxSize; i++){
                 if(other.validBits.get(i)){
-                    this.items.set(i, other.items.get(i));
-                    this.validBits.set(i, true);
+                    
+                      
+                  switch(this.type){
+                    case("Int"):
+                        switch(other.type){ 
+                            case("Int"):
+                              this.items.set(i, other.items.get(i));
+                              this.validBits.set(i, true);    
+                            break;
+                            
+                            case("String"):
+              
+                               this.items.set(i, Integer.parseInt((String) other.items.get(i))); 
+                               this.validBits.set(i, true); 
+                            break;
+                            
+                            case("Float"):
+                                double tempd;
+                                tempd = (double) other.items.get(i);
+                                this.items.set(i, (int) tempd);
+                                this.validBits.set(i, true);  
+                            break;
+                            
+                            case("Boolean"):
+                                System.out.println("Booleans can not be assigned to int arrays");
+                                System.exit(-1);
+                        }
+                        
+                    break;
+                    case("String"):
+                        switch(other.type){
+                            case("Int"):
+                              this.items.set(i, Integer.toString( (int) other.items.get(i)));
+                              this.validBits.set(i, true);    
+                            break;
+                            case("Float"):
+                              this.items.set(i, Double.toString( (double) other.items.get(i)));
+                              this.validBits.set(i, true);   
+                            break;
+                            case("String"):
+                              this.items.set(i, other.items.get(i));
+                              this.validBits.set(i, true);    
+                            break;
+                            
+                            case("Boolean"):
+                               this.items.set(i, Boolean.toString( (boolean) other.items.get(i)));
+                               this.validBits.set(i, true);    
+                            break;
+                        }
+                    break;
+                    
+                    case("Float"):
+                        
+                         switch(other.type){ 
+                            case("Int"):
+                              this.items.set(i, (double) other.items.get(i));
+                              this.validBits.set(i, true);    
+                            break;
+                            
+                            case("String"):
+              
+                               this.items.set(i, Double.parseDouble((String) other.items.get(i))); 
+                               this.validBits.set(i, true); 
+                            break;
+                            
+                            case("Float"):
+                  
+                                this.items.set(i,  other.items.get(i));
+                                this.validBits.set(i, true);  
+                            break;
+                            
+                            case("Boolean"):
+                                System.out.println("Booleans can not be assigned to float arrays");
+                                System.exit(-1);
+                        }
+                         
+                    break;
+                        
+                    case("Boolean"):
+                        switch(other.type){ 
+                            case("Int"):
+                              System.out.println("Ints can not be assigned to boolean arrays");
+                                System.exit(-1);    
+                            break;
+                            
+                            case("String"):
+                               String temps = (String) other.items.get(i);
+                               if(temps.equals("true") || temps.equals("false")){
+                                 this.items.set(i, temps); 
+                                 this.validBits.set(i, true);
+                               }
+                            break;
+                            
+                            case("Float"):
+                                System.out.println("Floats can not be assigned to boolean arrays");
+                                System.exit(-1);  
+                            break;
+                            
+                            case("Boolean"):
+                                this.items.set(i,  other.items.get(i));
+                                this.validBits.set(i, true);
+                                
+                        }
+                    break;
+                    }
+                    //this.items.set(i, other.items.get(i));
+                    //this.validBits.set(i, true);
                 }
                 temp = i;
             }
        
         }
     }
+    
     
     public void assignArraySlice(arrayContainer other, int start, int end){
       String test = "10";
@@ -421,12 +629,12 @@ class arrayContainer {
         return this.getIntValue(this.length);
     }
     
-    float getFloatElem(){
+    double getFloatElem(){
         if(!this.type.equals("Float")){
             System.out.println("Error trying to get float from non float array");
             System.exit(-1);
         }
-        return (float) this.getFloatValue(this.length);
+        return this.getFloatValue(this.length);
     }
     
     String getStringElem(){
@@ -447,6 +655,46 @@ class arrayContainer {
      
     public int getMaxSize(){
         return this.maxSize;
+    }
+    
+    
+    
+    
+    
+    public arrayContainer arraySlice(int start, int end){
+        
+        arrayContainer ret;
+        ret = new arrayContainer(true, (end - start) +1, this.type);
+        
+        if(start < 0){
+            start = this.maxSize - start;
+        }
+        if(end < 0){
+            end = this.maxSize - end;
+        }
+        
+        for(int i = start; i <= end; i++){
+            switch(this.type){
+                case "Int":
+                    ret.addInt(this.getIntValue(i));
+                break;
+                
+                case "Float":
+                    ret.addFloat(this.getFloatValue(i));
+                break;
+                
+                case "Boolean":
+                    ret.addBool(this.getBooleanValue(i));
+                break;
+                
+                case"String":
+                    ret.addString(this.getStringValue(i));
+                break;
+                 
+            }
+            
+        }
+        return ret;
     }
 }
  
