@@ -8,25 +8,54 @@ import java.util.*;
 
 public class FlowControl implements ParseElement {
 
+    public enum Type {
+        IF,
+        FOR,
+        WHILE,
+        SELECT;
+    }
+
+    private Type flowType;
+
     private IfControl ifBlock;
     private WhileControl whileBlock;
     private ForControl forBlock;
     private SelectControl selectBlock;
 
     public FlowControl(IfControl ifBlock) {
+        this.flowType = Type.IF;
         this.ifBlock = ifBlock;
     }
 
     public FlowControl(WhileControl whileBlock) {
+        this.flowType = Type.WHILE;
         this.whileBlock = whileBlock;
     }
 
     public FlowControl(ForControl forBlock) {
+        this.flowType = Type.FOR;
         this.forBlock = forBlock;
     }
 
     public FlowControl(SelectControl selectBlock) {
+        this.flowType = Type.SELECT;
         this.selectBlock = selectBlock;
+    }
+
+    public Type getFlowType() {
+        return this.flowType;
+    }
+
+    public IfControl getIf() {
+        return this.ifBlock;
+    }
+
+    public WhileControl getWhile() {
+        return this.whileBlock;
+    }
+
+    public ForControl getFor() {
+        return this.forBlock;
     }
 
     public boolean isValid() {
