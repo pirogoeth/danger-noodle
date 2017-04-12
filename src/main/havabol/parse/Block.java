@@ -22,6 +22,10 @@ public class Block implements ParseElement {
         this.stmts.add(stmt);
     }
 
+    public List<Statement> getStmts() {
+        return this.stmts;
+    }
+
     public boolean isValid() {
         return this.stmts.stream()
             .map(stmt -> stmt.isValid())

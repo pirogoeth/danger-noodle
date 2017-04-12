@@ -8,12 +8,20 @@ import java.util.*;
 
 public class ForControl implements ParseElement {
 
-    private Expression cond;
+    private ForExpr cond;
     private Block body;
 
-    public ForControl(Expression cond, Block body) {
+    public ForControl(ForExpr cond, Block body) {
         this.cond = cond;
         this.body = body;
+    }
+
+    public ForExpr getCondition() {
+        return this.cond;
+    }
+
+    public Block getBody() {
+        return this.body;
     }
 
     public boolean isValid() {

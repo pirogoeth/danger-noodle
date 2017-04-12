@@ -698,7 +698,7 @@ public class Parser {
                 WhileControl whileStmt = new WhileControl(cond, mainBranch);
                 return new FlowControl(whileStmt);
             case "for":
-                Expression expr = this.parseExpression(tokens);
+                ForExpr expr = this.parseForExpr(tokens);
 
                 Block forBody = this.parseBlock("endfor");
                 if ( ! this.eatNextIfEq("endfor") ) {
@@ -1282,6 +1282,38 @@ public class Parser {
         }
 
         return sub;
+    }
+
+    private ForExpr parseForExpr(List<Token> tokens) throws ParserException {
+        Token identT = this.popNext(tokens);
+        Identifier ident = new Identifier(identT);
+        ForExpr expr = null;
+
+        if ( this.eatNextIfEq(tokens, "=") ) {
+            Expression initExpr = this.parseExpression(this.popUntil(tokens, "to"));
+            // Next is `to`
+            this.eatNext(tokens);
+            Expression maxExpr = this.parseExpression(this.popUntil(tokens, "by"));
+            // next is `by`
+            this.eatNext(tokens);
+            Expression stepExpr = this.parseExpression(tokens);
+
+            expr = new ForExpr(ident, initExpr, maxExpr, stepExpr);
+        } else if ( this.eatNextIfEq(tokens, "in") ) {
+            Expression container = this.parseExpression(tokens);
+
+            expr = new ForExpr(ident, container);
+        }
+
+        if ( expr != null && ! expr.isValid() ) {
+            reportParseError(
+                "For expression is invalid",
+                identT
+            );
+            return null;
+        }
+
+        return expr;
     }
 
 }

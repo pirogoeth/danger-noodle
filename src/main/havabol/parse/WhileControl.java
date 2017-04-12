@@ -16,6 +16,14 @@ public class WhileControl implements ParseElement {
         this.loopBranch = lb;
     }
 
+    public Expression getCondition() {
+        return this.condition;
+    }
+
+    public Block getLoopBranch() {
+        return this.loopBranch;
+    }
+
     public boolean isValid() {
         return ( this.condition.isValid() ) &&
                ( this.loopBranch != null && this.loopBranch.isValid() );

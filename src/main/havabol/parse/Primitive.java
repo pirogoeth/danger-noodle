@@ -39,7 +39,7 @@ public class Primitive implements ParseElement {
             case "T":
                 return true;
             case "F":
-                return true;
+                return false;
             default:
                 Parser.reportParseError(
                     "Token classified as boolean is not actually boolean!",

@@ -23,6 +23,18 @@ public class IfControl implements ParseElement {
         this.elseBranch = eb;
     }
 
+    public Expression getCondition() {
+        return this.condition;
+    }
+
+    public Block getTrueBranch() {
+        return this.trueBranch;
+    }
+
+    public Block getElseBranch() {
+        return this.elseBranch;
+    }
+
     public boolean isValid() {
         return ( this.condition.isValid() ) &&
                ( this.trueBranch != null && this.trueBranch.isValid() ) &&
