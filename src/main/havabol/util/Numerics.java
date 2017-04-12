@@ -269,4 +269,10 @@ public class Numerics
         return s;
     }
 
+    public static PString strPrim(String s) {
+        PString s = new PString();
+        s.setValue(s);
+        return s;
+    }
+
 }
