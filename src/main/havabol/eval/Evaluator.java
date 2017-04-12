@@ -383,7 +383,12 @@ public class Evaluator {
                         TypeInterface aRessmel = Operators.lessThanEqual(lhs.getResult(), rhs.getResult());
                         res = new EvalResult(aRessmel.getFormalType());
                         res.setResult(aRessmel);
-                        return res;    
+                        return res; 
+                    case "#":
+                        TypeInterface aRessmec = Operators.concat(lhs.getResult(), rhs.getResult());
+                        res = new EvalResult(aRessmec.getFormalType());
+                        res.setResult(aRessmec);
+                        return res;  
                     default:
                         return null;
                 }
