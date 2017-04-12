@@ -227,4 +227,42 @@ public class Numerics
         return floatPrim(stringAsFloat(s.getValue()));
     }
 
+    // def strPrim.
+
+    public static PString strPrim(PInteger i) {
+        PString s = new PString();
+        s.setValue(i.getRepr());
+        return s;
+    }
+
+    public static PString strPrim(PFloat f) {
+        PString s = new PString();
+        s.setValue(f.getRepr());
+        return s;
+    }
+
+    public static PString strPrim(PBoolean b) {
+        PString s = new PString();
+        s.setValue(b.getRepr());
+        return s;
+    }
+
+    public static PString strPrim(int i) {
+        PString s = new PString();
+        s.setValue(intAsString(i));
+        return s;
+    }
+
+    public static PString strPrim(double d) {
+        PString s = new PString();
+        s.setValue(floatAsString(d));
+        return s;
+    }
+
+    public static PString strPrim(boolean b) {
+        PString s = new PString();
+        s.setValue(b ? "T" : "F");
+        return s;
+    }
+
 }
