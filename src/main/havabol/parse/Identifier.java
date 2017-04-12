@@ -24,6 +24,10 @@ public class Identifier implements ParseElement {
         return this.identToken;
     }
 
+    public Subscript getSubscript() {
+        return this.subscript;
+    }
+
     public boolean isValid() {
         return ( this.subscript != null && this.subscript.isValid() ) || true;
     }
@@ -35,6 +39,14 @@ public class Identifier implements ParseElement {
             String.format(
                 "Identifier ~> `%s`\n",
                 this.identToken.tokenStr
+            )
+        ));
+
+        sb.append(lpads(
+            indent,
+            String.format(
+                "TOKEN :: %s\n",
+                this.identToken.getDebugInfo()
             )
         ));
 

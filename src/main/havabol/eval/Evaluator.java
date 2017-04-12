@@ -165,12 +165,9 @@ public class Evaluator {
             }
             target = this.evaluateDeclaration(decl);
             val = this.evaluateExpression(assign.getAssignedExpr());
-            if ( val.getResultType() == ReturnType.ARRAY ) {
-                ((ArrayType) val.getResult()).setBoundType(decl.getDataType().getReturnType());
-            }
 
             STIdentifier newIdent = target.getResultIdent();
-            SMValue stVal = this.store.getOrInit(newIdent);
+            SMValue stVal = this.store.get(newIdent);
             if ( val.getResultType() != res.getResultType() ) {
                 reportEvalError(
                     String.format(
@@ -222,8 +219,26 @@ public class Evaluator {
 
             TypeInterface valRet = val.getResult();
 
-            stVal.set(val.getResult());
-            res.setResult(valRet);
+            if ( stVal.get().getFormalType() == ReturnType.ARRAY ) {
+                ArrayType ary = (ArrayType) stVal.get();
+                if ( target.isSubscripted() ) {
+                    EvalResult.EvalSubscript ss = target.getSubscript();
+                    if ( ss.endIdx == -1 ) {
+                        res.setResult(ary.set(ss.beginIdx, val.getResult()).getResult());
+                    } else {
+                        if ( val.getResultType() == ReturnType.ARRAY ) {
+                            res.setResult(ary.setSlice(ss.beginIdx, ss.endIdx, (ArrayType) val.getResult()).getResult());
+                        } else {
+                            res.setResult(ary.setSliceScalar(ss.beginIdx, ss.endIdx, val.getResult()).getResult());
+                        }
+                    }
+                } else {
+                    res.setResult(ary.setFromScalar(val.getResult()).getResult());
+                }
+            } else {
+                stVal.set(val.getResult());
+                res.setResult(valRet);
+            }
             res.setResultIdent(setIdent);
         }
 
@@ -234,7 +249,7 @@ public class Evaluator {
         return null;
     }
 
-    private EvalResult evaluateDeclaration(Statement stmt) throws ParserException, EvalException {
+    private EvalResult evaluateDeclaration(Statement stmt) throws Exception, ParserException, EvalException {
         Declaration decl = stmt.getDeclaration();
         if ( decl == null ) {
             // This should actually *never* happen.
@@ -250,7 +265,7 @@ public class Evaluator {
         return res;
     }
 
-    private EvalResult evaluateDeclaration(Declaration decl) throws ParserException, EvalException {
+    private EvalResult evaluateDeclaration(Declaration decl) throws Exception, ParserException, EvalException {
         // Declarations are simple. Just grab the TypeInterface from the DataType,
         // create a new symbol table entry, and set the SMValue to the new TypeInterface.
         //
@@ -262,14 +277,20 @@ public class Evaluator {
 
         Token identT = ident.getIdentT();
         Structure backing;
+        TypeInterface typeIf;
         if ( decl.isArray() ) {
             if ( decl.isUnboundedArray() ) {
                 backing = Structure.VARIA_ARY;
             } else {
                 backing = Structure.FIXED_ARY;
             }
+            ArrayType aryTmp = new ArrayType();
+            aryTmp.setBoundType(dt.getReturnType());
+            aryTmp.initialize(decl.getArrayBound());
+            typeIf = aryTmp;
         } else {
             backing = Structure.PRIMITIVE;
+            typeIf = dt.getType();
         }
 
         // XXX - Need to get STControl for DataType.
@@ -280,8 +301,8 @@ public class Evaluator {
             this.symTab.getBaseAddress()
         );
         this.symTab.putSymbol(identS);
-        SMValue v = this.store.get(identS);
-        v.set(null);
+        SMValue v = this.store.getOrInit(identS);
+        v.set(typeIf);
 
         res.setResultIdent(identS);
 
@@ -299,7 +320,9 @@ public class Evaluator {
             return null;
         }
 
-        return this.evaluateExpression(expr);
+        EvalResult res = this.evaluateExpression(expr);
+        res.setSource(stmt);
+        return res;
     }
 
     private EvalResult evaluateExpression(Expression expr) throws Exception, ParserException, EvalException {
@@ -312,6 +335,8 @@ public class Evaluator {
         }
 
         switch (expr.getExpressionType()) {
+            case ASSIGNMENT:
+                return this.evaluateAssignment(expr.getAssignment());
             case BINARY_OP:
                 BinaryOperation binOp = expr.getBinaryOperation();
                 EvalResult lhs, rhs, res;
@@ -359,12 +384,62 @@ public class Evaluator {
                 return primRes;
             case IDENTIFIER:
                 Identifier identExpr = expr.getIdentifier();
+
                 STIdentifier identS = (STIdentifier) this.symTab.lookupSym(identExpr.getIdentT());
+                if ( identS == null ) {
+                    // Symbol lookup failed -- not declared?
+                    reportEvalError(
+                        String.format(
+                            "Tried to use variable `%s` before declaring it!",
+                            identExpr.getIdentT().tokenStr
+                        ),
+                        expr
+                    );
+                    return null;
+                }
+
                 SMValue identV = this.store.get(identS);
+
+                Subscript identSubsc = expr.getIdentifier().getSubscript();
+                int beginIdx = -1;
+                int endIdx = -1;
+                if ( identSubsc != null ) {
+                    EvalResult b, e;
+                    b = this.evaluateExpression(identSubsc.getBeginExpr());
+
+                    if ( b.getResultType() != ReturnType.INTEGER ) {
+                        reportEvalError(
+                            "Invalid begin expression - requires return type `Int`",
+                            identSubsc
+                        );
+                        return null;
+                    }
+
+                    beginIdx = ((PInteger) b.getResult()).getValue();
+
+                    if ( identSubsc.getEndExpr() == null ) {
+                        endIdx = -1;
+                    } else {
+                        e = this.evaluateExpression(identSubsc.getEndExpr());
+
+                        if ( e == null ) {
+                            endIdx = -1;
+                        } else if ( e.getResultType() != ReturnType.INTEGER ) {
+                            reportEvalError(
+                                "Invalid end expression - requires return type `Int`",
+                                identSubsc
+                            );
+                            return null;
+                        }
+
+                        endIdx = ((PInteger) b.getResult()).getValue();
+                    }
+                }
 
                 EvalResult iRes = new EvalResult(identV.get().getFormalType());
                 iRes.setResultIdent(identS);
                 iRes.setResult(identV.get());
+                iRes.setSubscript(beginIdx, endIdx);
                 return iRes;
             case ARRAY:
                 Array aryExpr = expr.getArray();
@@ -377,7 +452,10 @@ public class Evaluator {
         }
 
         reportEvalError(
-            "expression evaluator fell out of switch while trying to eval a statement",
+            String.format(
+                "expression evaluator fell out of switch while trying to eval a statement - expr type `%s`",
+                expr.getExpressionType().name()
+            ),
             expr
         );
         return null;

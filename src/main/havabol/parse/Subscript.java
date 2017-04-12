@@ -21,6 +21,14 @@ public class Subscript implements ParseElement {
         this.endVal = e;
     }
 
+    public Expression getBeginExpr() {
+        return this.beginVal;
+    }
+
+    public Expression getEndExpr() {
+        return this.endVal;
+    }
+
     public boolean isValid() {
         return ( this.beginVal != null && this.beginVal.isValid() ) &&
                (

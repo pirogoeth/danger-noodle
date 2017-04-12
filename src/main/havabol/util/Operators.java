@@ -16,12 +16,7 @@ import static havabol.util.Text.*;
  * @author fish
  */
 public class Operators {
-    
-    
-    
-    
-    
-    
+
     public static TypeInterface add(TypeInterface first, TypeInterface second) {
         switch (first.getFormalType()) {
             case FLOAT:
@@ -65,8 +60,8 @@ public class Operators {
                 return null;
         }
     }
-    
-    
+
+
     public static TypeInterface sub(TypeInterface first, TypeInterface second) {
         switch (first.getFormalType()) {
             case FLOAT:
@@ -110,8 +105,7 @@ public class Operators {
                 return null;
         }
     }
-    
-    
+
     public static TypeInterface mult(TypeInterface first, TypeInterface second) {
         switch (first.getFormalType()) {
             case FLOAT:
@@ -155,8 +149,7 @@ public class Operators {
                 return null;
         }
     }
-    
-    
+
     public static TypeInterface div(TypeInterface first, TypeInterface second) {
         switch (first.getFormalType()) {
             case FLOAT:
@@ -200,22 +193,22 @@ public class Operators {
                 return null;
         }
     }
-    
-    public static TypeInterface hash(TypeInterface first, TypeInterface second) {
+
+    public static TypeInterface concat(TypeInterface first, TypeInterface second) {
         if(second.getFormalType() == ReturnType.STRING){
             PString stringB, stringRes;
-                stringB = strPrim( (PString) second);
-                
-                stringRes = strPrim(((PString) first).getValue() + stringB.getValue());
-                return stringRes;
+            stringB = strPrim( (PString) second);
+
+            stringRes = strPrim(((PString) first).getValue() + stringB.getValue());
+            return stringRes;
         }else{
             System.out.println("Used string append operator on non string value");
             System.exit(-1);
         }
-        
+
         return(null);
     }
-    
+
     public static TypeInterface equal(TypeInterface first, TypeInterface second) {
         switch (first.getFormalType()) {
             case FLOAT:
@@ -258,24 +251,24 @@ public class Operators {
                         // XXX - EXPLODE!
                         return null;
                 }
-                
-               if( ((PInteger) first).getValue() == intB.getValue()){
-                   boolRes.setValue(Boolean.TRUE);
-               }else{
+
+                if( ((PInteger) first).getValue() == intB.getValue()){
+                    boolRes.setValue(Boolean.TRUE);
+                }else{
                     boolRes.setValue(Boolean.FALSE);
-               }
+                }
                 return boolRes;
             case BOOLEAN:
                 switch(second.getFormalType()){
                     case BOOLEAN:
-                       PBoolean boolReS = null;
-                       if((PBoolean) first.getValue() != (PBoolean) second.getValue() ){
-                           boolReS.setValue(Boolean.TRUE);
-                       }else{
-                             boolReS.setValue(Boolean.FALSE);
-                       }
-                       return boolReS;
-                       
+                        PBoolean boolReS = null;
+                        if((PBoolean) first.getValue() != (PBoolean) second.getValue() ){
+                            boolReS.setValue(Boolean.TRUE);
+                        }else{
+                            boolReS.setValue(Boolean.FALSE);
+                        }
+                        return boolReS;
+
                     case STRING:
                         PBoolean bOOlReS = null;
                         if(second.getValue().equals("T") || second.getValue().equals("F")){
@@ -286,7 +279,7 @@ public class Operators {
                                 bOOlReS.setValue(Boolean.FALSE);
                             }
                         }
-                        
+
                     default:
                         System.out.println("Can not compare booleans with no boolean or string");
                         System.exit(-1);
@@ -294,8 +287,8 @@ public class Operators {
             case STRING:
                 PBoolean bOolReS = null;
                 if(((PString) first).getValue().equals(((PString) second).getValue())){
-                        
-                bOolReS.setValue(Boolean.TRUE);
+
+                    bOolReS.setValue(Boolean.TRUE);
                 }else{
                     bOolReS.setValue(Boolean.FALSE);
                 }
@@ -304,9 +297,8 @@ public class Operators {
                 return null;
         }
     }
-    
-    
-    public static TypeInterface notequal(TypeInterface first, TypeInterface second) {
+
+    public static TypeInterface notEqual(TypeInterface first, TypeInterface second) {
         switch (first.getFormalType()) {
             case FLOAT:
                 PFloat floatB;
@@ -348,24 +340,24 @@ public class Operators {
                         // XXX - EXPLODE!
                         return null;
                 }
-                
-               if( ((PInteger) first).getValue() != intB.getValue()){
-                   boolRes.setValue(Boolean.TRUE);
-               }else{
+
+                if( ((PInteger) first).getValue() != intB.getValue()){
+                    boolRes.setValue(Boolean.TRUE);
+                }else{
                     boolRes.setValue(Boolean.FALSE);
-               }
+                }
                 return boolRes;
             case BOOLEAN:
                 switch(second.getFormalType()){
                     case BOOLEAN:
-                       PBoolean boolReS = null;
-                       if((PBoolean) first.getValue() != (PBoolean) second.getValue() ){
-                           boolReS.setValue(Boolean.TRUE);
-                       }else{
-                             boolReS.setValue(Boolean.FALSE);
-                       }
-                       return boolReS;
-                       
+                        PBoolean boolReS = null;
+                        if((PBoolean) first.getValue() != (PBoolean) second.getValue() ){
+                            boolReS.setValue(Boolean.TRUE);
+                        }else{
+                            boolReS.setValue(Boolean.FALSE);
+                        }
+                        return boolReS;
+
                     case STRING:
                         PBoolean bOOlReS = null;
                         if(second.getValue().equals("T") || second.getValue().equals("F")){
@@ -376,17 +368,17 @@ public class Operators {
                                 bOOlReS.setValue(Boolean.TRUE);
                             }
                         }
-                        
+
                     default:
                         System.out.println("Can not compare booleans with no boolean or string");
                         System.exit(-1);
                 }
-    
+
             case STRING:
                 PBoolean bOolReS = null;
                 if(!((PString) first).getValue().equals(((PString) second).getValue())){
-                        
-                bOolReS.setValue(Boolean.TRUE);
+
+                    bOolReS.setValue(Boolean.TRUE);
                 }else{
                     bOolReS.setValue(Boolean.FALSE);
                 }
@@ -395,8 +387,8 @@ public class Operators {
                 return null;
         }
     }
-    
-    public static TypeInterface greaterthan(TypeInterface first, TypeInterface second) {
+
+    public static TypeInterface greaterThan(TypeInterface first, TypeInterface second) {
         switch (first.getFormalType()) {
             case FLOAT:
                 PFloat floatB;
@@ -438,22 +430,22 @@ public class Operators {
                         // XXX - EXPLODE!
                         return null;
                 }
-                
-               if( ((PInteger) first).getValue() > intB.getValue()){
-                   boolRes.setValue(Boolean.TRUE);
-               }else{
+
+                if( ((PInteger) first).getValue() > intB.getValue()){
+                    boolRes.setValue(Boolean.TRUE);
+                }else{
                     boolRes.setValue(Boolean.FALSE);
-               }
+                }
                 return boolRes;
             case BOOLEAN:
                 System.out.println("Error can not do greter than comparision of booleans");
                 return null;
-                
+
             case STRING:
                 PBoolean bOolReS = null;
                 if(((PString) first).getValue().compareTo(((PString) second).getValue()) > 0){
-                        
-                bOolReS.setValue(Boolean.TRUE);
+
+                    bOolReS.setValue(Boolean.TRUE);
                 }else{
                     bOolReS.setValue(Boolean.FALSE);
                 }
@@ -462,8 +454,8 @@ public class Operators {
                 return null;
         }
     }
-    
-    public static TypeInterface lassthan(TypeInterface first, TypeInterface second) {
+
+    public static TypeInterface lessThan(TypeInterface first, TypeInterface second) {
         switch (first.getFormalType()) {
             case FLOAT:
                 PFloat floatB;
@@ -505,22 +497,22 @@ public class Operators {
                         // XXX - EXPLODE!
                         return null;
                 }
-                
-               if( ((PInteger) first).getValue() < intB.getValue()){
-                   boolRes.setValue(Boolean.TRUE);
-               }else{
+
+                if( ((PInteger) first).getValue() < intB.getValue()){
+                    boolRes.setValue(Boolean.TRUE);
+                }else{
                     boolRes.setValue(Boolean.FALSE);
-               }
+                }
                 return boolRes;
             case BOOLEAN:
                 System.out.println("Error can not do less than comparision of booleans");
                 return null;
-                
+
             case STRING:
                 PBoolean bOolReS = null;
                 if(((PString) first).getValue().compareTo(((PString) second).getValue()) < 0){
-                        
-                bOolReS.setValue(Boolean.TRUE);
+
+                    bOolReS.setValue(Boolean.TRUE);
                 }else{
                     bOolReS.setValue(Boolean.FALSE);
                 }
@@ -529,8 +521,8 @@ public class Operators {
                 return null;
         }
     }
-    
-        public static TypeInterface lessthanorequal(TypeInterface first, TypeInterface second) {
+
+    public static TypeInterface lessThanEqual(TypeInterface first, TypeInterface second) {
         switch (first.getFormalType()) {
             case FLOAT:
                 PFloat floatB;
@@ -572,24 +564,24 @@ public class Operators {
                         // XXX - EXPLODE!
                         return null;
                 }
-                
-               if( ((PInteger) first).getValue() <= intB.getValue()){
-                   boolRes.setValue(Boolean.TRUE);
-               }else{
+
+                if( ((PInteger) first).getValue() <= intB.getValue()){
+                    boolRes.setValue(Boolean.TRUE);
+                }else{
                     boolRes.setValue(Boolean.FALSE);
-               }
+                }
                 return boolRes;
             case BOOLEAN:
                 switch(second.getFormalType()){
                     case BOOLEAN:
-                       PBoolean boolReS = null;
-                       if((PBoolean) first.getValue() != (PBoolean) second.getValue() ){
-                           boolReS.setValue(Boolean.TRUE);
-                       }else{
-                             boolReS.setValue(Boolean.FALSE);
-                       }
-                       return boolReS;
-                       
+                        PBoolean boolReS = null;
+                        if((PBoolean) first.getValue() != (PBoolean) second.getValue() ){
+                            boolReS.setValue(Boolean.TRUE);
+                        }else{
+                            boolReS.setValue(Boolean.FALSE);
+                        }
+                        return boolReS;
+
                     case STRING:
                         PBoolean bOOlReS = null;
                         if(second.getValue().equals("T") || second.getValue().equals("F")){
@@ -600,17 +592,17 @@ public class Operators {
                                 bOOlReS.setValue(Boolean.FALSE);
                             }
                         }
-                        
+
                     default:
                         System.out.println("Can not compare booleans with no boolean or string");
                         System.exit(-1);
                 }
-                
+
             case STRING:
                 PBoolean bOolReS = null;
                 if(((PString) first).getValue().compareTo(((PString) second).getValue()) <= 0){
-                        
-                bOolReS.setValue(Boolean.TRUE);
+
+                    bOolReS.setValue(Boolean.TRUE);
                 }else{
                     bOolReS.setValue(Boolean.FALSE);
                 }
@@ -619,8 +611,8 @@ public class Operators {
                 return null;
         }
     }
-        
-    public static TypeInterface greaterthanorequal(TypeInterface first, TypeInterface second) {
+
+    public static TypeInterface greaterThenEqual(TypeInterface first, TypeInterface second) {
         switch (first.getFormalType()) {
             case FLOAT:
                 PFloat floatB;
@@ -662,24 +654,24 @@ public class Operators {
                         // XXX - EXPLODE!
                         return null;
                 }
-                
-               if( ((PInteger) first).getValue() >= intB.getValue()){
-                   boolRes.setValue(Boolean.TRUE);
-               }else{
+
+                if( ((PInteger) first).getValue() >= intB.getValue()){
+                    boolRes.setValue(Boolean.TRUE);
+                }else{
                     boolRes.setValue(Boolean.FALSE);
-               }
+                }
                 return boolRes;
             case BOOLEAN:
                 switch(second.getFormalType()){
                     case BOOLEAN:
-                       PBoolean boolReS = null;
-                       if((PBoolean) first.getValue() != (PBoolean) second.getValue() ){
-                           boolReS.setValue(Boolean.TRUE);
-                       }else{
-                             boolReS.setValue(Boolean.FALSE);
-                       }
-                       return boolReS;
-                       
+                        PBoolean boolReS = null;
+                        if((PBoolean) first.getValue() != (PBoolean) second.getValue() ){
+                            boolReS.setValue(Boolean.TRUE);
+                        }else{
+                            boolReS.setValue(Boolean.FALSE);
+                        }
+                        return boolReS;
+
                     case STRING:
                         PBoolean bOOlReS = null;
                         if(second.getValue().equals("T") || second.getValue().equals("F")){
@@ -690,17 +682,17 @@ public class Operators {
                                 bOOlReS.setValue(Boolean.FALSE);
                             }
                         }
-                        
+
                     default:
                         System.out.println("Can not compare booleans with no boolean or string");
                         System.exit(-1);
                 }
-                
+
             case STRING:
                 PBoolean bOolReS = null;
                 if(((PString) first).getValue().compareTo(((PString) second).getValue()) >= 0){
-                        
-                bOolReS.setValue(Boolean.TRUE);
+
+                    bOolReS.setValue(Boolean.TRUE);
                 }else{
                     bOolReS.setValue(Boolean.FALSE);
                 }
@@ -708,8 +700,6 @@ public class Operators {
             default:
                 return null;
         }
-    }    
-        
-        
-     
+    }
+
 }

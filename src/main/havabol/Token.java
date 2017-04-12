@@ -1,6 +1,6 @@
 package havabol;
 
-import havabol.storage.SMValue;
+import havabol.classify.*;
 import havabol.util.Escapes;
 
 import java.util.*;
@@ -77,6 +77,19 @@ public class Token
     public Token()
     {
         this("");   // invoke the other constructor
+    }
+
+    public String getDebugInfo()
+    {
+        return String.format(
+            "[%s:%s:%s]: Token `%s` P:[%s] S:[%s]",
+            Scanner.getInstance().sourceFileNm,
+            this.iSourceLineNr,
+            this.iColPos,
+            this.tokenStr,
+            Primary.primaryFromInt(this.primClassif).name(),
+            Subclass.subclassFromInt(this.subClassif).name()
+        );
     }
 
     public void printToken()

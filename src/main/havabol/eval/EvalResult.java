@@ -14,6 +14,15 @@ import java.util.*;
 
 public class EvalResult implements Debuggable {
 
+    public static class EvalSubscript {
+        public int beginIdx, endIdx;
+
+        public EvalSubscript(int b, int e) {
+            this.beginIdx = b;
+            this.endIdx = e;
+        }
+    }
+
     private ReturnType resultType;
 
     private Statement srcStmt;
@@ -21,9 +30,23 @@ public class EvalResult implements Debuggable {
 
     private TypeInterface retVal;
     private STIdentifier resultIdentifier;
+    private int beginIdx, endIdx;
+    private boolean subscripted = false;
 
     public EvalResult(ReturnType rtype) {
         this.resultType = rtype;
+    }
+
+    public boolean isSubscripted() {
+        return this.subscripted;
+    }
+
+    public EvalSubscript getSubscript() {
+        if ( this.subscripted ) {
+            return new EvalSubscript(this.beginIdx, this.endIdx);
+        }
+
+        return null;
     }
 
     public ReturnType getResultType() {
@@ -54,6 +77,22 @@ public class EvalResult implements Debuggable {
         this.resultIdentifier = ident;
     }
 
+    public void unsetSubscript() {
+        this.subscripted = false;
+    }
+
+    public void setSubscript(int b) {
+        this.subscripted = true;
+        this.beginIdx = b;
+        this.endIdx = -1;
+    }
+
+    public void setSubscript(int b, int e) {
+        this.subscripted = true;
+        this.beginIdx = b;
+        this.endIdx = e;
+    }
+
     public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 
@@ -68,7 +107,11 @@ public class EvalResult implements Debuggable {
 
         if ( this.resultType != ReturnType.VOID ) {
             sb.append(lpads(indent, "RETURNS ::\n"));
-            sb.append(this.retVal.debug(indent + 2));
+            if ( this.retVal != null ) {
+                sb.append(this.retVal.debug(indent + 2));
+            } else {
+                sb.append(lpads(indent, ":: NULL ::\n"));
+            }
         } else {
             sb.append(lpads(indent, ":: VOID ::\n"));
         }

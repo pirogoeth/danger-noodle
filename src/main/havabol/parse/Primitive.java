@@ -105,12 +105,22 @@ public class Primitive implements ParseElement {
     }
 
     public String debug(int indent) {
-        return lpads(
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(lpads(
             indent,
             String.format(
                 "Primitive ~> `%s`\n",
                 this.primToken.tokenStr
             )
-        );
+        ));
+
+        sb.append(lpads(
+            indent + 2,
+            "TOKEN :: " + this.primToken.getDebugInfo() + "\n"
+        ));
+
+        return sb.toString();
     }
+
 }

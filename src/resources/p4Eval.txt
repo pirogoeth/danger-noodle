@@ -12,12 +12,15 @@ print(i, f, b, s);
 
 // Need some array love.
 Int[5] iAry = 5, 4, 3, 2, 1;
-print(iAry);
 
-5 + "4";
+// info
+print("Values of iAry:", iAry);
 
 // array subscript assignment
 iAry[0] = 4;
+
+// info pt 2
+print("Values of iAry:", iAry);
 
 // Some separated thingies.
 Int i2;
@@ -31,5 +34,13 @@ f2 = 543.21;
 print(i2);
 print(f2);
 
+Int i3;
+i3 = i2 + f2;
+print("Satan and Chill - roll trips:", i3);
+
 // Next!
 print("Length of 'hello world':", LENGTH("hello world"));
+
+// test a return
+Int i4 = LENGTH("sick boiiiz");
+print(i4);

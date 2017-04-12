@@ -140,9 +140,43 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
     }
 
     // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
+    // XXX - NEEDS REWORKING
     public EvalResult insert(int index, TypeInterface item) throws Exception {
         if ( index < 0 ) {
             index = wrapIndex(this.maxCap, index);
+        }
+
+        if ( this.getBoundType() != null && item.getFormalType() != this.getBoundType() ) {
+            // XXX - Throw an error here because arrays must be homogenous.
+            throw new Exception(
+                String.format(
+                    "Array must contain all of same type - expected %s, got %s",
+                    this.getBoundType().name(),
+                    this.getFormalType().name()
+                )
+            );
+        }
+
+        this.value.set(index, item);
+
+        return new EvalResult(ReturnType.VOID);
+    }
+
+    // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
+    public EvalResult set(int index, TypeInterface item) throws Exception {
+        if ( index < 0 ) {
+            index = wrapIndex(this.maxCap, index);
+        }
+
+        if ( index >= this.maxCap ) {
+            // XXX - Throw an error here because arrays have a max index of capacity - 1.
+            throw new Exception(
+                String.format(
+                    "Array index out of bounds - max %d, got %d",
+                    this.maxCap - 1,
+                    index
+                )
+            );
         }
 
         if ( this.getBoundType() != null && item.getFormalType() != this.getBoundType() ) {
@@ -233,6 +267,15 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
 
     // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
     public EvalResult setSlice(int beginIndex, int endIndex, ArrayType slice) throws Exception {
+        // XXX - IMPLEMENT!
+        //
+
+        EvalResult res = new EvalResult(ReturnType.VOID);
+        return res;
+    }
+
+    // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
+    public EvalResult setSliceScalar(int beginIndex, int endIndex, TypeInterface item) throws Exception {
         // XXX - IMPLEMENT!
         //
 
