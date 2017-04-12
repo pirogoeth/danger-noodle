@@ -38,8 +38,6 @@ public class SMValue {
                 return intPrim((PFloat) this.value);
             case INTEGER:
                 return (PInteger) this.value;
-            case BOOLEAN:
-                return intPrim((PBoolean) this.value);
             default:
                 // Needs to throw a CoercionException or some shit.
                 break;
@@ -62,8 +60,6 @@ public class SMValue {
                 return (PFloat) this.value;
             case INTEGER:
                 return floatPrim((PInteger) this.value);
-            case BOOLEAN:
-                return floatPrim((PBoolean) this.value);
             default:
                 // Needs to throw a CoercionException or some shit.
                 break;

@@ -235,14 +235,6 @@ public class Numerics
         return i;
     }
 
-    public static PInteger intPrim(boolean b) {
-        return b ? intPrim(1) : intPrim(0);
-    }
-
-    public static PInteger intPrim(PBoolean b) {
-        return intPrim(b.getValue());
-    }
-
     public static PInteger intPrim(PInteger i) {
         return i;
     }
@@ -263,14 +255,6 @@ public class Numerics
         PFloat f = new PFloat();
         f.setValue(new Integer(i.getValue()).doubleValue());
         return f;
-    }
-
-    public static PFloat floatPrim(boolean b) {
-        return b ? floatPrim(1d) : floatPrim(0d);
-    }
-
-    public static PFloat floatPrim(PBoolean b) {
-        return floatPrim(b.getValue());
     }
 
     public static PFloat floatPrim(PFloat f) {
@@ -348,9 +332,9 @@ public class Numerics
     }
 
     public static PString strPrim(String s) {
-        PString s = new PString();
-        s.setValue(s);
-        return s;
+        PString ps = new PString();
+        ps.setValue(s);
+        return ps;
     }
 
 }
