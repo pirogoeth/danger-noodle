@@ -43,6 +43,12 @@ public class MaxElemFunction implements FunctionInterface {
 
         for (EvalResult arg : args) {
             TypeInterface ti = arg.getResult();
+
+            if( ti == null ) {
+                // Array declared, but not initialized
+                return null;
+            }
+
             switch (arg.getResultType()) {
                 case ARRAY:
                     capacity = ((ArrayType) ti).getCapacity();
@@ -54,15 +60,14 @@ public class MaxElemFunction implements FunctionInterface {
         }
 
         EvalResult res = new EvalResult(ReturnType.INTEGER);
-        PInteger returnVal = new PInteger();
-        returnVal.setValue(capacity);
-        res.setReturn(returnVal);
+        res.setResult(Numerics.intPrim(capacity));
+
         return res;
     }
 
     public boolean validateArguments(EvalResult...args) {
         // Shoud only have 1 argument passed to MAXELEM function
-        if( args.length > 1 ) {
+        if( args.length != 1 ) {
             return false;
         }
         // The argument should be an ARRAY

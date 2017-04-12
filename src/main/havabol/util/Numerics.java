@@ -140,6 +140,48 @@ public class Numerics
             return Double.parseDouble(s);
         }
     }
+    
+    /**
+     * Attempts to turn a token into a boolean.
+     *
+     * @param Token t
+     *
+     * @return boolean
+     */
+    public static boolean tokenAsBoolean(Token t) {
+        return stringAsBoolean(t.tokenStr);
+    }
+
+    /**
+     * Attempts to turn a token into a boolean.
+     *
+     * @param Token t
+     *
+     * @return boolean
+     */
+    public static boolean stringAsBoolean(String s) {
+        // Initially set to false to please the Java Gods from yelling
+        // Will return correctly no matter what set to here.
+        boolean b = false;
+
+        switch(s) {
+            case "T":
+                b = true;
+                break;
+            case "F":
+                // Not setting to false, because already initialized to false
+                break;
+            default:
+                throw new IllegalArgumentException(
+                    String.format(
+                        "String '%s' is not a Bool",
+                        s
+                    )
+                );
+        }
+
+        return b;
+    }
 
     /**
      * Turns a float into a string.
@@ -162,6 +204,18 @@ public class Numerics
     public static String intAsString(int i) {
         return Integer.toString(i);
     }
+    
+    /**
+     * Turns a boolean into a string.
+     *
+     * @param boolean b
+     *
+     * @return String
+     */
+    public static String booleanAsString(boolean b) {
+        return b ? "T" : "F";
+    }
+
 
     /*
      * PRIMITIVE NUMERICS FUNCTIONS
@@ -225,6 +279,30 @@ public class Numerics
 
     public static PFloat floatPrim(PString s) {
         return floatPrim(stringAsFloat(s.getValue()));
+    }
+    
+    // def boolPrim.
+
+    public static PBoolean boolPrim(boolean b) {
+        PBoolean pb = new PBoolean();
+        pb.setValue(b);
+        return pb;
+    }
+
+    public static PBoolean boolPrim(PBoolean b) {
+        return b;
+    }
+
+    public static PBoolean boolPrim(String s) {
+        PBoolean b = new PBoolean();
+        b.setValue(stringAsBoolean(s));
+        return b;
+    }
+
+    public static PBoolean boolPrim(PString s) {
+        PBoolean b = new PBoolean();
+        b.setValue(stringAsBoolean(s.getValue()));
+        return b;
     }
 
     // def strPrim.
