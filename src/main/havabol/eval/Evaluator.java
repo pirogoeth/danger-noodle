@@ -68,13 +68,17 @@ public class Evaluator {
     }
 
     public Evaluator(List<Statement> stmts, SymbolTable symTab) {
-        this.stmtList = stmts;
+        this.stmtList = new ArrayList<Statement>(stmts);
         this.symTab = symTab;
         this.store = StorageManager.scoped(this.symTab);
     }
 
     private Statement popNext() {
         return this.stmtList.remove(0);
+    }
+
+    private void putStmts(List<Statement> stmts) {
+        this.stmtList.addAll(stmts);
     }
 
     public boolean canEval() {
@@ -383,12 +387,12 @@ public class Evaluator {
                         TypeInterface aRessmel = Operators.lessThanEqual(lhs.getResult(), rhs.getResult());
                         res = new EvalResult(aRessmel.getFormalType());
                         res.setResult(aRessmel);
-                        return res; 
+                        return res;
                     case "#":
                         TypeInterface aRessmec = Operators.concat(lhs.getResult(), rhs.getResult());
                         res = new EvalResult(aRessmec.getFormalType());
                         res.setResult(aRessmec);
-                        return res;  
+                        return res;
                     default:
                         return null;
                 }
@@ -501,7 +505,144 @@ public class Evaluator {
         return null;
     }
 
-    private EvalResult evaluateFlowControl(Statement stmt) throws EvalException {
+    private EvalResult evaluateFlowControl(Statement stmt) throws Exception, EvalException, ParserException {
+        FlowControl fcStmt = stmt.getFlowControl();
+        if ( fcStmt == null ) {
+            reportEvalError(
+                "flow control evaluator was passed a null flow statement",
+                stmt
+            );
+            return null;
+        }
+
+        EvalResult res = this.evaluateFlowControl(fcStmt);
+        res.setSource(stmt);
+        return res;
+    }
+
+    private EvalResult evaluateFlowControl(FlowControl flow) throws Exception, EvalException, ParserException {
+        switch (flow.getFlowType()) {
+            case IF:
+                return this.evaluateIfStmt(flow.getIf());
+            case FOR:
+                return this.evaluateForStmt(flow.getFor());
+            case WHILE:
+                return this.evaluateWhileStmt(flow.getWhile());
+            default:
+                reportEvalError(
+                    "Invalid flow control block",
+                    flow
+                );
+                return null;
+        }
+    }
+
+    private EvalResult evaluateIfStmt(IfControl flow) throws Exception, EvalException, ParserException {
+        Expression cond = flow.getCondition();
+        Block trueBranch = flow.getTrueBranch();
+        Block elseBranch = flow.getElseBranch();
+
+        EvalResult condRes = this.evaluateExpression(cond);
+        if ( ((PBoolean) condRes.getResult()).getValue() ) {
+            Evaluator blockEval = new Evaluator(trueBranch.getStmts(), this.symTab.getNewChild());
+            while ( blockEval.canEval() ) {
+                blockEval.evaluate();
+            }
+        } else {
+            if ( elseBranch != null ) {
+                Evaluator blockEval = new Evaluator(elseBranch.getStmts(), this.symTab.getNewChild());
+                while ( blockEval.canEval() ) {
+                    blockEval.evaluate();
+                }
+            }
+        }
+
+        return new EvalResult(ReturnType.VOID);
+    }
+
+    private EvalResult evaluateWhileStmt(WhileControl flow) throws Exception, EvalException, ParserException {
+        Expression cond = flow.getCondition();
+        Block loopBranch = flow.getLoopBranch();
+
+        EvalResult condRes = this.evaluateExpression(cond);
+        Evaluator blockEval = new Evaluator(loopBranch.getStmts(), this.symTab.getNewChild());
+
+        while ( ((PBoolean) condRes.getResult()).getValue() ) {
+            while ( blockEval.canEval() ) {
+                blockEval.evaluate();
+            }
+
+            blockEval.putStmts(loopBranch.getStmts());
+            condRes = this.evaluateExpression(cond);
+        }
+
+        return new EvalResult(ReturnType.VOID);
+    }
+
+    private EvalResult evaluateForStmt(ForControl flow) throws Exception, EvalException, ParserException {
+        ForExpr cond = flow.getCondition();
+        Block body = flow.getBody();
+
+        switch (cond.getType()) {
+            case COUNTING:
+                return this.evaluateCountingFor(flow);
+            case ITERATIVE:
+                return this.evaluateIterativeFor(flow);
+            default:
+                reportEvalError(
+                    String.format(
+                        "Invalid for condition type - %s",
+                        cond.getType().name()
+                    ),
+                    flow
+                );
+                return null;
+        }
+    }
+
+    private EvalResult evaluateCountingFor(ForControl flow) throws Exception, EvalException, ParserException {
+        ForExpr expr = flow.getCondition();
+        Block body = flow.getBody();
+
+        Identifier ident = expr.getControl();
+        STIdentifier identS = (STIdentifier) this.symTab.lookupSym(ident.getIdentT());
+        SMValue cVar = identS.getStoredValue(this.store);
+
+        EvalResult initR = this.evaluateExpression(expr.getInitial());
+        EvalResult maxR = this.evaluateExpression(expr.getMax());
+        EvalResult stepR = this.evaluateExpression(expr.getStep());
+
+        Evaluator blockEval = new Evaluator(body.getStmts(), this.symTab.getNewChild());
+
+        double init, max, step;
+        init = ((PFloat) initR.getResult()).getValue();
+        max = ((PFloat) maxR.getResult()).getValue();
+        step = ((PFloat) stepR.getResult()).getValue();
+
+        double cur = init;
+        ((PFloat) cVar.get()).setValue(cur);
+
+        while ( cur < max ) {
+            while ( blockEval.canEval() ) {
+                blockEval.evaluate();
+            }
+
+            blockEval.putStmts(body.getStmts());
+            cur = cur + step;
+            ((PFloat) cVar.get()).setValue(cur);
+        }
+
+        return new EvalResult(ReturnType.VOID);
+    }
+
+    private EvalResult evaluateIterativeFor(ForControl flow) throws Exception, EvalException, ParserException {
+        ForExpr expr = flow.getCondition();
+        Block body = flow.getBody();
+
+        Identifier ident = expr.getControl();
+        STIdentifier identS = (STIdentifier) this.symTab.lookupSym(ident.getIdentT());
+        SMValue cVar = identS.getStoredValue(this.store);
+
         return null;
     }
 
