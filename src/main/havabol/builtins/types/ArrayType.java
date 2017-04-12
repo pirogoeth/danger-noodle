@@ -192,7 +192,9 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
 
         this.value.set(index, item);
 
-        return new EvalResult(ReturnType.VOID);
+        EvalResult res = new EvalResult(this.getBoundType());
+        res.setResult(item);
+        return res;
     }
 
     // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
@@ -286,14 +288,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
     // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
     public EvalResult setFromArray(ArrayType ary) throws Exception {
         // XXX - IMPLEMENT!
-        if(this.getCapacity() > ary.getCapacity()){
-             this.value = ary.value;
-        }else{
-            for(int i = 0; i < this.getCapacity(); i ++){
-                this.value.set(i, ary.value.get(i));
-            }
-        }
-      
+        //
 
         EvalResult res = new EvalResult(ReturnType.VOID);
         return res;
