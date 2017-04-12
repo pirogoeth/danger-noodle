@@ -44,3 +44,10 @@ print("Length of 'hello world':", LENGTH("hello world"));
 // test a return
 Int i4 = LENGTH("sick boiiiz");
 print(i4);
+
+// shit
+Int i5 = i4 + i3;
+print(i5);
+
+Int i6 = i3 - i5;
+print(i6);

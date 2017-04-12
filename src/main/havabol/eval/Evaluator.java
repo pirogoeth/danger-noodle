@@ -614,13 +614,13 @@ public class Evaluator {
 
         Evaluator blockEval = new Evaluator(body.getStmts(), this.symTab.getNewChild());
 
-        double init, max, step;
-        init = ((PFloat) initR.getResult()).getValue();
-        max = ((PFloat) maxR.getResult()).getValue();
-        step = ((PFloat) stepR.getResult()).getValue();
+        int init, max, step;
+        init = ((PInteger) initR.getResult()).getValue();
+        max = ((PInteger) maxR.getResult()).getValue();
+        step = ((PInteger) stepR.getResult()).getValue();
 
-        double cur = init;
-        ((PFloat) cVar.get()).setValue(cur);
+        int cur = init;
+        ((PInteger) cVar.get()).setValue(cur);
 
         while ( cur < max ) {
             while ( blockEval.canEval() ) {
@@ -629,7 +629,7 @@ public class Evaluator {
 
             blockEval.putStmts(body.getStmts());
             cur = cur + step;
-            ((PFloat) cVar.get()).setValue(cur);
+            ((PInteger) cVar.get()).setValue(cur);
         }
 
         return new EvalResult(ReturnType.VOID);
