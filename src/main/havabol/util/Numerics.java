@@ -265,4 +265,8 @@ public class Numerics
         return s;
     }
 
+    public static PString strPrim(PString s) {
+        return s;
+    }
+
 }
