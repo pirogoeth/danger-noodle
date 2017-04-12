@@ -36,6 +36,10 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         this.boundType = ret;
     }
 
+    public int getCapacity() {
+        return maxCap;
+    }
+
     public ReturnType getFormalType() {
         return ReturnType.ARRAY;
     }

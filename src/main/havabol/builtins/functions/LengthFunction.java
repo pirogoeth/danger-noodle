@@ -39,10 +39,42 @@ public class LengthFunction implements FunctionInterface {
     }
 
     public EvalResult execute(EvalResult...args) {
-        return null;
+        int length = 0;
+
+        for (EvalResult arg : args) {
+            TypeInterface ti = arg.getResult();
+
+            if( ti == null ) {
+                // String declared, but not initialized
+                return null;
+            }
+
+            switch (arg.getResultType()) {
+                case STRING:
+                    length = ((PString) ti).getValue().length();
+                    break;
+                default:
+                    // wat -- this should probably raise an error
+                    return null;
+            }
+        }
+
+        EvalResult res = new EvalResult(ReturnType.INTEGER);
+        res.setResult(Numerics.intPrim(length));
+
+        return res;
     }
 
     public boolean validateArguments(EvalResult...args) {
+        // Shoud only have 1 argument passed to LENGTH function
+        if( args.length != 1 ) {
+            return false;
+        }
+        // The argument should be a STRING
+        else if ( args[0].getResultType() != ReturnType.STRING ) {
+            return false;
+        }
+
         return true;
     }
 

@@ -39,12 +39,47 @@ public class SpacesFunction implements FunctionInterface {
     }
 
     public EvalResult execute(EvalResult...args) {
-        return null;
+        String currentString;
+        boolean isSpaces = false;
+
+        for (EvalResult arg : args) {
+            TypeInterface ti = arg.getResult();
+
+            if( ti == null ) {
+                // String declared, but not initialized
+                return null;
+            }
+
+            switch (arg.getResultType()) {
+                case STRING:
+                    currentString = ((PString) ti).getValue();
+                    isSpaces = currentString == null || currentString.isEmpty() || currentString.trim().isEmpty();
+                    break;
+                default:
+                    // wat -- this should probably raise an error
+                    return null;
+            }
+        }
+
+        EvalResult res = new EvalResult(ReturnType.BOOLEAN);
+        res.setResult(Numerics.boolPrim(isSpaces));
+
+        return res;
     }
 
     public boolean validateArguments(EvalResult...args) {
+        // Shoud only have 1 argument passed to SPACES function
+        if( args.length != 1 ) {
+            return false;
+        }
+        // The argument should be a STRING
+        else if ( args[0].getResultType() != ReturnType.STRING ) {
+            return false;
+        }
+
         return true;
     }
+
 
     public String debug(int indent) {
         StringBuilder sb = new StringBuilder();

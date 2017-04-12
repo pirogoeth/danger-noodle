@@ -39,12 +39,66 @@ public class ElemFunction implements FunctionInterface {
     }
 
     public EvalResult execute(EvalResult...args) {
-        return null;
+        int lastElemIndex = 0;
+        ArrayList<TypeInterface> array;
+
+        for (EvalResult arg : args) {
+            TypeInterface ti = arg.getResult();
+
+            if( ti == null ) {
+                // Array declared, but not initialized
+                return null;
+            }
+
+            switch (arg.getResultType()) {
+                case ARRAY:
+                    array = ((ArrayType) ti).getValue();
+
+                    // Get max capacity of array, then iterate backwards over the array 
+                    // looking for the first value that is not null
+                    int capacity = ((ArrayType) ti).getCapacity();
+                    TypeInterface t;
+
+                    for ( int i = capacity - 1; i >= 0; i-- ) {
+                        t = array.get(i);
+
+                        if( t == null ) {
+                            // Value at that index may be null
+                            return null;
+                        }
+
+                        if ( t.getValue() != null ) {
+                            lastElemIndex = i;
+                            break;
+                        }
+                    }
+
+                    break;
+                default:
+                    // wat -- this should probably raise an error
+                    return null;
+            }
+        }
+
+        EvalResult res = new EvalResult(ReturnType.INTEGER);
+        res.setResult(Numerics.intPrim(lastElemIndex + 1));
+
+        return res;
     }
 
     public boolean validateArguments(EvalResult...args) {
+        // Shoud only have 1 argument passed to MAXELEM function
+        if( args.length != 1 ) {
+            return false;
+        }
+        // The argument should be an ARRAY
+        else if ( args[0].getResultType() != ReturnType.ARRAY ) {
+            return false;
+        }
+
         return true;
     }
+
 
     public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
