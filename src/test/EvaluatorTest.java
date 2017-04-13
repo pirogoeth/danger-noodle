@@ -28,6 +28,7 @@ public class EvaluatorTest
             {
                 scan.currentToken.printToken();
                 tokenList.add(scan.currentToken);
+                scan.getNext();
             }
         }
         catch (Exception e)
