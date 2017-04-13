@@ -152,7 +152,7 @@ public class Operators {
         }
     }
 
-    public static TypeInterface div(TypeInterface first, TypeInterface second) {
+    public static TypeInterface div(TypeInterface first, TypeInterface second) throws EvalException{
         switch (first.getFormalType()) {
             case FLOAT:
                 PFloat floatB, floatRes;
@@ -170,6 +170,20 @@ public class Operators {
                         // XXX - EXPLODE!
                         return null;
                 }
+
+                if ( floatB.getValue() == 0.0 ) {
+                    // Throw DivZero Error
+                    reportEvalError(
+                        String.format(
+                            "Can not perform assignment - divide by zero error would occur (given %s)",
+                            floatB.getValue()
+                        ),
+                        second
+                    );
+
+                    return null;
+                }
+
                 floatRes = floatPrim(((PFloat) first).getValue() / floatB.getValue());
                 return floatRes;
             case INTEGER:
@@ -188,6 +202,20 @@ public class Operators {
                         // XXX - EXPLODE!
                         return null;
                 }
+
+                if ( intB.getValue() == 0 ) {
+                    // Throw DivZero Error
+                    reportEvalError(
+                        String.format(
+                            "Can not perform assignment - divide by zero error would occur (given %s)",
+                            intB.getValue()
+                        ),
+                        second
+                    );
+
+                    return null;
+                }
+
                 intRes = intPrim(((PInteger) first).getValue() / intB.getValue());
                 return intRes;
             default:
