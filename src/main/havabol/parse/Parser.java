@@ -959,6 +959,11 @@ public class Parser {
      * @throws ParserException
      */
     private FunctionCall parseFunctionCall(List<Token> tokens) throws ParserException {
+        System.out.println("FUNCCALL INIT TOKENS");
+        tokens.stream().forEach(t -> t.printToken());
+        System.out.println();
+
+
         Token handle = this.popNext(tokens);
 
         Identifier funcName = new Identifier(handle);
@@ -970,51 +975,60 @@ public class Parser {
             return null;
         }
 
-        Token openParen = this.popNext(tokens);
-        if ( tokenType(openParen, Primary.SEPARATOR, null) && openParen.tokenStr.equals("(") ) {
-            List<Expression> argsList = new ArrayList<>();
-            List<Token> argTokens = this.popUntilLast(tokens, ")");
+        tokens = this.eatOuterMatching(tokens);
+        System.out.println("FUNCCALL EAT OUTER");
+        tokens.stream().forEach(t -> t.printToken());
+        System.out.println();
 
-            List<Token> exprBuf;
-            while ( this.canParse(argTokens) ) {
-                Token cur = this.peekNext(argTokens);
-                switch (Primary.primaryFromInt(cur.primClassif)) {
-                    case FUNCTION:
-                        exprBuf = this.popUntil(argTokens, ")");
-                        break;
-                    case SEPARATOR:
-                        this.eatNextIfEq(argTokens, ",");
-                    default:
-                        exprBuf = this.popUntil(argTokens, ",");
-                        break;
-                }
 
-                if ( exprBuf == null ) {
-                    reportParseError(
-                        "Expression buffer is null - this should not happen!",
-                        handle,
-                        openParen
-                    );
-                    return null;
-                }
+        List<Expression> argsList = new ArrayList<>();
 
-                argsList.add(this.parseExpression(exprBuf));
+        List<Token> exprBuf = new ArrayList<>();
+        while ( this.canParse(tokens) ) {
+            Token cur = this.peekNext(tokens);
+            switch (Primary.primaryFromInt(cur.primClassif)) {
+                case FUNCTION:
+                    exprBuf.add(this.popNext(tokens));
+                    exprBuf.addAll(this.popUntilMatch(tokens));
+
+                    System.out.println("FUNCCALL NEST EXPRBUF");
+                    exprBuf.stream().forEach(t -> t.printToken());
+                    System.out.println();
+
+                    break;
+                case SEPARATOR:
+                    this.eatNextIfEq(tokens, ",");
+                default:
+                    exprBuf = this.popUntil(tokens, ",");
+                    break;
             }
 
-            FunctionCall fCall = new FunctionCall(funcName, argsList);
-            if ( !fCall.isValid() ) {
+            if ( exprBuf == null ) {
                 reportParseError(
-                        "Invalid function call",
-                        handle,
-                        openParen
+                    "Expression buffer is null - this should not happen!",
+                    handle
                 );
                 return null;
             }
 
-            return fCall;
+            System.out.println("FUNCCALL EXIT EXPRBUF");
+            exprBuf.stream().forEach(t -> t.printToken());
+            System.out.println();
+
+            argsList.add(this.parseExpression(exprBuf));
+            exprBuf = new ArrayList<>();
         }
 
-        return null;
+        FunctionCall fCall = new FunctionCall(funcName, argsList);
+        if ( !fCall.isValid() ) {
+            reportParseError(
+                    "Invalid function call",
+                    handle
+            );
+            return null;
+        }
+
+        return fCall;
     }
 
     /**
@@ -1083,6 +1097,7 @@ public class Parser {
 
         Token next = this.peekNext(arg);
 
+        List<Token> buf = new ArrayList<>();
         switch (Primary.primaryFromInt(head.primClassif)) {
             case OPERAND:
                 if ( next.primClassif == Primary.OPERATOR.getCid() ) {
@@ -1211,9 +1226,12 @@ public class Parser {
 
                 break;
             case FUNCTION:
-                arg.add(0, head);
-                FunctionCall fCall = this.parseFunctionCall(arg);
+                System.out.println("EXPRESSION PARSE BUFFERING FUNCCALL");
 
+                buf.add(head);
+                buf.addAll(this.popUntilMatch(arg));
+
+                FunctionCall fCall = this.parseFunctionCall(buf);
                 if ( ! fCall.isValid() ) {
                     reportParseError(
                             "Building function call in from expression failed",
@@ -1223,7 +1241,84 @@ public class Parser {
                     return null;
                 }
 
-                return new Expression(fCall);
+                Expression fCallExpr = new Expression(fCall);
+
+                next = this.peekNext(arg);
+
+                if ( next != null && next.primClassif == Primary.OPERATOR.getCid() ) {
+                    Expression lhs = fCallExpr;
+                    Operator oper = new Operator(this.popNext(arg));
+
+                    Expression rhs = this.parseExpression(arg);
+                    BinaryOperation binOp = new BinaryOperation(lhs, oper, rhs);
+
+                    if ( ! binOp.isValid() ) {
+                        reportParseError(
+                                "Building binary operation failed",
+                                head,
+                                next
+                        );
+                        return null;
+                    }
+
+                    return new Expression(binOp);
+                }
+
+                return fCallExpr;
+            case SEPARATOR:
+                // NOTE: Only valid separator while building an expression is `(` or `)`...
+                // `[` and `]` are valid only if used as a subscript on an ident.
+                //
+                // Separators inside expressions are weird. They can be used to force operation
+                // grouping.
+                if ( ! head.tokenStr.equals("(") ) {
+                    reportParseError(
+                        String.format(
+                            "Invalid separator inside expression - `%s`",
+                            head.tokenStr
+                        ),
+                        head,
+                        next
+                    );
+                    return null;
+                }
+
+                // Rebuild the token buffer
+                arg.add(0, head);
+
+                // Pop off the current grouping
+                buf.addAll(this.popUntilMatch(arg));
+
+                // XXX - DEBUG
+                System.out.println("EXPRESSION GROUPING");
+                buf.stream().forEach(t -> t.printToken());
+                System.out.println();
+
+                // Create an expression from the inner grouping
+                buf = this.eatOuterMatching(buf);
+                Expression grp = this.parseExpression(buf);
+
+                next = this.peekNext(arg);
+
+                if ( next != null && next.primClassif == Primary.OPERATOR.getCid() ) {
+                    Operator oper = new Operator(this.popNext(arg));
+
+                    Expression rhs = this.parseExpression(arg);
+                    BinaryOperation binOp = new BinaryOperation(grp, oper, rhs);
+
+                    if ( ! binOp.isValid() ) {
+                        reportParseError(
+                                "Building binary operation failed",
+                                head,
+                                next
+                        );
+                        return null;
+                    }
+
+                    return new Expression(binOp);
+                } else {
+                    return grp;
+                }
             default:
                 reportParseError(
                         "Building expression failed",

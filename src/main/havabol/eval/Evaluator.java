@@ -445,6 +445,7 @@ public class Evaluator {
             case IDENTIFIER:
                 Identifier identExpr = expr.getIdentifier();
 
+                // Look up the identifier symbol from the symbol table
                 STIdentifier identS = (STIdentifier) this.symTab.lookupSym(identExpr.getIdentT());
                 if ( identS == null ) {
                     // Symbol lookup failed -- not declared?
@@ -458,8 +459,12 @@ public class Evaluator {
                     return null;
                 }
 
+                // Load the symbol's stored value & create an eval res
                 SMValue identV = this.store.get(identS);
+                EvalResult iRes = new EvalResult(identV.get().getFormalType());
+                iRes.setResultIdent(identS);
 
+                // Create the subscript, if any
                 Subscript identSubsc = expr.getIdentifier().getSubscript();
                 int beginIdx = -1;
                 int endIdx = -1;
@@ -479,6 +484,7 @@ public class Evaluator {
 
                     if ( identSubsc.getEndExpr() == null ) {
                         endIdx = -1;
+                        iRes.setSubscript(beginIdx);
                     } else {
                         e = this.evaluateExpression(identSubsc.getEndExpr());
 
@@ -493,17 +499,22 @@ public class Evaluator {
                         }
 
                         endIdx = ((PInteger) b.getResult()).getValue();
+                        iRes.setSubscript(beginIdx, endIdx);
                     }
                 }
 
-                EvalResult iRes = new EvalResult(identV.get().getFormalType());
-                iRes.setResultIdent(identS);
-                if ( iRes.getResultType() == ReturnType.STRING ) {
-                    iRes.setResult(((PString) identV.get()).getSlice(beginIdx, endIdx).getResult());
+                if ( iRes.isSubscripted() && iRes.getResultType() == ReturnType.STRING ) {
+                    switch (iRes.getSubscript().type) {
+                        case SINGLE:
+                            iRes.setResult(((PString) identV.get()).get(beginIdx).getResult());
+                            break;
+                        case RANGE:
+                            iRes.setResult(((PString) identV.get()).getSlice(beginIdx, endIdx).getResult());
+                            break;
+                    }
                 } else {
                     iRes.setResult(identV.get());
                 }
-                iRes.setSubscript(beginIdx, endIdx);
                 return iRes;
             case ARRAY:
                 Array aryExpr = expr.getArray();

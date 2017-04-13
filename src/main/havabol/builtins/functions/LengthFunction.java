@@ -44,7 +44,7 @@ public class LengthFunction implements FunctionInterface {
         for (EvalResult arg : args) {
             TypeInterface ti = arg.getResult();
 
-            if( ti == null ) {
+            if ( ti == null ) {
                 // String declared, but not initialized
                 return null;
             }
@@ -67,11 +67,11 @@ public class LengthFunction implements FunctionInterface {
 
     public boolean validateArguments(EvalResult...args) {
         // Shoud only have 1 argument passed to LENGTH function
-        if( args.length != 1 ) {
+        if ( args.length != 1 ) {
             return false;
         }
-        // The argument should be a STRING
-        else if ( args[0].getResultType() != ReturnType.STRING ) {
+
+        if ( args[0].getResultType() != ReturnType.STRING ) {
             return false;
         }
 

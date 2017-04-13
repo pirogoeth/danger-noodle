@@ -13,7 +13,7 @@ import java.util.*;
 
 public class PString implements TypeInterface<String> {
 
-    private String value;
+    private String value = "";
 
     private static int wrapIndex(int size, int index) {
         return (size - (abs(index) % size));

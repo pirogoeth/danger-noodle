@@ -55,7 +55,9 @@ for val in thing:
 endfor;
 
 String s = "hello dingus";
+LENGTH(s);
 print(LENGTH(s));
+
 for i = 0 to LENGTH(s):
   print(s[i]);
 endfor;
@@ -79,3 +81,12 @@ hulluh[0] = "p";
 hulluh[5] = "p";
 print(hulluh);
 print("the dog says: '", hulluh[3] # hulluh[2] # hulluh[1] # hulluh[LENGTH(hulluh) - 1], "'");
+
+String dog;
+dog[0] = hulluh[0];
+dog[1] = hulluh[3];
+dog[2] = hulluh[2];
+dog[3] = hulluh[0];
+dog[4] = " ";
+dog[5] = dog;
+print("the dog also says: '", dog, "'");

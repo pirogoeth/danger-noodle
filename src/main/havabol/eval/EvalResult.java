@@ -15,9 +15,23 @@ import java.util.*;
 public class EvalResult implements Debuggable {
 
     public static class EvalSubscript {
-        public int beginIdx, endIdx;
+
+        public enum Type {
+            SINGLE,
+            RANGE;
+        }
+
+        public final int beginIdx, endIdx;
+        public final Type type;
+
+        public EvalSubscript(int b) {
+            this.type = Type.SINGLE;
+            this.beginIdx = b;
+            this.endIdx = -1;
+        }
 
         public EvalSubscript(int b, int e) {
+            this.type = Type.RANGE;
             this.beginIdx = b;
             this.endIdx = e;
         }
@@ -30,23 +44,18 @@ public class EvalResult implements Debuggable {
 
     private TypeInterface retVal;
     private STIdentifier resultIdentifier;
-    private int beginIdx, endIdx;
-    private boolean subscripted = false;
+    private EvalSubscript subscript = null;
 
     public EvalResult(ReturnType rtype) {
         this.resultType = rtype;
     }
 
     public boolean isSubscripted() {
-        return this.subscripted;
+        return this.subscript != null;
     }
 
     public EvalSubscript getSubscript() {
-        if ( this.subscripted ) {
-            return new EvalSubscript(this.beginIdx, this.endIdx);
-        }
-
-        return null;
+        return this.subscript;
     }
 
     public ReturnType getResultType() {
@@ -78,19 +87,15 @@ public class EvalResult implements Debuggable {
     }
 
     public void unsetSubscript() {
-        this.subscripted = false;
+        this.subscript = null;
     }
 
     public void setSubscript(int b) {
-        this.subscripted = true;
-        this.beginIdx = b;
-        this.endIdx = -1;
+        this.subscript = new EvalSubscript(b);
     }
 
     public void setSubscript(int b, int e) {
-        this.subscripted = true;
-        this.beginIdx = b;
-        this.endIdx = e;
+        this.subscript = new EvalSubscript(b, e);
     }
 
     public String debug(int indent) {

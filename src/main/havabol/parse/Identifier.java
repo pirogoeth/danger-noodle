@@ -43,7 +43,7 @@ public class Identifier implements ParseElement {
         ));
 
         sb.append(lpads(
-            indent,
+            indent + 2,
             String.format(
                 "TOKEN :: %s\n",
                 this.identToken.getDebugInfo()
