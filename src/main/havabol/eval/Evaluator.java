@@ -10,6 +10,7 @@ import havabol.parse.*;
 import havabol.storage.*;
 import havabol.sym.*;
 import havabol.util.*;
+import static havabol.util.Numerics.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -238,6 +239,20 @@ public class Evaluator {
                     }
                 } else {
                     res.setResult(ary.setFromScalar(val.getResult()).getResult());
+                }
+            } else if ( stVal.get().getFormalType() == ReturnType.STRING ) {
+                PString str = (PString) stVal.get();
+                if ( target.isSubscripted() ) {
+                    EvalResult.EvalSubscript ss = target.getSubscript();
+                    if ( ss.endIdx == -1 ) {
+                        res.setResult(str.set(ss.beginIdx, strPrim(valRet.getRepr())).getResult());
+                    } else {
+                        // XXX - String slice set???
+                        res.setResult(null);
+                    }
+                } else {
+                    stVal.set(val.getResult());
+                    res.setResult(valRet);
                 }
             } else {
                 stVal.set(val.getResult());
@@ -483,7 +498,11 @@ public class Evaluator {
 
                 EvalResult iRes = new EvalResult(identV.get().getFormalType());
                 iRes.setResultIdent(identS);
-                iRes.setResult(identV.get());
+                if ( iRes.getResultType() == ReturnType.STRING ) {
+                    iRes.setResult(((PString) identV.get()).getSlice(beginIdx, endIdx).getResult());
+                } else {
+                    iRes.setResult(identV.get());
+                }
                 iRes.setSubscript(beginIdx, endIdx);
                 return iRes;
             case ARRAY:
@@ -609,16 +628,21 @@ public class Evaluator {
         STIdentifier identS = (STIdentifier) this.symTab.lookupSym(ident.getIdentT());
         SMValue cVar = identS.getStoredValue(this.store);
 
+        int init, max, step;
+
         EvalResult initR = this.evaluateExpression(expr.getInitial());
         EvalResult maxR = this.evaluateExpression(expr.getMax());
-        EvalResult stepR = this.evaluateExpression(expr.getStep());
+        if ( expr.getStep() != null ) {
+            EvalResult stepR = this.evaluateExpression(expr.getStep());
+            step = ((PInteger) stepR.getResult()).getValue();
+        } else {
+            step = 1;
+        }
 
         Evaluator blockEval = new Evaluator(body.getStmts(), this.symTab.getNewChild());
 
-        int init, max, step;
         init = ((PInteger) initR.getResult()).getValue();
         max = ((PInteger) maxR.getResult()).getValue();
-        step = ((PInteger) stepR.getResult()).getValue();
 
         int cur = init;
         ((PInteger) cVar.get()).setValue(cur);
@@ -636,6 +660,7 @@ public class Evaluator {
         return new EvalResult(ReturnType.VOID);
     }
 
+    @SuppressWarnings("unchecked")
     private EvalResult evaluateIterativeFor(ForControl flow) throws Exception, EvalException, ParserException {
         ForExpr expr = flow.getCondition();
         Block body = flow.getBody();
@@ -644,7 +669,52 @@ public class Evaluator {
         STIdentifier identS = (STIdentifier) this.symTab.lookupSym(ident.getIdentT());
         SMValue cVar = identS.getStoredValue(this.store);
 
-        return null;
+        EvalResult container = this.evaluateExpression(expr.getContainer());
+        if ( ! container.getResult().isIterable() ) {
+            reportEvalError(
+                String.format(
+                    "Container is not iterable - type `%s`",
+                    container.getResult().getFormalType().name()
+                ),
+                flow
+            );
+            return null;
+        }
+
+        Evaluator blockEval = new Evaluator(body.getStmts(), this.symTab.getNewChild());
+
+        TypeInterface contTI = container.getResult();
+        int idx = 0;
+        switch (contTI.getFormalType()) {
+            case ARRAY:
+                ArrayType ary = (ArrayType) contTI;
+                while ( idx < ary.getCapacity() ) {
+                    cVar.get().setValue(ary.get(idx).getResult().getValue());
+
+                    while ( blockEval.canEval() ) {
+                        blockEval.evaluate();
+                    }
+
+                    blockEval.putStmts(body.getStmts());
+                    idx++;
+                }
+                break;
+            case STRING:
+                PString str = (PString) contTI;
+                while ( idx < str.getValue().length() ) {
+                    cVar.get().setValue(str.get(idx).getResult().getValue());
+
+                    while ( blockEval.canEval() ) {
+                        blockEval.evaluate();
+                    }
+
+                    blockEval.putStmts(body.getStmts());
+                    idx++;
+                }
+                break;
+        }
+
+        return new EvalResult(ReturnType.VOID);
     }
 
 }

@@ -44,6 +44,7 @@ public class PrintFunction implements FunctionInterface {
             switch (arg.getResultType()) {
                 case STRING:
                     String s = ((PString) ti).getValue();
+                    s = Escapes.generateEscapeSequences(s);
                     System.out.print(s);
                     break;
                 case INTEGER:

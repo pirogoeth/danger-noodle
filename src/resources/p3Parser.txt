@@ -48,20 +48,23 @@ if i == 10:
 endif;
 
 // arrays
-Int thing[10] = 10, 20, 30, 40;
+Int[10] thing = 10, 20, 30, 40;
+Int val;
 for val in thing:
   print("\t", val);
 endfor;
 
 String s = "hello dingus";
+print(LENGTH(s), "");
 for i = 0 to LENGTH(s):
   print(s[i]);
 endfor;
 
 // nested for loops
 for i = 0 to ELEM(thing):
-  for ch in SPACES(thing):
-    print("~");
+  String ch;
+  for ch in "doot doot":
+    print(ch # "~");
   endfor;
   print("\t", i);
 endfor;
@@ -70,3 +73,9 @@ if i == LENGTH("this test"):
   print(i # "\n");
 endif;
 
+String hulluh = "doot doot";
+print(hulluh);
+hulluh[0] = "p";
+hulluh[5] = "p";
+print(hulluh);
+print("the dog says: '", hulluh[3] # hulluh[2] # hulluh[1] # hulluh[LENGTH(hulluh) - 1], "'");

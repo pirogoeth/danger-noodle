@@ -17,7 +17,7 @@ public class SpacesFunction implements FunctionInterface {
 
     private final String functionName = "SPACES";
     private final Structure paramArity = Structure.FIXED_ARY;
-    private final ReturnType retType = ReturnType.INTEGER;
+    private final ReturnType retType = ReturnType.BOOLEAN;
     private SymbolTable global = SymbolTable.getGlobal();
 
     public Structure getParameterArity() {
