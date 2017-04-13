@@ -404,9 +404,32 @@ public class Evaluator {
                     case "#":
                         val = Operators.concat(lhs.getResult(), rhs.getResult());
                         break;
+                    case "in":
+                        // val = Operators.contains(lhs.getResultV(), rhs.getResult());
+                        val = null;
+                        System.out.println("IMPLEMENT ME DADDY");
+                        break;
+                    case "notin":
+                        // val = Operators.notContains(lhs.getResultV(), rhs.getResult());
+                        val = null;
+                        System.out.println("IMPLEMENT ME DADDY");
+                        break;
+                    case "and":
+                        // val = Operators.and(lhs.getResultV(), rhs.getResult());
+                        val = null;
+                        System.out.println("IMPLEMENT ME DADDY");
+                        break;
+                    case "or":
+                        // val = Operators.not(lhs.getResultV(), rhs.getResult());
+                        val = null;
+                        System.out.println("IMPLEMENT ME DADDY");
+                        break;
                     default:
                         return null;
                 }
+
+                System.out.printf("%s, %s\n", lhs.getResult(), rhs.getResult());
+                System.out.printf("final: %s\n", val);
 
                 res = new EvalResult(val.getFormalType());
                 res.setResult(val);

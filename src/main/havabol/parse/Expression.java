@@ -14,6 +14,7 @@ public class Expression implements ParseElement {
     private Array array;
     private Assignment assignment;
     private Primitive primitive;
+    private UnaryOperation unOp;
     private BinaryOperation binOp;
     private Identifier ident;
     private FunctionCall functionCall;
@@ -68,6 +69,12 @@ public class Expression implements ParseElement {
         this.exprType = ExpressionType.IDENTIFIER;
     }
 
+    public Expression(UnaryOperation unOp) {
+        this.unOp = unOp;
+
+        this.exprType = ExpressionType.UNARY_OP;
+    }
+
     public Expression(BinaryOperation binOp) {
         this.binOp = binOp;
 
@@ -91,7 +98,8 @@ public class Expression implements ParseElement {
     }
 
     public boolean isValid() {
-        return ( this.binOp != null && this.binOp.isValid() ) ||
+        return ( this.unOp != null && this.unOp.isValid() ) ||
+               ( this.binOp != null && this.binOp.isValid() ) ||
                ( this.ident != null && this.ident.isValid() ) ||
                ( this.primitive != null && this.primitive.isValid() ) ||
                ( this.functionCall != null && this.functionCall.isValid() ) ||
@@ -105,6 +113,8 @@ public class Expression implements ParseElement {
         sb.append(lpads(indent, "Expression ~>\n"));
         if ( this.ident != null ) {
             sb.append(this.ident.debug(indent + 2));
+        } else if ( this.unOp != null ) {
+            sb.append(this.unOp.debug(indent + 2));
         } else if ( this.binOp != null ) {
             sb.append(this.binOp.debug(indent + 2));
         } else if ( this.primitive != null ) {

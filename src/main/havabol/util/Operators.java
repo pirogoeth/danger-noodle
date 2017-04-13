@@ -419,6 +419,7 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
+                        System.out.println("FLOAT NULL");
                         return null;
                 }
                 if( ((PFloat) first).getValue() > floatB.getValue()){
@@ -441,6 +442,7 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
+                        System.out.println("FLOAT NULL");
                         return null;
                 }
 
@@ -451,18 +453,18 @@ public class Operators {
                 }
                 return res;
             case BOOLEAN:
-                reportEvalError("Error can not do greter than comparision of booleans");
+                reportEvalError("Error can not do greater than comparision of booleans");
                 return null;
-
             case STRING:
-                if(((PString) first).getValue().compareTo(((PString) second).getValue()) > 0){
-
+                if (((PString) first).getValue().compareTo(((PString) second).getValue()) > 0) {
                     res.setValue(Boolean.TRUE);
-                }else{
+                } else {
                     res.setValue(Boolean.FALSE);
                 }
+
                 return res;
             default:
+                System.out.println("SHITTING SHIT FUCK");
                 return null;
         }
     }
@@ -789,4 +791,54 @@ public class Operators {
         }
     }
 
+    public static TypeInterface contains(TypeInterface item, TypeInterface container) throws EvalException {
+        ArrayType ary;
+        ReturnType typeBound;
+
+        PString str;
+
+        if ( container.getFormalType() == ReturnType.ARRAY ) {
+            ary = (ArrayType) container;
+            typeBound = ary.getBoundType();
+        } else if ( container.getFormalType() == ReturnType.STRING ) {
+            str = (PString) container;
+            typeBound = ReturnType.STRING;
+        } else {
+            reportEvalError(
+                String.format(
+                    "Cannot check membership of type `%s`",
+                    container.getFormalType().name()
+                ),
+                container,
+                item
+            );
+            return null;
+        }
+
+        if ( item.getFormalType() != typeBound ) {
+            return boolPrim(false);
+        }
+
+        switch (container.getFormalType()) {
+            case STRING:
+                String s = ((PString) container).getValue();
+                return boolPrim(s.contains(((PString) item).getValue()));
+            case ARRAY:
+                break;
+        }
+
+        return boolPrim(false);
+    }
+
+    public static TypeInterface notContains(TypeInterface item, TypeInterface container) throws EvalException {
+        return boolPrim(! ((PBoolean) contains(item, container)).getValue());
+    }
+
+    public static TypeInterface and(TypeInterface a, TypeInterface b) throws EvalException {
+        return boolPrim(false);
+    }
+
+    public static TypeInterface or(TypeInterface a, TypeInterface b) throws EvalException {
+        return boolPrim(false);
+    }
 }

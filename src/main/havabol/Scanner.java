@@ -96,11 +96,17 @@ public class Scanner{
         //if(iSourceLineNr == 1 && iColPos == 0 ){
         //System.out.println(textLineM);
         if(currentToken.tokenStr.equals("") && nextToken.tokenStr.equals("")){
-            currentToken.tokenStr = getToken(textLineM, currentToken);
-            nextToken.tokenStr = getToken(textLineM, nextToken);
+            try {
+                currentToken.tokenStr = getToken(textLineM, currentToken);
+                nextToken.tokenStr = getToken(textLineM, nextToken);
+            } catch (NullPointerException ex) {
+                currentToken = null;
+                nextToken = null;
+                return "";
+            }
             //if the current token is null, throw an error
             if(currentToken.tokenStr == null){
-            throw new errorCatch(error);
+                throw new errorCatch(error);
             }
 
             //check for comments or double operators

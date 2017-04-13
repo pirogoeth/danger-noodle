@@ -24,7 +24,7 @@ public class EvaluatorTest
             scan.currentToken.printToken();
             tokenList.add(scan.currentToken);
 
-            while (scan.iSourceLineNr != scan.lineList.size() || scan.iColPos != scan.iMaxPos)
+            while (scan.currentToken != null && scan.nextToken != null)
             {
                 scan.currentToken.printToken();
                 tokenList.add(scan.currentToken);

@@ -44,6 +44,10 @@ public class PString implements TypeInterface<String> {
         return this.value;
     }
 
+    public boolean isEqual(Object o) {
+        return this.value.equals(o);
+    }
+
     public boolean isIterable() {
         return true;
     }

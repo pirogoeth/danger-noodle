@@ -38,6 +38,10 @@ public class PFloat implements TypeInterface<Double> {
         return Numerics.floatAsString(this.value);
     }
 
+    public boolean isEqual(Object o) {
+        return this.value.equals(o);
+    }
+
     public boolean isIterable() {
         return false;
     }

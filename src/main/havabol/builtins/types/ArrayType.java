@@ -131,6 +131,10 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         return null;  // XXX - NO! BAD!
     }
 
+    public boolean isEqual(Object o) {
+        return this.value.equals(o);
+    }
+
     /*
      * ARRAY DATA METHODS
      */

@@ -38,6 +38,10 @@ public class PInteger implements TypeInterface<Integer> {
         return Numerics.intAsString(this.value);
     }
 
+    public boolean isEqual(Object o) {
+        return this.value.equals(o);
+    }
+
     public boolean isIterable() {
         return false;
     }

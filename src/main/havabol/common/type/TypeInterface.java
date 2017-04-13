@@ -12,6 +12,7 @@ public interface TypeInterface<T> extends Debuggable {
 
     String getRepr();
     TypeInterface<T> clone();
+    boolean isEqual(Object o);
 
     boolean isIterable();
 

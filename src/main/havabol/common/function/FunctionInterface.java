@@ -12,7 +12,6 @@ public interface FunctionInterface extends Debuggable {
     STFunction getSymbolTableEntry();
     ReturnType getFunctionalReturnType();
 
-    // XXX - This should not actually be void.
     EvalResult execute(EvalResult...args);
     boolean validateArguments(EvalResult...args);
 

@@ -20,6 +20,10 @@ import java.util.Map;
  */
 public class Parser {
 
+    private static final List<String> comparators = Arrays.asList(new String[]{
+        "==", "!=", ">=", "<=", ">", "<",
+    });
+
     /**
      * Checks the primary and subclass type of the given token.
      *
@@ -1099,22 +1103,54 @@ public class Parser {
 
         List<Token> buf = new ArrayList<>();
         switch (Primary.primaryFromInt(head.primClassif)) {
+            case OPERATOR:
+                // Begins with an operator, parse into UnaryOperator
+                Operator op = new Operator(head);
+                Expression exprNg = this.parseExpression(arg);
+
+                UnaryOperation unOp = new UnaryOperation(op, exprNg);
+                if ( ! unOp.isValid() ) {
+                    reportParseError(
+                        "Invalid unary operation",
+                        head,
+                        next
+                    );
+                    return null;
+                }
+
+                return new Expression(unOp);
             case OPERAND:
                 if ( next.primClassif == Primary.OPERATOR.getCid() ) {
                     Expression lhs = new Expression(head);
                     Operator oper = new Operator(this.popNext(arg));
-
                     Expression rhs = this.parseExpression(arg);
-                    BinaryOperation binOp = new BinaryOperation(lhs, oper, rhs);
+
+                    BinaryOperation binOp;
+                    BinaryOperation tmp;
+
+                    // If rhs is comparative operation
+                    // RHS will be newCur if it has a comparator
+                    BinaryOperation rhsOp = rhs.getBinaryOperation();
+                    if ( rhsOp != null && comparators.contains(rhsOp.getOper().getOperator()) ) {
+                        // The the RHS contains a comparator, hoist it up
+                        // grab the LHS of the RHS operation - that is new RHS of newCur
+                        rhs = rhsOp.getLHS();
+                        // store off the new LHS of newCur to tmp
+                        tmp = new BinaryOperation(lhs, oper, rhs);
+                        // create the newCur
+                        binOp = new BinaryOperation(new Expression(tmp), rhsOp.getOper(), rhsOp.getRHS());
+                    } else {
+                        binOp = new BinaryOperation(lhs, oper, rhs);
+                    }
 
                     if ( next.tokenStr.equals("=") ) {
                         // binOp is an assignment
                         Assignment a = new Assignment(binOp);
                         if ( ! a.isValid() ) {
                             reportParseError(
-                                    "Building assignment failed",
-                                    head,
-                                    next
+                                "Building assignment failed",
+                                head,
+                                next
                             );
                             return null;
                         }
@@ -1123,9 +1159,9 @@ public class Parser {
                     } else {
                         if ( ! binOp.isValid() ) {
                             reportParseError(
-                                    "Building binary operation failed",
-                                    head,
-                                    next
+                                "Building binary operation failed",
+                                head,
+                                next
                             );
                             return null;
                         }
@@ -1148,8 +1184,8 @@ public class Parser {
                                         continue;
                                     default:
                                         reportParseError(
-                                                "Invalid token in array construct",
-                                                t
+                                            "Invalid token in array construct",
+                                            t
                                         );
                                         return null;
                                 }

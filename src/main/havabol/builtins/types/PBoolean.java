@@ -42,6 +42,10 @@ public class PBoolean implements TypeInterface<Boolean> {
         }
     }
 
+    public boolean isEqual(Object o) {
+        return this.value.equals(o);
+    }
+
     public boolean isIterable() {
         return false;
     }
