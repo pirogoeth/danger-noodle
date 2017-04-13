@@ -835,10 +835,76 @@ public class Operators {
     }
 
     public static TypeInterface and(TypeInterface a, TypeInterface b) throws EvalException {
-        return boolPrim(false);
+        boolean left; 
+        boolean right; 
+        if ( a.getFormalType() == ReturnType.BOOLEAN) 
+        {  // get the bool value 
+            
+            left = ((PBoolean) b).getValue();
+        }else{
+             reportEvalError(
+                String.format(
+                    "a is not a bool `%s`",
+                    a.getFormalType().name()
+                ),
+                a
+            );
+            return null;
+        }    
+        
+        if(b.getFormalType() == ReturnType.BOOLEAN ){
+            
+            right = ((PBoolean) b).getValue();
+            
+            
+        }else{
+             reportEvalError(
+                String.format(
+                    "b is not a bool `%s`",
+                    b.getFormalType().name()
+                ),
+                b
+            );
+            return null;
+        }          
+            return boolPrim(left && right);
+
     }
 
     public static TypeInterface or(TypeInterface a, TypeInterface b) throws EvalException {
-        return boolPrim(false);
+        boolean left; 
+        boolean right; 
+        if ( a.getFormalType() == ReturnType.BOOLEAN) 
+        {  // get the bool value 
+            
+            left = ((PBoolean) b).getValue();
+        }else{
+             reportEvalError(
+                String.format(
+                    "a is not a bool `%s`",
+                    a.getFormalType().name()
+                ),
+                a
+            );
+            return null;
+        }    
+        
+        if(b.getFormalType() == ReturnType.BOOLEAN ){
+            
+            right = ((PBoolean) b).getValue();
+            
+            
+        }else{
+             reportEvalError(
+                String.format(
+                    "b is not a bool `%s`",
+                    b.getFormalType().name()
+                ),
+                b
+            );
+            return null;
+        }          
+            return boolPrim(left || right);
+       
     }
 }
