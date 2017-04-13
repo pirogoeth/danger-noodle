@@ -55,7 +55,7 @@ for val in thing:
 endfor;
 
 String s = "hello dingus";
-print(LENGTH(s), "");
+print(LENGTH(s));
 for i = 0 to LENGTH(s):
   print(s[i]);
 endfor;
