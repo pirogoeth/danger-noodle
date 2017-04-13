@@ -47,8 +47,8 @@ public class Scanner{
     private final static String[] controlDeclare = {"Int", "Float", "String", "Bool"}; //control declare values
     private final static String[] controlFLow = {"if", "else", "while", "for"};        //control flow values
     private final static String[] controlEnd = {"endif", "endwhile", "endfor"};        //control end values
-    ArrayList <Token> tokenList = new ArrayList<>();
-    ArrayList <String> lineList = new ArrayList<>();
+    public ArrayList <Token> tokenList = new ArrayList<>();
+    public ArrayList <String> lineList = new ArrayList<>();
     debugObj debug = debugObj.get();
     boolean emptystring = false;
 
@@ -130,12 +130,15 @@ public class Scanner{
 
         //if the current token is empty, get the next line and return if no new line found
         if(currentToken.tokenStr.equals("") && nextToken.tokenStr.equals("")){
+            
 
             textLineM = getLine();
             if(textLineM== null){
                return "";
             }
-
+            if(currentToken == null){
+                return null;
+            }
             //Get two new tokens
             currentToken.tokenStr = getToken(textLineM, currentToken);
             nextToken.tokenStr = getToken(textLineM, nextToken);
@@ -199,9 +202,9 @@ public class Scanner{
         //get a new line
         szLine = lineList.get(iSourceLineNr);
         }else{
-            return null;
+            this.currentToken = null;
         }
-        //System.out.println(szLine);
+       // System.out.println(szLine);
         //Update to line pos (did this because using array list now)
         iSourceLineNr++;
 
@@ -347,12 +350,20 @@ public class Scanner{
                         token.iColPos = iColPos;
                         iScanPos++;
                         iColPos = iScanPos;
+                       // if(szQuote.equals("\'"))
+                       //     System.out.println(this.iSourceLineNr + " " + this.iScanPos + " ^^^^^^^^^^^^");
+                       //     System.out.println(szBuffer);
                         szQuote = "";
-                    
-                        return szBuffer;
+                        if(szBuffer.equals("")){
+                        //    System.out.println(this.iSourceLineNr);
+                            return "";
+                        }else{
+                            return szBuffer;
+                        }
                     }
                     //adds delemeters to string literals
                     szBuffer += Character.toString(lineM[iScanPos]);
+                 
                     iScanPos++;
                     continue;
                 }
@@ -365,6 +376,7 @@ public class Scanner{
 
                         //update the scan pos and skip the space
                         if(szBuffer.isEmpty()){
+                           
                             iScanPos++;
                             iColPos = iScanPos;
                             continue;
@@ -401,7 +413,9 @@ public class Scanner{
                            //     szBuffer += "";
                            // }
                             szQuote = "\"";
-                            System.out.println();
+                            
+                         //   System.out.println(this.iSourceLineNr + " " + this.iScanPos + " >>>>>>>>");
+                           
                             continue;
                          }else{
                              System.out.println("here");
@@ -414,6 +428,7 @@ public class Scanner{
                             token.primClassif = Token.OPERAND;
                             iScanPos++;
                             szQuote = "\'";
+                  //          System.out.println(this.iSourceLineNr + " " + this.iScanPos + " <<<<<<<<<<<<<<<<");
                             continue;
                         }
 
@@ -655,7 +670,7 @@ public class Scanner{
                            iColPos = iScanPos;
 
                            checkBuffer(szBuffer, token);
-
+                           
                            return szBuffer;
                         }
                 }
