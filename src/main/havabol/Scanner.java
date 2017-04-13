@@ -50,6 +50,8 @@ public class Scanner{
     ArrayList <Token> tokenList = new ArrayList<>();
     ArrayList <String> lineList = new ArrayList<>();
     debugObj debug = debugObj.get();
+    int sqcount =0;
+    int dqCount = 0;
 
     /**
      * Constructor for the scanner object
@@ -345,6 +347,8 @@ public class Scanner{
                         iScanPos++;
                         iColPos = iScanPos;
                         szQuote = "";
+                        if(szBuffer.isEmpty())
+                            szBuffer = " ";
                         return szBuffer;
                     }
                     //adds delemeters to string literals
@@ -391,12 +395,16 @@ public class Scanner{
                             token.subClassif = Token.STRING;
                             token.primClassif = Token.OPERAND;
                             iScanPos++;
-                            
-                            if(szQuote == "\"" && szBuffer.isEmpty()){
-                                szBuffer += "";
-                            }
+                           // System.out.println(tokenList.get(tokenList.size() -1).tokenstr);
+                           // if(szQuote.equals("\"") && szBuffer.equals("")){
+                           //     System.out.println("here");
+                           //     szBuffer += "";
+                           // }
                             szQuote = "\"";
+                            System.out.println();
                             continue;
+                         }else{
+                             System.out.println("here");
                          }
 
                     //handles the ' delmiter
@@ -405,9 +413,6 @@ public class Scanner{
                             token.subClassif = Token.STRING;
                             token.primClassif = Token.OPERAND;
                             iScanPos++;
-                            if(szQuote == "\'" && szBuffer.isEmpty()){
-                                szBuffer += "";
-                            }
                             szQuote = "\'";
                             continue;
                         }
