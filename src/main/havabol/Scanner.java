@@ -391,6 +391,10 @@ public class Scanner{
                             token.subClassif = Token.STRING;
                             token.primClassif = Token.OPERAND;
                             iScanPos++;
+                            
+                            if(szQuote == "\"" && szBuffer.isEmpty()){
+                                szBuffer += "";
+                            }
                             szQuote = "\"";
                             continue;
                          }
@@ -401,6 +405,9 @@ public class Scanner{
                             token.subClassif = Token.STRING;
                             token.primClassif = Token.OPERAND;
                             iScanPos++;
+                            if(szQuote == "\'" && szBuffer.isEmpty()){
+                                szBuffer += "";
+                            }
                             szQuote = "\'";
                             continue;
                         }
