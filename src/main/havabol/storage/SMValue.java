@@ -1,50 +1,83 @@
 package havabol.storage;
 
 import havabol.*;
+import havabol.builtins.types.*;
 import havabol.classify.*;
+import havabol.common.*;
+import havabol.common.type.*;
 import havabol.sym.*;
 import havabol.util.*;
+import static havabol.util.Numerics.*;
 
 public class SMValue {
 
-    private STIdentifier symbol = null;
-    private Object value = null;
+    private ReturnType containType = ReturnType.VOID;
 
-    SMValue(STIdentifier ident)
-    {
+    private STIdentifier symbol = null;
+    private TypeInterface value = null;
+
+    SMValue(STIdentifier ident) {
         this.symbol = ident;
     }
 
-    public Object getRaw() {
+    public void set(TypeInterface i) {
+        this.value = i;
+    }
+
+    public TypeInterface get() {
         return this.value;
     }
 
-    public int getInt() {
-        if ( this.value instanceof String ) {
-            return Numerics.stringAsInt((String) this.value);
+    // COERCION
+
+    public PInteger coerceInt() {
+        switch (this.value.getFormalType()) {
+            case STRING:
+                return intPrim(stringAsInt((String) this.value.getValue()));
+            case FLOAT:
+                return intPrim((PFloat) this.value);
+            case INTEGER:
+                return (PInteger) this.value;
+            default:
+                // Needs to throw a CoercionException or some shit.
+                break;
         }
 
-        return (int) this.value;
+        return null;
     }
 
-    public String getString() {
-        return (String) this.value;
+    public PString coerceString() {
+        PString repr = new PString();
+        repr.setValue(this.value.getRepr());
+        return repr;
     }
 
-    public float getFloat() {
-        if ( this.value instanceof String ) {
-            return Numerics.stringAsFloat((String) this.value);
+    public PFloat coerceFloat() {
+        switch (this.value.getFormalType()) {
+            case STRING:
+                return floatPrim(stringAsInt((String) this.value.getValue()));
+            case FLOAT:
+                return (PFloat) this.value;
+            case INTEGER:
+                return floatPrim((PInteger) this.value);
+            default:
+                // Needs to throw a CoercionException or some shit.
+                break;
         }
 
-        return (float) this.value;
+        return null;
     }
 
-    public boolean getBool() {
-        return (boolean) this.value;
-    }
+    public PBoolean coerceBool() {
+        switch (this.value.getFormalType()) {
+            case BOOLEAN:
+                return (PBoolean) this.value;
+            default:
+                // XXX - I really do not care enough to implement the rest right now.
+                break;
+        }
 
-    public void set(Object o) {
-        this.value = o;
+        return null;
     }
 
 }

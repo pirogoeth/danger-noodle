@@ -40,7 +40,7 @@ public class StorageManager
         return inst;
     }
 
-    private final Map<STIdentifier, SMValue> store = new HashMap<>();
+    private final Map<String, SMValue> store = new HashMap<>();
     private SymbolTable scope = null;
 
     /**
@@ -79,7 +79,7 @@ public class StorageManager
         // Since scope and storage manager are directly related, it should
         // remain relatively easy to perform ident lookups.
         if ( this.scope.hasLocalSymbol(ident.getSymbol()) ) {
-            return this.store.get(ident);
+            return this.store.get(ident.getSymbol());
         }
 
         if ( this.scope.getParent() != null ) {
@@ -94,7 +94,7 @@ public class StorageManager
         SMValue val = this.get(ident);
         if ( val == null ) {
             val = new SMValue(ident);
-            this.store.put(ident, val);
+            this.store.put(ident.getSymbol(), val);
         }
 
         return val;

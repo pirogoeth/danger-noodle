@@ -17,6 +17,7 @@
  */
 package havabol;
 
+import havabol.sym.*;
 import havabol.util.debugObj;
 import java.util.*;
 
@@ -25,7 +26,7 @@ public class HavaBol
     public static void main(String[] args)
     {
         // Create the SymbolTable
-        SymbolTable symbolTable = new SymbolTable();
+        SymbolTable symbolTable = SymbolTable.getGlobal();
 
         List<Token> tokenList = new ArrayList<>();
 
@@ -36,7 +37,8 @@ public class HavaBol
                     , "primClassif"
                     , "subClassif"
                     , "tokenStr");
-            */
+
+
             Scanner scan = new Scanner(args[0], symbolTable);
             Parser parse = new Parser(symbolTable, scan);
             while (scan.currentToken.tokenStr != "")
@@ -47,6 +49,7 @@ public class HavaBol
 
                 // t.printToken();
             }
+            */
         }
         catch (Exception e)
         {

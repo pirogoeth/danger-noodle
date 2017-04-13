@@ -1,0 +1,92 @@
+Int i;
+i = 10;
+
+Float f = 4.5;
+f = f ^ 2;
+
+print("why u do dis");
+print("And then OP said:", "'I H8 U ALL!'");
+print("I can eat this many cocks: " # f);
+print("But OP can eat this many: " # i);
+print("And then some basic cock math: " # f * i);
+
+String s = "this" #
+            "is" #
+             "multiline";
+
+if i != 10:
+  print("i is not 10 but should it be?");
+  print("doot doot");
+  print("thanks mr skeltal");
+else:
+  print("something went horribly right");
+endif;
+
+while i >= 10:
+  print("derp");
+  i = i - 1;
+endwhile;
+
+// nested while
+while i >= 2:
+  while f > 2:
+    print("lawl");
+    f = f - 1;
+  endwhile;
+  i = i - 1;
+endwhile;
+
+// nested if
+if i == 10:
+  if f == 4.5:
+    print("yup");
+  else:
+    if i == f:
+      print("uh no");
+    endif;
+  endif;
+endif;
+
+// arrays
+Int[10] thing = 10, 20, 30, 40;
+Int val;
+for val in thing:
+  print("\t", val);
+endfor;
+
+String s = "hello dingus";
+LENGTH(s);
+print(LENGTH(s));
+
+for i = 0 to LENGTH(s):
+  print(s[i]);
+endfor;
+
+// nested for loops
+for i = 0 to ELEM(thing):
+  String ch;
+  for ch in "doot doot":
+    print(ch # "~");
+  endfor;
+  print("\t", i);
+endfor;
+
+if i == LENGTH("this test"):
+  print(i # "\n");
+endif;
+
+String hulluh = "doot doot";
+print(hulluh);
+hulluh[0] = "p";
+hulluh[5] = "p";
+print(hulluh);
+print("the dog says: '", hulluh[3] # hulluh[2] # hulluh[1] # hulluh[LENGTH(hulluh) - 1], "'");
+
+String dog;
+dog[0] = hulluh[0];
+dog[1] = hulluh[3];
+dog[2] = hulluh[2];
+dog[3] = hulluh[0];
+dog[4] = " ";
+dog[5] = dog;
+print("the dog also says: '", dog, "'");

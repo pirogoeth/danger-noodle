@@ -1,7 +1,7 @@
 package havabol.sym;
 
-import havabol.SymbolTable;
 import havabol.classify.*;
+import havabol.sym.*;
 
 /**
  * @author Sean Johnson <sean.johnson@maio.me>

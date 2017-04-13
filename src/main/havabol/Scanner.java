@@ -3,6 +3,8 @@ package havabol;
 import java.io.*;
 import java.util.*;
 
+import havabol.classify.*;
+import havabol.sym.*;
 import havabol.util.Escapes;
 import havabol.util.debugObj;
 
@@ -15,18 +17,24 @@ import havabol.util.debugObj;
  * This class also contains
  * <p>
  */
-class Scanner{
+public class Scanner{
 
-    String sourceFileNm;             //stores the file name
+    private static Scanner instance = null;
+
+    public static Scanner getInstance() {
+        return instance;
+    }
+
+    public String sourceFileNm;             //stores the file name
     SymbolTable symbolTable;         //store the symbol table (useless now)
     String checkLine;
     char[] textLineM;                //stores the scaned in line
-    int iSourceLineNr = 0;           //keeps track of line number
-    int iColPos = 0;                     //keeps track of current token starting point
-    int iScanPos;                    //current scan position
-    int iMaxPos;                     // the max positon of the line
-    Token currentToken = new Token();              //holds the current token
-    Token nextToken = new Token();              //holds the current token
+    public int iSourceLineNr = 0;           //keeps track of line number
+    public int iColPos = 0;                     //keeps track of current token starting point
+    public int iScanPos;                    //current scan position
+    public int iMaxPos;                     // the max positon of the line
+    public Token currentToken = new Token();              //holds the current token
+    public Token nextToken = new Token();              //holds the current token
     String szLine;                   //helps to get line
     String szQuote;                  // helps to determine if " or ' is used
     String szBrace = new String();                  //helps with () | [] | {}
@@ -35,13 +43,15 @@ class Scanner{
     private final FileReader fReader;    //File reader to get lines from
     private final BufferedReader brBuffer;    //Buffer to get lines from
     private final static String delimiters = " \t;:()\'\"=!<>+-*/[]#,^\n{}";   //delimiters to separate tokens
-    private final static String[] newOperators = {"and", "or", "not", "in", "notin"};  //new operators added for part 2
+    private final static String[] newOperators = {"and", "or", "not", "in", "notin", "to"};  //new operators added for part 2
     private final static String[] controlDeclare = {"Int", "Float", "String", "Bool"}; //control declare values
     private final static String[] controlFLow = {"if", "else", "while", "for"};        //control flow values
     private final static String[] controlEnd = {"endif", "endwhile", "endfor"};        //control end values
     ArrayList <Token> tokenList = new ArrayList<>();
     ArrayList <String> lineList = new ArrayList<>();
     debugObj debug = debugObj.get();
+    boolean emptystring = false;
+
     /**
      * Constructor for the scanner object
      * <p>
@@ -51,18 +61,23 @@ class Scanner{
      * @throws IOException  throws an error if trouble reading from file
      *
      */
-    Scanner(String sourceFileNm, SymbolTable symbolTable) throws IOException, errorCatch {
+    public Scanner(String sourceFileNm) throws IOException, errorCatch {
+      this(new File(sourceFileNm));
+    }
 
-      this.symbolTable = symbolTable;       //Symbol table
-      this.sourceFileNm = sourceFileNm;     //stores the file name
-      fInput = new File(sourceFileNm);      //open the file
-      szQuote = new String();               //make a empty string for later
-      error = new String();                 //make a empty string for errors later
-      fReader = new FileReader(fInput);     //create a new filereader
-      brBuffer = new BufferedReader(fReader);   //create a newuffered reader
-      readFile();                               //Get the lines from the file
-      textLineM = getLine();                    //get a line to store for scanning later
+    public Scanner(File f) throws IOException, errorCatch {
+      this.sourceFileNm = f.getName();
+      this.symbolTable = SymbolTable.getGlobal();       //Symbol table
+      fInput = f;                                       //open the file
+      szQuote = new String();                           //make a empty string for later
+      error = new String();                             //make a empty string for errors later
+      fReader = new FileReader(fInput);                 //create a new filereader
+      brBuffer = new BufferedReader(fReader);           //create a newuffered reader
+      readFile();                                       //Get the lines from the file
+      textLineM = getLine();                            //get a line to store for scanning later
       this.getNext();
+
+      instance = this;
     }
 
     /**
@@ -75,7 +90,7 @@ class Scanner{
      * @throws IOException  Exception if trouble getting a new line
      * @throws errorCatch   Exception if an error is found while scanning a token
      */
-    String getNext() throws IOException, errorCatch{
+    public String getNext() throws IOException, errorCatch{
 
         //get the first two tokens
         //if(iSourceLineNr == 1 && iColPos == 0 ){
@@ -101,7 +116,7 @@ class Scanner{
             nextToken.tokenStr = getToken(textLineM, nextToken);
 
             //if the current token is null, throw an error
-            if(currentToken.tokenStr == null){
+            if(currentToken.tokenStr == null && !emptystring){
                 throw new errorCatch(error);
             }
 
@@ -109,10 +124,12 @@ class Scanner{
             checkComment(currentToken, nextToken, textLineM);
             checkDoubleOperator(currentToken, nextToken, textLineM);
             checkUnaryMinus(currentToken, nextToken, textLineM);
+            
+           // System.out.println("here" + currentToken.tokenStr + "|" + nextToken.tokenStr);
         }
 
         //if the current token is empty, get the next line and return if no new line found
-        if(currentToken.tokenStr.equals("")){
+        if(currentToken.tokenStr.equals("") && nextToken.tokenStr.equals("")){
 
             textLineM = getLine();
             if(textLineM== null){
@@ -141,11 +158,11 @@ class Scanner{
        if ( this.debug.bShowToken ) {
            System.out.println("\t\t... " + currentToken.tokenStr);
        }
-
+       
        return currentToken.tokenStr;
     }
 
-    void readFile() throws IOException{
+    public void readFile() throws IOException{
         String line;
         line = brBuffer.readLine();
         while(line != null){
@@ -155,7 +172,7 @@ class Scanner{
 
     }
 
-    void setLine(int lineNumber) throws IOException, errorCatch{
+    public void setLine(int lineNumber) throws IOException, errorCatch{
         //did this because using arraylist
         iSourceLineNr = lineNumber -1;
         currentToken.tokenStr = "";
@@ -173,7 +190,7 @@ class Scanner{
      * @return textLineM  returns the line read from file as a char[]
      * @throws IOException  throws an exception if trouble reading from file
      */
-    char[] getLine() throws IOException{
+    public char[] getLine() throws IOException{
 
         //col pos
         iColPos = 0;
@@ -223,7 +240,7 @@ class Scanner{
      * @throws errorCatch  Throws a custom error if one is found
      */
     @SuppressWarnings("fallthrough")
-    String getToken(char[] lineM, Token token) throws errorCatch{
+    public String getToken(char[] lineM, Token token) throws errorCatch{
 
         String szBuffer = new String();  //Stores the token string
         iScanPos = iColPos;              //sets the scan position to the current position
@@ -331,6 +348,7 @@ class Scanner{
                         iScanPos++;
                         iColPos = iScanPos;
                         szQuote = "";
+                    
                         return szBuffer;
                     }
                     //adds delemeters to string literals
@@ -377,8 +395,16 @@ class Scanner{
                             token.subClassif = Token.STRING;
                             token.primClassif = Token.OPERAND;
                             iScanPos++;
+                           // System.out.println(tokenList.get(tokenList.size() -1).tokenstr);
+                           // if(szQuote.equals("\"") && szBuffer.equals("")){
+                           //     System.out.println("here");
+                           //     szBuffer += "";
+                           // }
                             szQuote = "\"";
+                            System.out.println();
                             continue;
+                         }else{
+                             System.out.println("here");
                          }
 
                     //handles the ' delmiter
@@ -615,7 +641,7 @@ class Scanner{
                            szBuffer += Character.toString(lineM[iScanPos]);
 
                            //Checks for Operators, if not found, it is classified as separator
-                           if("+ - * / < > ! = # ^ and or not in notin".contains(Character.toString(lineM[iScanPos]))){
+                           if("+ - * / < > ! = # ^ and or not in notin to".contains(Character.toString(lineM[iScanPos]))){
                                token.primClassif = Token.OPERATOR;
                            }else{
                                token.primClassif = Token.SEPARATOR;
@@ -662,7 +688,7 @@ class Scanner{
      * @param szWord  the token str to check
      * @param token   the token to update the information
      */
-    void checkControl(String szWord, Token token){
+    private void checkControl(String szWord, Token token){
 
         for(String temp : controlDeclare){
            if(szWord.matches(temp)){
@@ -695,7 +721,7 @@ class Scanner{
      * @param szWord  the token str to check
      * @param token   the token to update the information
      */
-    void checkBuffer(String szWord, Token token){
+    private void checkBuffer(String szWord, Token token){
         if(checkBoolean(szWord, token) == false){
                checkControl(szWord, token);
                checkFunction(szWord, token);
@@ -708,10 +734,15 @@ class Scanner{
      * @param szWord
      * @param token
      */
-    void checkFunction(String szWord, Token token){
-        if(szWord.equals("print")){
-            token.primClassif = Token.FUNCTION;
-            token.subClassif = Token.BUILTIN;
+    private void checkFunction(String szWord, Token token){
+        STEntry funcSym = symbolTable.lookupSym(szWord);
+        if ( funcSym == null ) {
+            return;
+        }
+
+        if ( funcSym instanceof STFunction ) {
+            token.primClassif = funcSym.getPrimaryClass().getCid();
+            token.subClassif = funcSym.getSubClass().getCid();
         }
     }
 
@@ -722,7 +753,7 @@ class Scanner{
      * @param token
      * @return boolean  true or false if the token is t or f
      */
-    boolean checkBoolean(String szWord, Token token){
+    private boolean checkBoolean(String szWord, Token token){
         if(szWord.equals("T") || szWord.equals("F")){
               token.primClassif = Token.OPERAND;
               token.subClassif = Token.BOOLEAN;
@@ -740,7 +771,7 @@ class Scanner{
      * @throws IOException
      * @throws errorCatch
      */
-    void checkComment(Token current, Token next, char[] line) throws IOException, errorCatch{
+    private void checkComment(Token current, Token next, char[] line) throws IOException, errorCatch{
 
          if(current.tokenStr.equals("/") && next.tokenStr.equals("/")){
              line = getLine();
@@ -763,7 +794,7 @@ class Scanner{
      * @param line     used to get next token if doubleoperator is found
      * @throws errorCatch
      */
-    void checkDoubleOperator(Token current, Token next, char[] line) throws errorCatch{
+    private void checkDoubleOperator(Token current, Token next, char[] line) throws errorCatch{
 
            if(current.primClassif == Token.OPERATOR && next.primClassif == Token.OPERATOR ){
                switch(current.tokenStr){
@@ -796,14 +827,13 @@ class Scanner{
 
     }
 
-    void checkUnaryMinus(Token current, Token next, char[] line) throws errorCatch, IOException{
+    private void checkUnaryMinus(Token current, Token next, char[] line) throws errorCatch, IOException{
          //Check that currentToken is -
          if(current.tokenStr.equals("-")){
 
              //Check if previous token is an operator as well
              //This will determine if - is urnary or not
-             if(tokenList.get(tokenList.size()-1).primClassif == Token.OPERATOR |
-                tokenList.get(tokenList.size()-1).primClassif == Token.SEPARATOR){
+             if(tokenList.get(tokenList.size()-1).primClassif == Token.OPERATOR){
 
                  //Check that next token is float, int, or operand
                  if(next.primClassif == Token.OPERAND){
