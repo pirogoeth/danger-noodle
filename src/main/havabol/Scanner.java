@@ -50,8 +50,7 @@ public class Scanner{
     ArrayList <Token> tokenList = new ArrayList<>();
     ArrayList <String> lineList = new ArrayList<>();
     debugObj debug = debugObj.get();
-    int sqcount =0;
-    int dqCount = 0;
+    boolean emptystring = false;
 
     /**
      * Constructor for the scanner object
@@ -117,7 +116,7 @@ public class Scanner{
             nextToken.tokenStr = getToken(textLineM, nextToken);
 
             //if the current token is null, throw an error
-            if(currentToken.tokenStr == null){
+            if(currentToken.tokenStr == null && !emptystring){
                 throw new errorCatch(error);
             }
 
@@ -125,10 +124,12 @@ public class Scanner{
             checkComment(currentToken, nextToken, textLineM);
             checkDoubleOperator(currentToken, nextToken, textLineM);
             checkUnaryMinus(currentToken, nextToken, textLineM);
+            
+           // System.out.println("here" + currentToken.tokenStr + "|" + nextToken.tokenStr);
         }
 
         //if the current token is empty, get the next line and return if no new line found
-        if(currentToken.tokenStr.equals("")){
+        if(currentToken.tokenStr.equals("") && nextToken.tokenStr.equals("")){
 
             textLineM = getLine();
             if(textLineM== null){
@@ -157,7 +158,7 @@ public class Scanner{
        if ( this.debug.bShowToken ) {
            System.out.println("\t\t... " + currentToken.tokenStr);
        }
-
+       
        return currentToken.tokenStr;
     }
 
@@ -347,8 +348,7 @@ public class Scanner{
                         iScanPos++;
                         iColPos = iScanPos;
                         szQuote = "";
-                        if(szBuffer.isEmpty())
-                            szBuffer = " ";
+                    
                         return szBuffer;
                     }
                     //adds delemeters to string literals
