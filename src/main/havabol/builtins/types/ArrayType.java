@@ -103,6 +103,10 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         return sb.toString();
     }
 
+    public boolean isIterable() {
+        return true;
+    }
+
     // XXX - NEEDS NARROWER EXCEPTION TYPES
     public TypeInterface<ArrayList<TypeInterface>> clone() {
         try {

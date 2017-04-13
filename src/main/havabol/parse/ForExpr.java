@@ -77,8 +77,7 @@ public class ForExpr implements ParseElement {
                  ||
                  (
                    ( this.initial != null && this.initial.isValid() ) &&
-                   ( this.max != null && this.max.isValid() ) &&
-                   ( this.step != null && this.step.isValid() )
+                   ( this.max != null && this.max.isValid() )
                  )
                );
     }
@@ -99,8 +98,10 @@ public class ForExpr implements ParseElement {
                 sb.append(this.initial.debug(indent + 2));
                 sb.append(lpads(indent, ":: MAXIMUM\n"));
                 sb.append(this.max.debug(indent + 2));
-                sb.append(lpads(indent, ":: STEPPING\n"));
-                sb.append(this.step.debug(indent + 2));
+                if ( this.step != null ) {
+                    sb.append(lpads(indent, ":: STEPPING\n"));
+                    sb.append(this.step.debug(indent + 2));
+                }
                 break;
             default:
                 return "";

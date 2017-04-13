@@ -1294,9 +1294,13 @@ public class Parser {
             // Next is `to`
             this.eatNext(tokens);
             Expression maxExpr = this.parseExpression(this.popUntil(tokens, "by"));
-            // next is `by`
-            this.eatNext(tokens);
-            Expression stepExpr = this.parseExpression(tokens);
+            // next is `by` - optional
+            Expression stepExpr;
+            if ( this.eatNextIfEq(tokens, "by") ) {
+                stepExpr = this.parseExpression(tokens);
+            } else {
+                stepExpr = null;
+            }
 
             expr = new ForExpr(ident, initExpr, maxExpr, stepExpr);
         } else if ( this.eatNextIfEq(tokens, "in") ) {

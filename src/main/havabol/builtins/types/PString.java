@@ -35,7 +35,11 @@ public class PString implements TypeInterface<String> {
     }
 
     public String getRepr() {
-        return String.format("\"%s\"", this.value);
+        return this.value;
+    }
+
+    public boolean isIterable() {
+        return true;
     }
 
     public TypeInterface<String> clone() {

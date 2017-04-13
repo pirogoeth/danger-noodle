@@ -31,7 +31,7 @@ public class Evaluator {
      *
      * @throws EvalException
      */
-    static void reportEvalError(String message, Debuggable...contexts) throws EvalException {
+    public static void reportEvalError(String message, Debuggable...contexts) throws EvalException {
         String[] contextStr = new String[contexts.length];
 
         for (int i = 0; i < contextStr.length; i++) {
@@ -344,58 +344,59 @@ public class Evaluator {
             case BINARY_OP:
                 BinaryOperation binOp = expr.getBinaryOperation();
                 EvalResult lhs, rhs, res;
+                TypeInterface val;
+
                 lhs = this.evaluateExpression(binOp.getLHS());
                 rhs = this.evaluateExpression(binOp.getRHS());
 
                 switch (binOp.getOper().getOperator()) {
                     case "+":
-                        TypeInterface aRes = Operators.add(lhs.getResult(), rhs.getResult());
-                        res = new EvalResult(aRes.getFormalType());
-                        res.setResult(aRes);
-                        return res;
+                        val = Operators.add(lhs.getResult(), rhs.getResult());
+                        break;
                     case "-":
-                        TypeInterface aRess = Operators.sub(lhs.getResult(), rhs.getResult());
-                        res = new EvalResult(aRess.getFormalType());
-                        res.setResult(aRess);
-                        return res;
+                        val = Operators.sub(lhs.getResult(), rhs.getResult());
+                        break;
                     case "*":
-                        TypeInterface aRessm = Operators.mult(lhs.getResult(), rhs.getResult());
-                        res = new EvalResult(aRessm.getFormalType());
-                        res.setResult(aRessm);
-                        return res;
+                        val = Operators.mult(lhs.getResult(), rhs.getResult());
+                        break;
                     case "/":
-                        TypeInterface aRessmd = Operators.div(lhs.getResult(), rhs.getResult());
-                        res = new EvalResult(aRessmd.getFormalType());
-                        res.setResult(aRessmd);
-                        return res;
+                        val = Operators.div(lhs.getResult(), rhs.getResult());
+                        break;
+                    case "%":
+                        val = Operators.modulo(lhs.getResult(), rhs.getResult());
+                        break;
+                    case "^":
+                        val = Operators.power(lhs.getResult(), rhs.getResult());
+                        break;
+                    case "==":
+                        val = Operators.equal(lhs.getResult(), rhs.getResult());
+                        break;
+                    case "!=":
+                        val = Operators.notEqual(lhs.getResult(), rhs.getResult());
+                        break;
                     case ">":
-                        TypeInterface aRessmg = Operators.greaterThan(lhs.getResult(), rhs.getResult());
-                        res = new EvalResult(aRessmg.getFormalType());
-                        res.setResult(aRessmg);
-                        return res;
+                        val = Operators.greaterThan(lhs.getResult(), rhs.getResult());
+                        break;
                     case "<":
-                        TypeInterface aRessml = Operators.lessThan(lhs.getResult(), rhs.getResult());
-                        res = new EvalResult(aRessml.getFormalType());
-                        res.setResult(aRessml);
-                        return res;
+                        val = Operators.lessThan(lhs.getResult(), rhs.getResult());
+                        break;
                     case ">=":
-                        TypeInterface aRessmge = Operators.greaterThenEqual(lhs.getResult(), rhs.getResult());
-                        res = new EvalResult(aRessmge.getFormalType());
-                        res.setResult(aRessmge);
-                        return res;
+                        val = Operators.greaterThanEqual(lhs.getResult(), rhs.getResult());
+                        break;
                     case "<=":
-                        TypeInterface aRessmel = Operators.lessThanEqual(lhs.getResult(), rhs.getResult());
-                        res = new EvalResult(aRessmel.getFormalType());
-                        res.setResult(aRessmel);
-                        return res;
+                        val = Operators.lessThanEqual(lhs.getResult(), rhs.getResult());
+                        break;
                     case "#":
-                        TypeInterface aRessmec = Operators.concat(lhs.getResult(), rhs.getResult());
-                        res = new EvalResult(aRessmec.getFormalType());
-                        res.setResult(aRessmec);
-                        return res;
+                        val = Operators.concat(lhs.getResult(), rhs.getResult());
+                        break;
                     default:
                         return null;
                 }
+
+                res = new EvalResult(val.getFormalType());
+                res.setResult(val);
+
+                return res;
             case FUNC_CALL:
                 FunctionCall fc = expr.getFunctionCall();
                 FunctionInterface fi = fc.resolveFunctionHandle();

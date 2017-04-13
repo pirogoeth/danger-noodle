@@ -140,7 +140,7 @@ public class Numerics
             return Double.parseDouble(s);
         }
     }
-    
+
     /**
      * Attempts to turn a token into a boolean.
      *
@@ -204,7 +204,7 @@ public class Numerics
     public static String intAsString(int i) {
         return Integer.toString(i);
     }
-    
+
     /**
      * Turns a boolean into a string.
      *
@@ -215,7 +215,6 @@ public class Numerics
     public static String booleanAsString(boolean b) {
         return b ? "T" : "F";
     }
-
 
     /*
      * PRIMITIVE NUMERICS FUNCTIONS
@@ -243,6 +242,10 @@ public class Numerics
         return intPrim(stringAsInt(s.getValue()));
     }
 
+    public static PInteger intPrim(double d) {
+        return intPrim(new Double(d).intValue());
+    }
+
     // def floatPrim.
 
     public static PFloat floatPrim(double d) {
@@ -264,7 +267,11 @@ public class Numerics
     public static PFloat floatPrim(PString s) {
         return floatPrim(stringAsFloat(s.getValue()));
     }
-    
+
+    public static PFloat floatPrim(int i) {
+        return floatPrim(new Integer(i).doubleValue());
+    }
+
     // def boolPrim.
 
     public static PBoolean boolPrim(boolean b) {

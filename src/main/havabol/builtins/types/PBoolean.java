@@ -42,6 +42,10 @@ public class PBoolean implements TypeInterface<Boolean> {
         }
     }
 
+    public boolean isIterable() {
+        return false;
+    }
+
     public TypeInterface<Boolean> clone() {
         PBoolean b = new PBoolean();
         b.setValue(this.getValue());
