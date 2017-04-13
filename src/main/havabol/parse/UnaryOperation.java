@@ -1,6 +1,11 @@
 package havabol.parse;
 
 import havabol.Token;
+import havabol.builtins.types.PBoolean;
+import havabol.classify.ReturnType;
+import havabol.common.type.TypeInterface;
+import havabol.eval.EvalException;
+import static havabol.eval.Evaluator.reportEvalError;
 import static havabol.util.Text.*;
 
 import java.util.*;
@@ -49,6 +54,25 @@ public class UnaryOperation implements ParseElement {
         sb.append(this.rhs.debug(indent + 4));
 
         return sb.toString();
+    }
+    
+    public boolean not(TypeInterface reverse) throws EvalException{
+         boolean switched;
+         if(reverse.getFormalType() == ReturnType.BOOLEAN ){
+            
+            switched = ((PBoolean) reverse).getValue();
+            return !switched;
+            
+        }else{
+             reportEvalError(
+                String.format(
+                    "b is not a bool `%s`",
+                    reverse.getFormalType().name()
+                ),
+                reverse
+            );
+            return false;
+        }
     }
 
 }
