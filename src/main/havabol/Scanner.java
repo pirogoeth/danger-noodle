@@ -836,7 +836,7 @@ public class Scanner{
              if(tokenList.get(tokenList.size()-1).primClassif == Token.OPERATOR){
 
                  //Check that next token is float, int, or operand
-                 if(next.primClassif == Token.OPERAND){
+                 if(next.primClassif == Token.OPERAND && next.subClassif!= Token.IDENTIFIER){
                       getNext();
                       currentToken.tokenStr = "-" + currentToken.tokenStr;
                       //System.out.println(currentToken.tokenStr);
