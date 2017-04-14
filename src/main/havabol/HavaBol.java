@@ -1,4 +1,4 @@
-package test;
+package havabol;
 
 import havabol.Token;
 import havabol.Scanner;
