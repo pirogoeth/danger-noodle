@@ -5,8 +5,7 @@ import java.util.*;
 
 import havabol.classify.*;
 import havabol.sym.*;
-import havabol.util.Escapes;
-import havabol.util.debugObj;
+import havabol.util.*;
 
 /**
  *
@@ -49,7 +48,7 @@ public class Scanner{
     private final static String[] controlEnd = {"endif", "endwhile", "endfor"};        //control end values
     public ArrayList <Token> tokenList = new ArrayList<>();
     public ArrayList <String> lineList = new ArrayList<>();
-    debugObj debug = debugObj.get();
+    Debug debug = Debug.get();
     boolean emptystring = false;
 
     /**

@@ -125,6 +125,8 @@ public class Evaluator {
                 return this.evaluateExpression(stmt);
             case FLOW_CTRL:
                 return this.evaluateFlowControl(stmt);
+            case NO_OP:
+                return new EvalResult(ReturnType.VOID);
             default:
                 reportEvalError(
                     "Unknown statement type: " + stmt.getStatementType().name(),

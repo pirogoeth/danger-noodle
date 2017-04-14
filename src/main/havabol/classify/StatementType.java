@@ -8,6 +8,8 @@ public enum StatementType {
     BLOCK,
     DECLARATION,
     EXPRESSION,
-    FLOW_CTRL;
+    FLOW_CTRL,
+
+    NO_OP;
 
 }

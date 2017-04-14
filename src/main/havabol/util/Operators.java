@@ -152,7 +152,7 @@ public class Operators {
         }
     }
 
-    public static TypeInterface div(TypeInterface first, TypeInterface second) throws EvalException{
+    public static TypeInterface div(TypeInterface first, TypeInterface second) throws EvalException {
         switch (first.getFormalType()) {
             case FLOAT:
                 PFloat floatB, floatRes;
@@ -305,9 +305,9 @@ public class Operators {
                         return null;
                 }
             case STRING:
-                if(((PString) first).getValue().equals(((PString) second).getValue())){
+                if (((PString) first).getValue().equals(((PString) second).getValue())) {
                     res.setValue(Boolean.TRUE);
-                }else{
+                } else {
                     res.setValue(Boolean.FALSE);
                 }
                 return res;
@@ -421,7 +421,6 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
-                        System.out.println("FLOAT NULL");
                         return null;
                 }
                 if( ((PFloat) first).getValue() > floatB.getValue()){
@@ -444,7 +443,6 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
-                        System.out.println("FLOAT NULL");
                         return null;
                 }
 
@@ -484,7 +482,6 @@ public class Operators {
 
                 return res;
             default:
-                System.out.println("SHITTING SHIT FUCK");
                 return null;
         }
     }
@@ -559,7 +556,6 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
-                        System.out.println("FLOAT NULL");
                         return null;
                 }
 
@@ -571,7 +567,6 @@ public class Operators {
 
                 return res;
             default:
-                System.out.println("SHITTING SHIT FUCK");
                 return null;
         }
 
@@ -633,21 +628,20 @@ public class Operators {
                 reportEvalError("Error can not do greater than comparision of booleans");
                 return null;
             case STRING:
-                intFirst = Numerics.intPrim((PString)first).getValue();
+                intFirst = Numerics.intPrim((PString) first).getValue();
 
                 switch (second.getFormalType()) {
                     case INTEGER:
-                        intSecond = Numerics.intPrim((PInteger)second).getValue();
+                        intSecond = Numerics.intPrim((PInteger) second).getValue();
                         break;
                     case FLOAT:
                         intSecond = Numerics.intPrim((PFloat) second).getValue();
                         break;
                     case STRING:
-                        intSecond = Numerics.intPrim((PString)second).getValue();
+                        intSecond = Numerics.intPrim((PString) second).getValue();
                         break;
                     default:
                         // XXX - EXPLODE!
-                        System.out.println("FLOAT NULL");
                         return null;
                 }
 
@@ -659,7 +653,6 @@ public class Operators {
 
                 return res;
             default:
-                System.out.println("SHITTING SHIT FUCK");
                 return null;
         }
     }
@@ -683,7 +676,6 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
-                        System.out.println("FLOAT NULL");
                         return null;
                 }
                 if( ((PFloat) first).getValue() >= floatB.getValue()){
@@ -706,13 +698,12 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
-                        System.out.println("FLOAT NULL");
                         return null;
                 }
 
                 if( ((PInteger) first).getValue() >= intB.getValue()){
                     res.setValue(Boolean.TRUE);
-                }else{
+                } else {
                     res.setValue(Boolean.FALSE);
                 }
                 return res;
@@ -886,11 +877,11 @@ public class Operators {
     public static TypeInterface and(TypeInterface a, TypeInterface b) throws EvalException {
         boolean left;
         boolean right;
-        if ( a.getFormalType() == ReturnType.BOOLEAN)
+        if ( a.getFormalType() == ReturnType.BOOLEAN )
         {  // get the bool value
 
             left = ((PBoolean) b).getValue();
-        }else{
+        } else {
             reportEvalError(
                     String.format(
                         "a is not a bool `%s`",
@@ -901,12 +892,9 @@ public class Operators {
             return null;
         }
 
-        if(b.getFormalType() == ReturnType.BOOLEAN ){
-
+        if ( b.getFormalType() == ReturnType.BOOLEAN ) {
             right = ((PBoolean) b).getValue();
-
-
-        }else{
+        } else {
             reportEvalError(
                     String.format(
                         "b is not a bool `%s`",
@@ -916,8 +904,8 @@ public class Operators {
                     );
             return null;
         }
-        return boolPrim(left && right);
 
+        return boolPrim(left && right);
     }
 
     public static TypeInterface or(TypeInterface a, TypeInterface b) throws EvalException {
@@ -927,7 +915,7 @@ public class Operators {
         {  // get the bool value
 
             left = ((PBoolean) b).getValue();
-        }else{
+        } else {
             reportEvalError(
                     String.format(
                         "a is not a bool `%s`",
@@ -938,12 +926,9 @@ public class Operators {
             return null;
         }
 
-        if(b.getFormalType() == ReturnType.BOOLEAN ){
-
+        if( b.getFormalType() == ReturnType.BOOLEAN ){
             right = ((PBoolean) b).getValue();
-
-
-        }else{
+        } else {
             reportEvalError(
                     String.format(
                         "b is not a bool `%s`",
@@ -953,7 +938,7 @@ public class Operators {
                     );
             return null;
         }
-        return boolPrim(left || right);
 
+        return boolPrim(left || right);
     }
 }

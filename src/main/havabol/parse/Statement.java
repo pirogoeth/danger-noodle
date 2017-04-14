@@ -16,6 +16,10 @@ public class Statement implements ParseElement {
     private Expression expr = null;
     private FlowControl flow = null;
 
+    public Statement() {
+        this.stmtType = StatementType.NO_OP;
+    }
+
     public Statement(Assignment assign) {
         this.assign = assign;
 

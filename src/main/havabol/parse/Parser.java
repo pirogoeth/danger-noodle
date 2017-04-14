@@ -564,6 +564,11 @@ public class Parser {
     public Statement parse() throws ParserException {
         Token t = this.peekNext();
 
+        if ( t.tokenStr.equalsIgnoreCase("debug") ) {
+            this.handleDebug(this.popStatement());
+            return new Statement();
+        }
+
         Expression expr = null;
         switch (Primary.primaryFromInt(t.primClassif)) {
             case CONTROL:
@@ -969,7 +974,7 @@ public class Parser {
                     BinaryOperation binOp;
                     BinaryOperation tmp;
 
-                    // If rhs is comparative operation
+                    // If rhs is comparative operation, we *MUST* do some magical tree hoisting.
                     // RHS will be newCur if it has a comparator
                     BinaryOperation rhsOp = rhs.getBinaryOperation();
                     if ( rhsOp != null && comparators.contains(rhsOp.getOper().getOperator()) ) {
@@ -1283,6 +1288,22 @@ public class Parser {
         }
 
         return expr;
+    }
+
+    private void handleDebug(List<Token> tokens) throws ParserException {
+        Token flagT = this.popNext(tokens);
+        Token dbgTypeT = this.popNext(tokens);
+        Token valueT = this.popNext(tokens);
+
+        Debug dbg = Debug.get();
+        if ( ! dbg.set(dbgTypeT.tokenStr, valueT.tokenStr) ) {
+            reportParseError(
+                "Could not set debugging flag",
+                flagT,
+                dbgTypeT,
+                valueT
+            );
+        }
     }
 
 }
