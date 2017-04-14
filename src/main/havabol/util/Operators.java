@@ -403,6 +403,8 @@ public class Operators {
     }
 
     public static TypeInterface greaterThan(TypeInterface first, TypeInterface second) throws EvalException {
+        int intFirst;
+        int intSecond;
         PBoolean res = new PBoolean();
         switch (first.getFormalType()) {
             case FLOAT:
@@ -456,7 +458,25 @@ public class Operators {
                 reportEvalError("Error can not do greater than comparision of booleans");
                 return null;
             case STRING:
-                if (((PString) first).getValue().compareTo(((PString) second).getValue()) > 0) {
+                intFirst = Numerics.intPrim((PString)first).getValue();
+
+                switch (second.getFormalType()) {
+                    case INTEGER:
+                        intSecond = Numerics.intPrim((PInteger)second).getValue();
+                        break;
+                    case FLOAT:
+                        intSecond = Numerics.intPrim((PFloat) second).getValue();
+                        break;
+                    case STRING:
+                        intSecond = Numerics.intPrim((PString)second).getValue();
+                        break;
+                    default:
+                        // XXX - EXPLODE!
+                        System.out.println("FLOAT NULL");
+                        return null;
+                }
+
+                if ( intFirst > intSecond ) {
                     res.setValue(Boolean.TRUE);
                 } else {
                     res.setValue(Boolean.FALSE);
@@ -470,6 +490,8 @@ public class Operators {
     }
 
     public static TypeInterface lessThan(TypeInterface first, TypeInterface second) throws EvalException {
+        int intFirst;
+        int intSecond;
         PBoolean res = new PBoolean();
         switch (first.getFormalType()) {
             case FLOAT:
@@ -486,6 +508,7 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
+                        System.out.println("FLOAT NULL");
                         return null;
                 }
                 if( ((PFloat) first).getValue() < floatB.getValue()){
@@ -508,6 +531,7 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
+                        System.out.println("FLOAT NULL");
                         return null;
                 }
 
@@ -518,22 +542,44 @@ public class Operators {
                 }
                 return res;
             case BOOLEAN:
-                reportEvalError("Error can not do less than comparision of booleans");
+                reportEvalError("Error can not do greater than comparision of booleans");
                 return null;
-
             case STRING:
-                if(((PString) first).getValue().compareTo(((PString) second).getValue()) < 0){
+                intFirst = Numerics.intPrim((PString)first).getValue();
+
+                switch (second.getFormalType()) {
+                    case INTEGER:
+                        intSecond = Numerics.intPrim((PInteger)second).getValue();
+                        break;
+                    case FLOAT:
+                        intSecond = Numerics.intPrim((PFloat) second).getValue();
+                        break;
+                    case STRING:
+                        intSecond = Numerics.intPrim((PString)second).getValue();
+                        break;
+                    default:
+                        // XXX - EXPLODE!
+                        System.out.println("FLOAT NULL");
+                        return null;
+                }
+
+                if ( intFirst < intSecond ) {
                     res.setValue(Boolean.TRUE);
-                }else{
+                } else {
                     res.setValue(Boolean.FALSE);
                 }
+
                 return res;
             default:
+                System.out.println("SHITTING SHIT FUCK");
                 return null;
         }
+
     }
 
     public static TypeInterface lessThanEqual(TypeInterface first, TypeInterface second) throws EvalException {
+        int intFirst;
+        int intSecond;
         PBoolean res = new PBoolean();
         switch (first.getFormalType()) {
             case FLOAT:
@@ -550,6 +596,7 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
+                        System.out.println("FLOAT NULL");
                         return null;
                 }
                 if( ((PFloat) first).getValue() <= floatB.getValue()){
@@ -572,6 +619,7 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
+                        System.out.println("FLOAT NULL");
                         return null;
                 }
 
@@ -582,43 +630,43 @@ public class Operators {
                 }
                 return res;
             case BOOLEAN:
-                switch(second.getFormalType()){
-                    case BOOLEAN:
-                        if((PBoolean) first.getValue() != (PBoolean) second.getValue() ){
-                            res.setValue(Boolean.TRUE);
-                        }else{
-                            res.setValue(Boolean.FALSE);
-                        }
-                        return res;
+                reportEvalError("Error can not do greater than comparision of booleans");
+                return null;
+            case STRING:
+                intFirst = Numerics.intPrim((PString)first).getValue();
 
+                switch (second.getFormalType()) {
+                    case INTEGER:
+                        intSecond = Numerics.intPrim((PInteger)second).getValue();
+                        break;
+                    case FLOAT:
+                        intSecond = Numerics.intPrim((PFloat) second).getValue();
+                        break;
                     case STRING:
-                        if(second.getValue().equals("T") || second.getValue().equals("F")){
-                            if(first.getValue().toString().equals("T")){
-                                res.setValue(Boolean.TRUE);
-                            }
-                            if(first.getValue().toString().equals("F")){
-                                res.setValue(Boolean.FALSE);
-                            }
-                        }
-
+                        intSecond = Numerics.intPrim((PString)second).getValue();
+                        break;
                     default:
-                        reportEvalError("Can not compare booleans with no boolean or string");
+                        // XXX - EXPLODE!
+                        System.out.println("FLOAT NULL");
                         return null;
                 }
 
-            case STRING:
-                if(((PString) first).getValue().compareTo(((PString) second).getValue()) <= 0){
+                if ( intFirst <= intSecond ) {
                     res.setValue(Boolean.TRUE);
-                }else{
+                } else {
                     res.setValue(Boolean.FALSE);
                 }
+
                 return res;
             default:
+                System.out.println("SHITTING SHIT FUCK");
                 return null;
         }
     }
 
     public static TypeInterface greaterThanEqual(TypeInterface first, TypeInterface second) throws EvalException {
+        int intFirst;
+        int intSecond;
         PBoolean res = new PBoolean();
         switch (first.getFormalType()) {
             case FLOAT:
@@ -635,6 +683,7 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
+                        System.out.println("FLOAT NULL");
                         return null;
                 }
                 if( ((PFloat) first).getValue() >= floatB.getValue()){
@@ -657,6 +706,7 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
+                        System.out.println("FLOAT NULL");
                         return null;
                 }
 
@@ -667,40 +717,39 @@ public class Operators {
                 }
                 return res;
             case BOOLEAN:
-                switch(second.getFormalType()){
-                    case BOOLEAN:
-                        if((PBoolean) first.getValue() != (PBoolean) second.getValue() ){
-                            res.setValue(Boolean.TRUE);
-                        }else{
-                            res.setValue(Boolean.FALSE);
-                        }
-                        return res;
+                reportEvalError("Error can not do greater than comparision of booleans");
+                return null;
+            case STRING:
+                intFirst = Numerics.intPrim((PString)first).getValue();
 
+                switch (second.getFormalType()) {
+                    case INTEGER:
+                        intSecond = Numerics.intPrim((PInteger)second).getValue();
+                        break;
+                    case FLOAT:
+                        intSecond = Numerics.intPrim((PFloat) second).getValue();
+                        break;
                     case STRING:
-                        if(second.getValue().equals("T") || second.getValue().equals("F")){
-                            if(first.getValue().toString().equals("T")){
-                                res.setValue(Boolean.TRUE);
-                            }
-                            if(first.getValue().toString().equals("F")){
-                                res.setValue(Boolean.FALSE);
-                            }
-                        }
-
+                        intSecond = Numerics.intPrim((PString)second).getValue();
+                        break;
                     default:
-                        reportEvalError("Can not compare booleans with no boolean or string");
+                        // XXX - EXPLODE!
+                        System.out.println("FLOAT NULL");
                         return null;
                 }
 
-            case STRING:
-                if(((PString) first).getValue().compareTo(((PString) second).getValue()) >= 0){
+                if ( intFirst >= intSecond ) {
                     res.setValue(Boolean.TRUE);
-                }else{
+                } else {
                     res.setValue(Boolean.FALSE);
                 }
+
                 return res;
             default:
+                System.out.println("SHITTING SHIT FUCK");
                 return null;
         }
+
     }
 
     public static TypeInterface modulo(TypeInterface first, TypeInterface second) {
