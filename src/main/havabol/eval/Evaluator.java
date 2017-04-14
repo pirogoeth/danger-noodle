@@ -168,6 +168,7 @@ public class Evaluator {
             } else {
                 res = new EvalResult(decl.getDataType().getReturnType());
             }
+
             target = this.evaluateDeclaration(decl);
             val = this.evaluateExpression(assign.getAssignedExpr());
 
@@ -306,21 +307,27 @@ public class Evaluator {
             ArrayType aryTmp = new ArrayType();
             aryTmp.setBoundType(dt.getReturnType());
 
-            TypeInterface arrayBound = this.evaluateExpression(decl.getArrayBound()).getResult();
-            if ( arrayBound.getFormalType() != ReturnType.INTEGER ) {
-                reportEvalError(
-                    String.format(
-                        "Invalid subscript type - expected `%s` got `%s`",
-                        ReturnType.INTEGER.name(),
-                        arrayBound.getFormalType().name()
-                    ),
-                    dt,
-                    ident
-                );
-                return null;
+            if ( decl.getArrayBound() == null ) {
+                // This happens when the subscript says VARIA_ARY but
+                // the capacity is actually inferred from the initialized
+                // arguments, if any.
+            } else {
+                TypeInterface arrayBound = this.evaluateExpression(decl.getArrayBound()).getResult();
+                if ( arrayBound.getFormalType() != ReturnType.INTEGER ) {
+                    reportEvalError(
+                        String.format(
+                            "Invalid subscript type - expected `%s` got `%s`",
+                            ReturnType.INTEGER.name(),
+                            arrayBound.getFormalType().name()
+                        ),
+                        dt,
+                        ident
+                    );
+                    return null;
+                }
+                PInteger arrayBoundInt = (PInteger) arrayBound;
+                aryTmp.initialize(arrayBoundInt.getValue());
             }
-            PInteger arrayBoundInt = (PInteger) arrayBound;
-            aryTmp.initialize(arrayBoundInt.getValue());
 
             typeIf = aryTmp;
         } else {
@@ -421,24 +428,16 @@ public class Evaluator {
                         val = Operators.concat(lhs.getResult(), rhs.getResult());
                         break;
                     case "in":
-                        // val = Operators.contains(lhs.getResultV(), rhs.getResult());
-                        val = null;
-                        System.out.println("IMPLEMENT ME DADDY");
+                        val = Operators.contains(lhs.getResult(), rhs.getResult());
                         break;
                     case "notin":
-                        // val = Operators.notContains(lhs.getResultV(), rhs.getResult());
-                        val = null;
-                        System.out.println("IMPLEMENT ME DADDY");
+                        val = Operators.notContains(lhs.getResult(), rhs.getResult());
                         break;
                     case "and":
-                        // val = Operators.and(lhs.getResultV(), rhs.getResult());
-                        val = null;
-                        System.out.println("IMPLEMENT ME DADDY");
+                        val = Operators.and(lhs.getResult(), rhs.getResult());
                         break;
                     case "or":
-                        // val = Operators.not(lhs.getResultV(), rhs.getResult());
-                        val = null;
-                        System.out.println("IMPLEMENT ME DADDY");
+                        val = Operators.or(lhs.getResult(), rhs.getResult());
                         break;
                     default:
                         return null;
