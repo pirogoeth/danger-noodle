@@ -55,7 +55,12 @@ public class HavaBol
             while ( p.canParse() ) {
                 Statement s = p.parse();
                 stmts.add(s);
-                System.out.println(s.debug());
+                if ( dbg.bShowExpr ) {
+                    System.out.println(lpads(
+                        8,
+                        "... " + s.debug(12)
+                    ));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
