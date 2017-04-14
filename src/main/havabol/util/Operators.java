@@ -470,7 +470,6 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
-                        System.out.println("FLOAT NULL");
                         return null;
                 }
 
@@ -505,7 +504,6 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
-                        System.out.println("FLOAT NULL");
                         return null;
                 }
                 if( ((PFloat) first).getValue() < floatB.getValue()){
@@ -528,7 +526,6 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
-                        System.out.println("FLOAT NULL");
                         return null;
                 }
 
@@ -591,7 +588,6 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
-                        System.out.println("FLOAT NULL");
                         return null;
                 }
                 if( ((PFloat) first).getValue() <= floatB.getValue()){
@@ -614,7 +610,6 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
-                        System.out.println("FLOAT NULL");
                         return null;
                 }
 
@@ -725,7 +720,6 @@ public class Operators {
                         break;
                     default:
                         // XXX - EXPLODE!
-                        System.out.println("FLOAT NULL");
                         return null;
                 }
 
@@ -737,7 +731,6 @@ public class Operators {
 
                 return res;
             default:
-                System.out.println("SHITTING SHIT FUCK");
                 return null;
         }
 
