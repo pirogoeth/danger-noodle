@@ -237,6 +237,10 @@ public class Evaluator {
 
             target = this.evaluateDeclaration(decl);
             val = this.evaluateExpression(assign.getAssignedExpr());
+            if ( val.getResultType() == ReturnType.ARRAY ) {
+                ArrayType ary = (ArrayType) val.getResult();
+                ary.setBoundType(decl.getDataType().getReturnType());
+            }
 
             STIdentifier newIdent = target.getResultIdent();
             SMValue stVal = this.store.get(newIdent);
@@ -530,6 +534,9 @@ public class Evaluator {
                 EvalResult[] args = new EvalResult[argExprs.size()];
                 for (int i = 0; i < args.length; i++) {
                     args[i] = this.evaluateExpression(argExprs.get(i));
+                    if ( args[i].isSubscripted() ) {
+                        args[i] = this.applySubscript(args[i]);
+                    }
                 }
 
                 if ( ! fi.validateArguments(args) ) {
@@ -581,10 +588,16 @@ public class Evaluator {
                 if ( identSubsc != null ) {
                     EvalResult b, e;
                     b = this.evaluateExpression(identSubsc.getBeginExpr());
+                    if ( b.isSubscripted() ) {
+                        b = this.applySubscript(b);
+                    }
 
                     if ( b.getResultType() != ReturnType.INTEGER ) {
                         reportEvalError(
-                            "Invalid begin expression - requires return type `Int`",
+                            String.format(
+                                "Invalid begin expression - requires return type `Int` - given `%s`",
+                                b.getResultType().name()
+                            ),
                             identSubsc,
                             b
                         );
@@ -789,7 +802,7 @@ public class Evaluator {
 
         Identifier ident = expr.getControl();
         STIdentifier identS = (STIdentifier) this.symTab.lookupSym(ident.getIdentT());
-        SMValue cVar = identS.getStoredValue(this.store);
+        SMValue cVar = this.store.getOrInit(identS);
 
         EvalResult container = this.evaluateExpression(expr.getContainer());
         if ( ! container.getResult().isIterable() ) {
