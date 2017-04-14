@@ -39,7 +39,7 @@ public class SMValue {
             case INTEGER:
                 return (PInteger) this.value;
             default:
-                // Needs to throw a CoercionException or some shit.
+                // Needs to throw a CoercionException?
                 break;
         }
 
@@ -61,7 +61,7 @@ public class SMValue {
             case INTEGER:
                 return floatPrim((PInteger) this.value);
             default:
-                // Needs to throw a CoercionException or some shit.
+                // Needs to throw a CoercionException?
                 break;
         }
 
