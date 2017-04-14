@@ -11,7 +11,7 @@ String s = "doot doot thanx mr. skeltal";
 print(i, f, b, s);
 
 // Need some array love.
-Int[5] iAry = 5, 4, 3, 2, 1;
+Int iAry[5] = 5, 4, 3, 2, 1;
 
 // info
 print("Values of iAry:", iAry);
