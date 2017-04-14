@@ -86,6 +86,70 @@ public class Evaluator {
         return ( this.stmtList != null && ! this.stmtList.isEmpty() );
     }
 
+    private EvalResult applySubscript(EvalResult res) throws Exception, EvalException {
+        EvalResult newRes;
+        EvalResult.EvalSubscript sub;
+        TypeInterface val = res.getResult();
+
+        // tmp vars
+        PString s;
+        ArrayType a;
+
+        if ( res.isSubscripted() ) {
+            sub = res.getSubscript();
+            switch (sub.type) {
+                case SINGLE:
+                    switch (res.getResultType()) {
+                        case STRING:
+                            s = (PString) val;
+                            newRes = s.get(sub.beginIdx);
+                            break;
+                        case ARRAY:
+                            a = (ArrayType) val;
+                            newRes = a.get(sub.beginIdx);
+                            break;
+                        default:
+                            reportEvalError(
+                                "Tried to apply subscript to un-subscriptable value",
+                                res
+                            );
+                            return null;
+                    }
+                    break;
+                case RANGE:
+                    switch (res.getResultType()) {
+                        case STRING:
+                            s = (PString) val;
+                            newRes = s.getSlice(sub.beginIdx, sub.endIdx);
+                            break;
+                        case ARRAY:
+                            a = (ArrayType) val;
+                            newRes = a.getSlice(sub.beginIdx, sub.endIdx);
+                            break;
+                        default:
+                            reportEvalError(
+                                "Tried to apply subscript to un-subscriptable value",
+                                res
+                            );
+                            return null;
+                    }
+                    break;
+                default:
+                    reportEvalError(
+                        String.format(
+                            "Invalid subscript type - `%s`",
+                            sub.type.name()
+                        )
+                    );
+                    return null;
+            }
+        } else {
+            newRes = res;
+        }
+
+        return newRes;
+    }
+
     public EvalResult evaluate() throws Exception, ParserException, EvalException {
         if ( ! this.canEval() ) {
             return null;
@@ -386,8 +450,17 @@ public class Evaluator {
                 EvalResult lhs, rhs, res;
                 TypeInterface val;
 
+                Subscript sub;
+
                 lhs = this.evaluateExpression(binOp.getLHS());
+                if ( lhs.isSubscripted() ) {
+                    lhs = this.applySubscript(lhs);
+                }
+
                 rhs = this.evaluateExpression(binOp.getRHS());
+                if ( rhs.isSubscripted() ) {
+                    rhs = this.applySubscript(rhs);
+                }
 
                 switch (binOp.getOper().getOperator()) {
                     case "+":
@@ -512,7 +585,8 @@ public class Evaluator {
                     if ( b.getResultType() != ReturnType.INTEGER ) {
                         reportEvalError(
                             "Invalid begin expression - requires return type `Int`",
-                            identSubsc
+                            identSubsc,
+                            b
                         );
                         return null;
                     }
