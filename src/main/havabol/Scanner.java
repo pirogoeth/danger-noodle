@@ -205,10 +205,11 @@ public class Scanner{
         iColPos = 0;
 
         if(iSourceLineNr < lineList.size()){
-        //get a new line
-        szLine = lineList.get(iSourceLineNr);
+            //get a new line
+            szLine = lineList.get(iSourceLineNr);
         }else{
             this.currentToken = null;
+            return null;
         }
        // System.out.println(szLine);
         //Update to line pos (did this because using array list now)

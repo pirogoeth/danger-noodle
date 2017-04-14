@@ -11,11 +11,6 @@ public class Subscript implements ParseElement {
     private Expression beginVal;
     private Expression endVal;
 
-    public Subscript() {
-        this.beginVal = null;
-        this.endVal = null;
-    }
-
     public Subscript(Expression b) {
         this.beginVal = b;
     }
@@ -35,17 +30,21 @@ public class Subscript implements ParseElement {
     }
 
     public boolean isValid() {
-        return true;
+        return ( this.beginVal != null && this.beginVal.isValid() ) &&
+            (
+             ( this.endVal == null ) ||
+             (
+              ( this.endVal != null ) && ( this.endVal.isValid() )
+             )
+            );
     }
 
     public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(lpads(indent, "Subscript ~>\n"));
-        if ( this.beginVal != null ) {
-            sb.append(lpads(indent, "SRC ::\n"));
-            sb.append(this.beginVal.debug(indent + 2));
-        }
+        sb.append(lpads(indent, "SRC ::\n"));
+        sb.append(this.beginVal.debug(indent + 2));
 
         if ( this.endVal != null ) {
             sb.append(lpads(indent, "DST ::\n"));
