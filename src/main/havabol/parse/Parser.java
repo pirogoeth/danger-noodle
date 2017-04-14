@@ -754,53 +754,46 @@ public class Parser {
     private Statement parseDeclaration(Token head) throws ParserException {
         List<Token> tokens = this.popStatement();
 
-        if ( tokenType(head, Primary.CONTROL, Subclass.DECLARE) &&
-             tokenType(this.peekNext(tokens), Primary.SEPARATOR, null) ) {
+        DataType dt = new DataType(head);
 
+        Token next = this.popNext(tokens);
+        Identifier ident = new Identifier(next);
+
+        Declaration decl;
+
+        Subscript sub;
+        Token tmp = this.peekNext(tokens);
+
+        if ( tmp.tokenStr.equals("[") ) {
+            List<Token> aryDesc = this.eatOuterMatching(this.popUntilMatch(tokens));
+            if ( aryDesc.isEmpty() ) {
+                // unbounded
+                decl = new Declaration(dt, ident, true);
+            } else {
+                // bounding expression
+                Expression arySize = this.parseExpression(aryDesc);
+                decl = new Declaration(dt, ident, true, arySize);
+            }
+        } else {
+            decl = new Declaration(dt, ident);
+        }
+
+        // Peek at the next token to see if this is a compound declaration
+        Token oper = this.peekNext(tokens);
+        if ( oper != null && oper.tokenStr.equals("=") ) {
+            tokens.add(0, next);
             tokens.add(0, head);
-            Statement st = this.parseArrayDecl(tokens);
-            if ( st.isValid() ) {
-                return st;
-            } else {
-                reportParseError(
-                        "Array declaration is invalid",
-                        head
-                );
-                return null;
-            }
-        } else if ( tokenType(head, Primary.CONTROL, Subclass.DECLARE) &&
-                    tokenType(this.peekNext(tokens), Primary.OPERAND, Subclass.IDENTIFIER) ) {
+            return new Statement(this.parseComplexDeclaration(tokens));
+        }
 
-            DataType dt = new DataType(head);
-
-            Token next = this.popNext(tokens);
-
-            Identifier ident = new Identifier(next);
-            Declaration decl = new Declaration(dt, ident);
-
-            // Peek at the next token to see if this is a compound declaration
-            Token oper = this.peekNext(tokens);
-            if ( oper != null && oper.tokenStr.equals("=") ) {
-                tokens.add(0, next);
-                tokens.add(0, head);
-                return new Statement(this.parseComplexDeclaration(tokens));
-            }
-
-            if ( dt.isValid() && ident.isValid() && decl.isValid() ) {
-                return new Statement(decl);
-            } else {
-                reportParseError(
-                        "Declaration is invalid",
-                        head,
-                        next,
-                        oper
-                );
-                return null;
-            }
+        if ( dt.isValid() && ident.isValid() && decl.isValid() ) {
+            return new Statement(decl);
         } else {
             reportParseError(
                     "Declaration is invalid",
-                    head
+                    head,
+                    next,
+                    oper
             );
             return null;
         }
@@ -825,8 +818,19 @@ public class Parser {
         Token identT = this.popNext(tokens);
 
         DataType dtype = new DataType(typeT);
-        Identifier ident = new Identifier(identT);
-        Declaration decl = new Declaration(dtype, ident);
+        Identifier ident;
+        Declaration decl;
+
+        Subscript sub;
+        Token tmp = this.peekNext(tokens);
+        if ( tmp.tokenStr.equals("[") ) {
+            sub = this.parseSubscript(tokens);
+            ident = new Identifier(identT, sub);
+            decl = new Declaration(dtype, ident, true);
+        } else {
+            ident = new Identifier(identT);
+            decl = new Declaration(dtype, ident);
+        }
 
         Token operatorT = this.popNext(tokens);
         Operator oper = null;
@@ -880,35 +884,13 @@ public class Parser {
         // Now the next token should be a primitive (int), but if it is empty (next token is ']')
         // then this is an unbounded array.
         DataType dt = new DataType(head);
-        int arySize = -1;
+        Expression arySize;
 
         if ( ! this.eatNextIfEq(tokens, "]") ) {
-            // Something within the brackets
-            if ( ! this.tokenType(this.peekNext(tokens), Primary.OPERAND, Subclass.INTEGER) ) {
-                reportParseError(
-                        String.format(
-                            "Unexpected token `%s`, expected Integer primitive",
-                            this.peekNext(tokens).tokenStr
-                        ),
-                        head,
-                        this.peekNext(tokens)
-                );
-            } else {
-                Token t = this.popNext(tokens);
-                arySize = Numerics.tokenAsInt(t);
-
-                if ( ! this.eatNextIfEq(tokens, "]") ) {
-                    reportParseError(
-                            String.format(
-                                "Unexpected token `%s` after array size, expected `]`",
-                                this.peekNext(tokens).tokenStr
-                            ),
-                            head,
-                            t,
-                            this.peekNext(tokens)
-                    );
-                }
-            }
+            arySize = this.parseExpression(this.popUntil(tokens, "]"));
+            this.eatNextIfEq(tokens, "]");
+        } else {
+            arySize = null;
         }
 
         Token identT = this.popNext(tokens);
@@ -963,11 +945,6 @@ public class Parser {
      * @throws ParserException
      */
     private FunctionCall parseFunctionCall(List<Token> tokens) throws ParserException {
-        System.out.println("FUNCCALL INIT TOKENS");
-        tokens.stream().forEach(t -> t.printToken());
-        System.out.println();
-
-
         Token handle = this.popNext(tokens);
 
         Identifier funcName = new Identifier(handle);
@@ -980,10 +957,6 @@ public class Parser {
         }
 
         tokens = this.eatOuterMatching(tokens);
-        System.out.println("FUNCCALL EAT OUTER");
-        tokens.stream().forEach(t -> t.printToken());
-        System.out.println();
-
 
         List<Expression> argsList = new ArrayList<>();
 
@@ -994,10 +967,6 @@ public class Parser {
                 case FUNCTION:
                     exprBuf.add(this.popNext(tokens));
                     exprBuf.addAll(this.popUntilMatch(tokens));
-
-                    System.out.println("FUNCCALL NEST EXPRBUF");
-                    exprBuf.stream().forEach(t -> t.printToken());
-                    System.out.println();
 
                     break;
                 case SEPARATOR:
@@ -1014,10 +983,6 @@ public class Parser {
                 );
                 return null;
             }
-
-            System.out.println("FUNCCALL EXIT EXPRBUF");
-            exprBuf.stream().forEach(t -> t.printToken());
-            System.out.println();
 
             argsList.add(this.parseExpression(exprBuf));
             exprBuf = new ArrayList<>();
@@ -1262,8 +1227,6 @@ public class Parser {
 
                 break;
             case FUNCTION:
-                System.out.println("EXPRESSION PARSE BUFFERING FUNCCALL");
-
                 buf.add(head);
                 buf.addAll(this.popUntilMatch(arg));
 
@@ -1324,11 +1287,6 @@ public class Parser {
 
                 // Pop off the current grouping
                 buf.addAll(this.popUntilMatch(arg));
-
-                // XXX - DEBUG
-                System.out.println("EXPRESSION GROUPING");
-                buf.stream().forEach(t -> t.printToken());
-                System.out.println();
 
                 // Create an expression from the inner grouping
                 buf = this.eatOuterMatching(buf);

@@ -21,10 +21,8 @@ public class EvaluatorTest
         try
         {
             Scanner scan = new Scanner(args[0]);
-            scan.currentToken.printToken();
-            tokenList.add(scan.currentToken);
 
-            while (scan.currentToken != null && scan.nextToken != null)
+            while (scan.currentToken != null)
             {
                 scan.currentToken.printToken();
                 tokenList.add(scan.currentToken);

@@ -305,7 +305,23 @@ public class Evaluator {
             }
             ArrayType aryTmp = new ArrayType();
             aryTmp.setBoundType(dt.getReturnType());
-            aryTmp.initialize(decl.getArrayBound());
+
+            TypeInterface arrayBound = this.evaluateExpression(decl.getArrayBound()).getResult();
+            if ( arrayBound.getFormalType() != ReturnType.INTEGER ) {
+                reportEvalError(
+                    String.format(
+                        "Invalid subscript type - expected `%s` got `%s`",
+                        ReturnType.INTEGER.name(),
+                        arrayBound.getFormalType().name()
+                    ),
+                    dt,
+                    ident
+                );
+                return null;
+            }
+            PInteger arrayBoundInt = (PInteger) arrayBound;
+            aryTmp.initialize(arrayBoundInt.getValue());
+
             typeIf = aryTmp;
         } else {
             backing = Structure.PRIMITIVE;
@@ -427,9 +443,6 @@ public class Evaluator {
                     default:
                         return null;
                 }
-
-                System.out.printf("%s, %s\n", lhs.getResult(), rhs.getResult());
-                System.out.printf("final: %s\n", val);
 
                 res = new EvalResult(val.getFormalType());
                 res.setResult(val);
