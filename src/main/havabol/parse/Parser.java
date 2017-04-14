@@ -756,15 +756,15 @@ public class Parser {
 
         DataType dt = new DataType(head);
 
-        Token next = this.popNext(tokens);
-        Identifier ident = new Identifier(next);
+        Token identT = this.popNext(tokens);
+        Identifier ident = new Identifier(identT);
 
         Declaration decl;
 
         Subscript sub;
         Token tmp = this.peekNext(tokens);
 
-        if ( tmp.tokenStr.equals("[") ) {
+        if ( tmp != null && tmp.tokenStr.equals("[") ) {
             List<Token> aryDesc = this.eatOuterMatching(this.popUntilMatch(tokens));
             if ( aryDesc.isEmpty() ) {
                 // unbounded
@@ -779,158 +779,34 @@ public class Parser {
         }
 
         // Peek at the next token to see if this is a compound declaration
-        Token oper = this.peekNext(tokens);
-        if ( oper != null && oper.tokenStr.equals("=") ) {
-            tokens.add(0, next);
-            tokens.add(0, head);
-            return new Statement(this.parseComplexDeclaration(tokens));
-        }
+        Token operT = this.popNext(tokens);
+        if ( operT != null && operT.tokenStr.equals("=") ) {
+            Expression expr = this.parseExpression(tokens);
 
-        if ( dt.isValid() && ident.isValid() && decl.isValid() ) {
-            return new Statement(decl);
-        } else {
-            reportParseError(
-                    "Declaration is invalid",
-                    head,
-                    next,
-                    oper
-            );
-            return null;
-        }
-    }
-
-    /**
-     * Parses a "complex" declaration. A complex declaration is a compound
-     * declaration and assignment statement.
-     *
-     * Example:
-     *
-     *      {@code Int i = 50;}
-     *
-     * @param List<Token> tokens
-     *
-     * @return Assignment
-     *
-     * @throws ParserException
-     */
-    private Assignment parseComplexDeclaration(List<Token> tokens) throws ParserException {
-        Token typeT = this.popNext(tokens);
-        Token identT = this.popNext(tokens);
-
-        DataType dtype = new DataType(typeT);
-        Identifier ident;
-        Declaration decl;
-
-        Subscript sub;
-        Token tmp = this.peekNext(tokens);
-        if ( tmp.tokenStr.equals("[") ) {
-            sub = this.parseSubscript(tokens);
-            ident = new Identifier(identT, sub);
-            decl = new Declaration(dtype, ident, true);
-        } else {
-            ident = new Identifier(identT);
-            decl = new Declaration(dtype, ident);
-        }
-
-        Token operatorT = this.popNext(tokens);
-        Operator oper = null;
-
-        if ( tokenType(operatorT, Primary.OPERATOR, null) && operatorT.tokenStr.equals("=") ) {
-            oper = new Operator(operatorT);
-        }
-
-        Expression expr = this.parseExpression(tokens);
-
-        Assignment a = new Assignment(decl, oper, expr);
-        if ( a == null || !a.isValid() ) {
-            reportParseError(
-                    "Declaration is invalid",
-                    typeT,
-                    identT,
-                    operatorT
-            );
-            return null;
-        }
-
-        return a;
-    }
-
-    /**
-     * Parses a compound array declaration which may or may not include an assignment.
-     *
-     * Example:
-     *
-     *      {@code Int[] ary = 1, 2, 3, 4, 5;}
-     *
-     * @param List<Token> tokens
-     *
-     * @return Statement
-     *
-     * @throws ParserException
-     */
-    private Statement parseArrayDecl(List<Token> tokens) throws ParserException {
-        // Try to parse into a array assignment, otherwise, explode.
-        Token head = this.popNext(tokens);
-
-        if ( ! this.eatNextIfEq(tokens, "[") ) {
-            reportParseError(
-                    "Invalid following separator - use `[]` to create an array",
-                    head,
-                    this.peekNext(tokens)
-            );
-            return null;
-        }
-
-        // Now the next token should be a primitive (int), but if it is empty (next token is ']')
-        // then this is an unbounded array.
-        DataType dt = new DataType(head);
-        Expression arySize;
-
-        if ( ! this.eatNextIfEq(tokens, "]") ) {
-            arySize = this.parseExpression(this.popUntil(tokens, "]"));
-            this.eatNextIfEq(tokens, "]");
-        } else {
-            arySize = null;
-        }
-
-        Token identT = this.popNext(tokens);
-        Identifier ident = new Identifier(identT);
-        Declaration dec = new Declaration(dt, ident, true, arySize);
-        Expression value;
-
-        // Peek at the next token to see if this is a compound declaration
-        Token operT = this.peekNext(tokens);
-        if ( operT == null ) {
-            // End of declaration
-            return new Statement(dec);
-        }
-
-        // Otherwise, check for a compound array declaration
-        if ( this.eatNextIfEq(tokens, "=") ) {
-            value = this.parseExpression(tokens);
-            Assignment a = new Assignment(dec, new Operator(operT), value);
-            if ( a.isValid() ) {
-                return new Statement(a);
-            } else {
+            Assignment a = new Assignment(decl, new Operator(operT), expr);
+            if ( a == null || !a.isValid() ) {
                 reportParseError(
-                        "Assignment statement not valid",
+                        "Declaration is invalid",
                         head,
                         identT,
                         operT
                 );
                 return null;
             }
+
+            return new Statement(a);
+        }
+
+        if ( decl.isValid() ) {
+            return new Statement(decl);
         } else {
-            if ( dec.isValid() ) {
-                return new Statement(dec);
-            } else {
-                reportParseError(
-                        "Declaration not valid",
-                        head,
-                        identT
-                );
-                return null;
-            }
+            reportParseError(
+                    "Declaration is invalid",
+                    head,
+                    identT,
+                    operT
+            );
+            return null;
         }
     }
 

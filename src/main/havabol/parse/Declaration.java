@@ -10,12 +10,11 @@ public class Declaration implements ParseElement {
     private DataType dt = null;
     private Identifier ident = null;
 
-    private boolean isArray = false;
+    private boolean isArray;
     private Expression arrayBound;
 
     public Declaration(DataType dt, Identifier ident) {
-        this.dt = dt;
-        this.ident = ident;
+        this(dt, ident, false, null);
     }
 
     public Declaration(DataType dt, Identifier ident, boolean isAry) {
@@ -23,8 +22,8 @@ public class Declaration implements ParseElement {
     }
 
     public Declaration(DataType dt, Identifier ident, boolean isAry, Expression aryBound) {
-        this(dt, ident);
-
+        this.dt = dt;
+        this.ident = ident;
         this.isArray = isAry;
         this.arrayBound = aryBound;
     }
@@ -61,7 +60,8 @@ public class Declaration implements ParseElement {
                 sb.append(lpads(indent, "Unbounded array declaration ~>\n"));
             } else {
                 sb.append(lpads(indent, String.format("Array declaration ~>\n")));
-                sb.append(this.arrayBound.debug(indent + 2));
+                sb.append(lpads(indent + 2, String.format("BOUNDS ::\n")));
+                sb.append(this.arrayBound.debug(indent + 4));
             }
         } else {
             sb.append(lpads(indent, "Declaration ~>\n"));
