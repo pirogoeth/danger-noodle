@@ -76,6 +76,10 @@ public class StorageManager
 
     public SMValue get(STIdentifier ident)
     {
+        if ( ident == null ) {
+            return null;
+        }
+
         // Since scope and storage manager are directly related, it should
         // remain relatively easy to perform ident lookups.
         if ( this.scope.hasLocalSymbol(ident.getSymbol()) ) {
@@ -91,6 +95,10 @@ public class StorageManager
 
     public SMValue getOrInit(STIdentifier ident)
     {
+        if ( ident == null ) {
+            return null;
+        }
+
         SMValue val = this.get(ident);
         if ( val == null ) {
             val = new SMValue(ident);

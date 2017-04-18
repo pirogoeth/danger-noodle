@@ -760,13 +760,35 @@ public class Evaluator {
         Block body = flow.getBody();
 
         Identifier ident = expr.getControl();
+        EvalResult maxR = this.evaluateExpression(expr.getMax());
         STIdentifier identS = (STIdentifier) this.symTab.lookupSym(ident.getIdentT());
-        SMValue cVar = identS.getStoredValue(this.store);
+        if ( identS == null ) {
+            identS = Infer.identFromNumber(this.symTab, ident, maxR.getResultType());
+            this.symTab.putSymbol(identS);
+        }
+
+        SMValue cVar = this.store.getOrInit(identS);
+        switch (identS.getDeclaredType()) {
+            case INTEGER:
+                cVar.set(new PInteger());
+                break;
+            case FLOAT:
+                cVar.set(new PFloat());
+                break;
+            default:
+                // Invalid type!
+                reportEvalError(
+                    "Invalid type in for loop counter var!",
+                    expr,
+                    ident,
+                    maxR
+                );
+                return null;
+        }
 
         int init, max, step;
 
         EvalResult initR = this.evaluateExpression(expr.getInitial());
-        EvalResult maxR = this.evaluateExpression(expr.getMax());
         if ( expr.getStep() != null ) {
             EvalResult stepR = this.evaluateExpression(expr.getStep());
             step = ((PInteger) stepR.getResult()).getValue();
@@ -800,11 +822,35 @@ public class Evaluator {
         ForExpr expr = flow.getCondition();
         Block body = flow.getBody();
 
+        EvalResult container = this.evaluateExpression(expr.getContainer());
+
         Identifier ident = expr.getControl();
         STIdentifier identS = (STIdentifier) this.symTab.lookupSym(ident.getIdentT());
-        SMValue cVar = this.store.getOrInit(identS);
+        // This should take care of implicit symbol definition.
+        if ( identS == null ) {
+            identS = Infer.identFromContainer(this.symTab, ident, container);
+            this.symTab.putSymbol(identS);
+        }
 
-        EvalResult container = this.evaluateExpression(expr.getContainer());
+        SMValue cVar = this.store.getOrInit(identS);
+        switch (identS.getDeclaredType()) {
+            case STRING:
+                cVar.set(new PString());
+                break;
+            case INTEGER:
+                cVar.set(new PInteger());
+                break;
+            case FLOAT:
+                cVar.set(new PFloat());
+                break;
+            case BOOLEAN:
+                cVar.set(new PBoolean());
+                break;
+            case ARRAY:
+                cVar.set(new ArrayType());
+                break;
+        }
+
         if ( ! container.getResult().isIterable() ) {
             reportEvalError(
                 String.format(

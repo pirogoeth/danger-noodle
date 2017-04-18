@@ -16,6 +16,13 @@ public class STIdentifier extends STEntry {
     private STControl stDeclared = null;
 
     /**
+     * Alternative data type holder for implicit identifiers.
+     *
+     * @var ReturnType
+     */
+    private ReturnType stReturn = null;
+
+    /**
      * Defines the backing type structure for this identifier.
      *
      * @var Structure
@@ -65,8 +72,36 @@ public class STIdentifier extends STEntry {
         this(sym, declaredType, structure, ParamType.NOT_PARM, baseAddr);
     }
 
+    /**
+     * Shortcut for implicitly defined identifiers.
+     *
+     * @param sym Token symbol string
+     * @param retType ReturnType type of value
+     * @param structure Backing data structure for this identifier
+     * @param baseAddr non-local base address field
+     */
+    public STIdentifier(String sym, ReturnType retType, Structure structure, int baseAddr) {
+        super(sym, Primary.OPERAND, Subclass.IDENTIFIER);
+
+        this.stDeclared = null;
+        this.backingType = structure;
+        this.paramDefin = ParamType.NOT_PARM;
+        this.baseAddress = baseAddr;
+        this.stReturn = retType;
+    }
+
     public STControl getDeclared() {
         return this.stDeclared;
+    }
+
+    public ReturnType getDeclaredType() {
+        if ( this.stDeclared != null ) {
+            return this.stDeclared.getDataType();
+        } else if ( this.stReturn != null ) {
+            return this.stReturn;
+        } else {
+            return null;
+        }
     }
 
     public SMValue getStoredValue(StorageManager store) {
