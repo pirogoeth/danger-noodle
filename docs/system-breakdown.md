@@ -36,21 +36,21 @@ Becomes:
 
 ```
 #	PRIM		SUB				TOKEN
-	CONTROL	DECLARE		String
-	OPERAND	IDENTIFIER	name
-	OPERATOR	-				=
-	OPERAND	STRING			Hugh
-	SEPARATOR	-				;
+	CONTROL		DECLARE		String
+	OPERAND		IDENTIFIER	name
+	OPERATOR		-				=
+	OPERAND		STRING			Hugh
+	SEPARATOR		-				;
 
-	FUNCTION	BUILTIN		print
-	SEPARATOR	-				(
-	OPERAND	STRING			Hello
-	SEPARATOR	-				,
-	OPERAND	IDENTIFIER	name
-	SEPARATOR	-				,
-	OPERAND	STRING			!
-	SEPARATOR	-				)
-	SEPARATOR	-				;
+	FUNCTION		BUILTIN		print
+	SEPARATOR		-				(
+	OPERAND		STRING			Hello
+	SEPARATOR		-				,
+	OPERAND		IDENTIFIER	name
+	SEPARATOR		-				,
+	OPERAND		STRING			!
+	SEPARATOR		-				)
+	SEPARATOR		-				;
 ```
 
 A list of these tokens is then returned to the entry-point and is passed in to the parser.
@@ -68,15 +68,15 @@ Our parser generates a syntax node for each statement it can find.
 For example, if the parser is given this input:
 
 ```
-  FUNCTION	BUILTIN		print
-  SEPARATOR	-				(
-  OPERAND	STRING				Hello
-  SEPARATOR	-				,
-  OPERAND	IDENTIFIER		name
-  SEPARATOR	-				,
-  OPERAND	STRING				!
-  SEPARATOR	-				)
-  SEPARATOR	-				;
+	FUNCTION		BUILTIN		print
+	SEPARATOR		-				(
+	OPERAND		STRING			Hello
+	SEPARATOR		-				,
+	OPERAND		IDENTIFIER	name
+	SEPARATOR		-				,
+	OPERAND		STRING			!
+	SEPARATOR		-				)
+	SEPARATOR		-				;
 ```
 
 This syntax tree is generated:
