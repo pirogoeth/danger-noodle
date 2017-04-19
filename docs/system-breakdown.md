@@ -6,13 +6,7 @@ This document breaks down the execution flow through the [`danger-noodle`](https
 The overall flow is fairly straight forward:
 
 ```
-	  Lexer
-	  	|
-	  	v
-	 Parser
-	  	|
-		v
-	Evaluator
+	Lexer -> Parser -> Evaluator
 ```
 
 Each component of the flow is built to be modular - lexer only handles token retrieval and creation,
@@ -41,22 +35,22 @@ print("Hello", name, "!");
 Becomes:
 
 ```
-# PRIM		SUB			TOKEN
-  CONTROL	DECLARE		String
-  OPERAND	IDENTIFIER	name
-  OPERATOR	-			=
-  OPERAND	STRING		Hugh
-  SEPARATOR	-			;
+#	PRIM		SUB				TOKEN
+	CONTROL	DECLARE		String
+	OPERAND	IDENTIFIER	name
+	OPERATOR	-				=
+	OPERAND	STRING			Hugh
+	SEPARATOR	-				;
 
-  FUNCTION	BUILTIN		print
-  SEPARATOR	-			(
-  OPERAND	STRING		Hello
-  SEPARATOR	-			,
-  OPERAND	IDENTIFIER	name
-  SEPARATOR	-			,
-  OPERAND	STRING		!
-  SEPARATOR	-			)
-  SEPARATOR	-			;
+	FUNCTION	BUILTIN		print
+	SEPARATOR	-				(
+	OPERAND	STRING			Hello
+	SEPARATOR	-				,
+	OPERAND	IDENTIFIER	name
+	SEPARATOR	-				,
+	OPERAND	STRING			!
+	SEPARATOR	-				)
+	SEPARATOR	-				;
 ```
 
 A list of these tokens is then returned to the entry-point and is passed in to the parser.
@@ -75,14 +69,14 @@ For example, if the parser is given this input:
 
 ```
   FUNCTION	BUILTIN		print
-  SEPARATOR	-			(
-  OPERAND	STRING		Hello
-  SEPARATOR	-			,
-  OPERAND	IDENTIFIER	name
-  SEPARATOR	-			,
-  OPERAND	STRING		!
-  SEPARATOR	-			)
-  SEPARATOR	-			;
+  SEPARATOR	-				(
+  OPERAND	STRING				Hello
+  SEPARATOR	-				,
+  OPERAND	IDENTIFIER		name
+  SEPARATOR	-				,
+  OPERAND	STRING				!
+  SEPARATOR	-				)
+  SEPARATOR	-				;
 ```
 
 This syntax tree is generated:
