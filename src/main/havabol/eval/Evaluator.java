@@ -258,8 +258,22 @@ public class Evaluator {
 
             TypeInterface valRet = val.getResult();
 
-            stVal.set(valRet);
-            res.setResult(valRet);
+            // NOTE: If array size is inferred from the RHS array literal,
+            // stVal will have a `null` TypeInterface.
+            if ( val.getResultType() == ReturnType.ARRAY && decl.isArray() ) {
+                ArrayType tgtAry = (ArrayType) target.getResult();
+                System.out.println("ARY TARGET");
+                System.out.print(target.debug(2));
+                System.out.println("ARY VAL");
+                System.out.print(val.debug(2));
+                System.out.println();
+
+                tgtAry.setFromArray((ArrayType) valRet);
+                res.setResult(tgtAry);
+            } else {
+                stVal.set(valRet);
+                res.setResult(valRet);
+            }
             res.setResultIdent(newIdent);
         } else {  // simple assignment
             target = this.evaluateExpression(assign.getAssigneeExpr());
@@ -281,6 +295,11 @@ public class Evaluator {
             }
 
             val = this.evaluateExpression(assign.getAssignedExpr());
+            if ( val.isSubscripted() ) {
+                val = this.applySubscript(val);
+            }
+
+            // XXX - PROBLEM IS RAISED HERE
             if ( val.getResultType() != stDecl.getDataType() ) {
                 reportEvalError(
                     String.format(
@@ -361,7 +380,6 @@ public class Evaluator {
         //
         // Declarations need to return an affected symbol through EvalResult, most likely.
 
-        EvalResult res = new EvalResult(ReturnType.VOID);
         DataType dt = decl.getDataType();
         Identifier ident = decl.getIdentifier();
 
@@ -416,6 +434,7 @@ public class Evaluator {
         SMValue v = this.store.getOrInit(identS);
         v.set(typeIf);
 
+        EvalResult res = new EvalResult(ReturnType.VOID);
         res.setResultIdent(identS);
 
         return res;

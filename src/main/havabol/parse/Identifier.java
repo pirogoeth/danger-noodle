@@ -51,7 +51,7 @@ public class Identifier implements ParseElement {
         ));
 
         if ( this.subscript != null ) {
-            sb.append(this.subscript.debug(indent));
+            sb.append(this.subscript.debug(indent + 2));
         }
 
         return sb.toString();

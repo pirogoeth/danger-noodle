@@ -37,7 +37,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
     }
 
     public int getCapacity() {
-        return maxCap;
+        return this.maxCap;
     }
 
     public ReturnType getFormalType() {
@@ -79,10 +79,28 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         StringBuilder sb = new StringBuilder();
 
         sb.append(lpads(indent, "Array Type =>\n"));
+        sb.append(lpads(indent,
+            String.format(
+                "CAPACITY :: %d\n",
+                this.maxCap
+            )
+        ));
+        if ( this.getBoundType() != null ) {
+            sb.append(lpads(indent,
+                String.format(
+                    "BOUND TYPE :: %s\n",
+                    this.getBoundType().name()
+                )
+            ));
+        }
         sb.append(lpads(indent + 2, "Items =>\n"));
 
         for (TypeInterface tVal : this.value) {
-            sb.append(tVal.debug(indent + 4));
+            if ( tVal != null ) {
+                sb.append(tVal.debug(indent + 4));
+            } else {
+                sb.append(lpads(indent + 4, ":: NULL ::\n"));
+            }
         }
 
         return sb.toString();
@@ -295,10 +313,36 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
 
     // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
     public EvalResult setFromArray(ArrayType ary) throws Exception {
-        // XXX - IMPLEMENT!
-        //
+        if ( this.getBoundType() != ary.getBoundType() ) {
+            // XXX - Throw an error here because arrays must be homogenous.
+            throw new Exception(
+                String.format(
+                    "Value type must match array bound type - expected `%s` got `%s`",
+                    this.getBoundType().name(),
+                    ary.getBoundType().name()
+                )
+            );
+        }
 
-        EvalResult res = new EvalResult(ReturnType.VOID);
+        if ( ary.getCapacity() > this.getCapacity() ) {
+            ArrayList<TypeInterface> valSlice = new ArrayList<>(ary.getValue().subList(0, this.getCapacity() - 1));
+            this.setValue(valSlice);
+        } else if ( ary.getCapacity() == this.getCapacity() ) {
+            this.setValue(ary.getValue());
+        } else { // ary cap < this cap
+            ArrayList<TypeInterface> newL = new ArrayList<>();
+            newL.addAll(ary.getValue());
+
+            // Extend newL to the current capacity
+            while ( newL.size() < this.getCapacity() ) {
+                newL.add(null);
+            }
+
+            this.setValue(newL);
+        }
+
+        EvalResult res = new EvalResult(this.getFormalType());
+        res.setResult(this);
         return res;
     }
 

@@ -60,6 +60,8 @@ Bool bChange;
 Int j;
 for i=0 to ELEM(iDM)-1:
     bChange = F;
+    // XXX - REMOVE THIS LINE
+    print("i, ELEM(iDM) ::=", i, ELEM(iDM));
     for j=0 to ELEM(iDM)-i-1 by 1:
         if iDM[j+1] < iDM[j]:
            iTemp = iDM[j+1];
