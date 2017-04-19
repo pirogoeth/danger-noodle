@@ -41,6 +41,10 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         return this.maxCap;
     }
 
+    public boolean isBounded() {
+        return this.isBounded;
+    }
+
     public ReturnType getFormalType() {
         return ReturnType.ARRAY;
     }
@@ -424,11 +428,14 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         }
 
         if ( ary.getCapacity() > this.getCapacity() ) {
+            System.out.println("Slicing new over old");
             ArrayList<TypeInterface> valSlice = new ArrayList<>(ary.getValue().subList(0, this.getCapacity() - 1));
             this.setValue(valSlice);
         } else if ( ary.getCapacity() == this.getCapacity() ) {
+            System.out.println("Overwriting current array list");
             this.setValue(ary.getValue());
         } else { // ary cap < this cap
+            System.out.println("Building new array list");
             ArrayList<TypeInterface> newL = new ArrayList<>();
             newL.addAll(ary.getValue());
 

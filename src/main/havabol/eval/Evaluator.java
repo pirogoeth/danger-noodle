@@ -33,6 +33,10 @@ public class Evaluator {
      * @throws EvalException
      */
     public static void reportEvalError(String message, Debuggable...contexts) throws EvalException {
+        reportEvalError(message, null, contexts);
+    }
+
+    public static void reportEvalError(String message, Exception cause, Debuggable...contexts) throws EvalException {
         String[] contextStr = new String[contexts.length];
 
         for (int i = 0; i < contextStr.length; i++) {
@@ -60,6 +64,7 @@ public class Evaluator {
                     message,
                     excSb
                 ),
+                cause,
                 contexts
         );
     }
@@ -150,7 +155,7 @@ public class Evaluator {
         return newRes;
     }
 
-    public EvalResult evaluate() throws Exception, ParserException, EvalException {
+    public EvalResult evaluate() throws EvalException {
         if ( ! this.canEval() ) {
             return null;
         }
@@ -165,7 +170,19 @@ public class Evaluator {
             return null;
         }
 
-        return this.evalStatement(stmt);
+        try {
+            return this.evalStatement(stmt);
+        } catch (EvalException e) {
+            throw e;
+        } catch (Exception e) {
+            reportEvalError(
+                "Could not evaluate statement",
+                e,
+                stmt
+            );
+        }
+
+        return null;
     }
 
     private EvalResult evalStatement(Statement stmt) throws Exception, ParserException, EvalException {
@@ -207,7 +224,7 @@ public class Evaluator {
         return null;
     }
 
-    private EvalResult evaluateAssignment(Statement stmt) throws Exception, ParserException, EvalException {
+    private EvalResult evaluateAssignment(Statement stmt) throws Exception, EvalException {
         Assignment assign = stmt.getAssignment();
         if ( assign == null ) {
             // This really should not *ever* happen.
@@ -223,7 +240,7 @@ public class Evaluator {
         return res;
     }
 
-    private EvalResult evaluateAssignment(Assignment assign) throws Exception, ParserException, EvalException {
+    private EvalResult evaluateAssignment(Assignment assign) throws Exception, EvalException {
         EvalResult res, target, val;
 
         if ( assign.isCompoundAssignment() ) {  // declaration
@@ -261,12 +278,17 @@ public class Evaluator {
             // NOTE: If array size is inferred from the RHS array literal,
             // stVal will have a `null` TypeInterface.
             if ( val.getResultType() == ReturnType.ARRAY && decl.isArray() ) {
-                ArrayType tgtAry = (ArrayType) target.getResult();
+                ArrayType tgtAry = (ArrayType) stVal.get();
                 System.out.println("ARY TARGET");
                 System.out.print(target.debug(2));
                 System.out.println("ARY VAL");
                 System.out.print(val.debug(2));
                 System.out.println();
+
+                if ( tgtAry.isBounded() && tgtAry.getCapacity() == -1 ) {
+                    // Initialize the array here.
+                    tgtAry.initialize(((ArrayType) valRet).getCapacity());
+                }
 
                 tgtAry.setFromArray((ArrayType) valRet);
                 res.setResult(tgtAry);
@@ -354,11 +376,11 @@ public class Evaluator {
         return res;
     }
 
-    private EvalResult evaluateBlock(Statement stmt) throws ParserException, EvalException {
+    private EvalResult evaluateBlock(Statement stmt) throws Exception, ParserException, EvalException {
         return null;
     }
 
-    private EvalResult evaluateDeclaration(Statement stmt) throws Exception, ParserException, EvalException {
+    private EvalResult evaluateDeclaration(Statement stmt) throws Exception, EvalException {
         Declaration decl = stmt.getDeclaration();
         if ( decl == null ) {
             // This should actually *never* happen.
@@ -374,7 +396,7 @@ public class Evaluator {
         return res;
     }
 
-    private EvalResult evaluateDeclaration(Declaration decl) throws Exception, ParserException, EvalException {
+    private EvalResult evaluateDeclaration(Declaration decl) throws Exception, EvalException {
         // Declarations are simple. Just grab the TypeInterface from the DataType,
         // create a new symbol table entry, and set the SMValue to the new TypeInterface.
         //
@@ -440,7 +462,7 @@ public class Evaluator {
         return res;
     }
 
-    private EvalResult evaluateExpression(Statement stmt) throws Exception, ParserException, EvalException {
+    private EvalResult evaluateExpression(Statement stmt) throws Exception, EvalException {
         Expression expr = stmt.getExpression();
         if ( expr == null ) {
             // This really should not *ever* happen.
