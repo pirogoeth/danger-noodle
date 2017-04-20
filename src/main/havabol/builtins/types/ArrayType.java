@@ -448,15 +448,69 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         if ( this.getBoundType() != ary.getBoundType() ) {
             // XXX - Throw an error here because arrays must be homogenous.
 
-            throw new Exception(
-                String.format(
-                    "Value type must match array bound type - expected `%s` got `%s`",
-                    this.getBoundType().name(),
-                    ary.getBoundType().name()
-                )
-            );
+            
+            switch(this.getBoundType()){
+                
+                case STRING:
+                    copyAllToString(ary);
+                break;    
+                
+                case INTEGER:
+                    
+                    switch(ary.getBoundType()){
+                        
+                        case FLOAT:
+                            copyFloatToInt(ary);
+                        case STRING:
+                            copyStringToInt(ary);
+                        default:
+                            throw new Exception(
+                               String.format(
+                                 "Can not set int array eqaul to boolean array. THis type = `%s` other arry = got `%s`",
+                                 this.getBoundType().name(), 
+                                 ary.getBoundType().name()
+                               )
+                            );
+                    }
+                    
+                case FLOAT:
+                    switch(ary.getBoundType()){
+                        
+                        case INTEGER:
+                            copyIntToFLoat(ary);
+                        case STRING:
+                            copyStringToFloat(ary);
+                        default:
+                            throw new Exception(
+                               String.format(
+                                 "Can not set float array eqaul to boolean array. THis type = `%s` other arry = got `%s`",
+                                 this.getBoundType().name(), 
+                                 ary.getBoundType().name()
+                               )
+                            );
+                    }
+                    
+                case BOOLEAN:
+                    
+                    switch(ary.getBoundType()){
 
-
+                        case STRING:
+                            copyStringToBoolean(ary);
+                        default:
+                            throw new Exception(
+                               String.format(
+                                 "Incompatable array types. This type = `%s` other arry = got `%s`",
+                                 this.getBoundType().name(), 
+                                 ary.getBoundType().name()
+                               )
+                            );
+                    }
+                    
+                    
+                    
+                    
+            }
+          
         }
 
         if ( ary.getCapacity() > this.getCapacity() ) {
@@ -501,4 +555,234 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         return res;
     }
 
+    private void copyAllToString(ArrayType ary)  throws Exception {
+        if(this.maxCap < ary.maxCap){
+                        
+                        for(int i = 0; i < this.maxCap; i++){
+                              PString temp = new PString();
+                              temp.setValue(ary.get(i).getResult().getRepr());
+                              this.set(i, temp);
+                              if(ary.get(i) != null)
+                                  this.length = i;
+                        }
+                                
+                        
+                    }else{
+                        int i;
+                        //cpy items fro ary
+                        for(i = 0; i < ary.maxCap; i++){
+                              PString temp = new PString();
+                              temp.setValue(ary.get(i).getResult().getRepr());
+                              this.set(i, temp);
+                              if(ary.get(i) != null)
+                                  this.length = i;
+                        }
+                        this.length = ary.maxCap;
+                        
+                        //set the rest of th earray null
+                        for(int temp = i; temp < this.maxCap; temp++){
+                            this.set(temp, null);
+                        }
+                        
+                    }
+    }
+    
+    private void copyFloatToInt(ArrayType ary) throws Exception{
+        if(this.maxCap < ary.maxCap){
+                        
+                        for(int i = 0; i < this.maxCap; i++){
+                              PInteger temp;
+                              temp = (PInteger) Numerics.intPrim( (PFloat) ary.get(i).getResult());
+                              this.set(i, temp);
+                              if(ary.get(i) != null)
+                                  this.length = i;
+                        }
+                                
+                        
+                    }else{
+                        int i;
+                     
+                        for(i = 0; i < ary.maxCap; i++){
+                              
+                              PInteger temp;
+                              temp = (PInteger) Numerics.intPrim( (PFloat) ary.get(i).getResult());
+                              this.set(i, temp);
+                              if(ary.get(i) != null)
+                                  this.length = i;
+                        }
+                        this.length = ary.maxCap;
+                        
+                        //set the rest of th earray null
+                        for(int temp = i; temp < this.maxCap; temp++){
+                            this.set(temp, null);
+                        }
+                        
+                    }
+    }
+    
+    
+    private void copyStringToInt(ArrayType ary) throws Exception{
+        if(this.maxCap < ary.maxCap){
+                        
+                        for(int i = 0; i < this.maxCap; i++){
+                              PInteger temp;
+                              temp = (PInteger) Numerics.intPrim( (PString) ary.get(i).getResult());
+                              this.set(i, temp);
+                              if(ary.get(i) != null)
+                                  this.length = i;
+                        }
+                                
+                        
+                    }else{
+                        int i;
+                     
+                        for(i = 0; i < ary.maxCap; i++){
+                              
+                              PInteger temp;
+                              temp = (PInteger) Numerics.intPrim( (PString) ary.get(i).getResult());
+                              this.set(i, temp);
+                              if(ary.get(i) != null)
+                                  this.length = i;
+                        }
+                        this.length = ary.maxCap;
+                        
+                        //set the rest of th earray null
+                        for(int temp = i; temp < this.maxCap; temp++){
+                            this.set(temp, null);
+                        }
+                        
+                    }
+        
+        
+        
+    }
+    
+    
+    private void copyStringToFloat(ArrayType ary) throws Exception{
+        if(this.maxCap < ary.maxCap){
+                        
+                        for(int i = 0; i < this.maxCap; i++){
+                              PFloat temp;
+                              temp = (PFloat) Numerics.floatPrim( (PString) ary.get(i).getResult());
+                              this.set(i, temp);
+                              if(ary.get(i) != null)
+                                  this.length = i;
+                        }
+                                
+                        
+                    }else{
+                        int i;
+                     
+                        for(i = 0; i < ary.maxCap; i++){
+                              
+                              PFloat temp;
+                              temp = (PFloat) Numerics.floatPrim( (PString) ary.get(i).getResult());
+                              this.set(i, temp);
+                              if(ary.get(i) != null)
+                                  this.length = i;
+                        }
+                        this.length = ary.maxCap;
+                        
+                        //set the rest of th earray null
+                        for(int temp = i; temp < this.maxCap; temp++){
+                            this.set(temp, null);
+                        }
+                        
+                    }        
+    
+    }
+    
+     private void copyIntToFLoat(ArrayType ary) throws Exception{
+        if(this.maxCap < ary.maxCap){
+                        
+                        for(int i = 0; i < this.maxCap; i++){
+                              PFloat temp;
+                              temp = (PFloat) Numerics.floatPrim( (PInteger) ary.get(i).getResult());
+                              this.set(i, temp);
+                              if(ary.get(i) != null)
+                                  this.length = i;
+                        }
+                                
+                        
+                    }else{
+                        int i;
+                     
+                        for(i = 0; i < ary.maxCap; i++){
+                              
+                              PFloat temp;
+                              temp = (PFloat) Numerics.floatPrim( (PInteger) ary.get(i).getResult());
+                              this.set(i, temp);
+                              if(ary.get(i) != null)
+                                  this.length = i;
+                        }
+                        this.length = ary.maxCap;
+                        
+                        //set the rest of th earray null
+                        for(int temp = i; temp < this.maxCap; temp++){
+                            this.set(temp, null);
+                        }
+                        
+                    }
+    }
+     
+     
+       private void copyStringToBoolean(ArrayType ary) throws Exception{
+        if(this.maxCap < ary.maxCap){
+                        
+                        for(int i = 0; i < this.maxCap; i++){
+                              PBoolean temp;
+                              temp = (PBoolean) Numerics.boolPrim( (PString) ary.get(i).getResult());
+                              this.set(i, temp);
+                              if(ary.get(i) != null)
+                                  this.length = i;
+                        }
+                                
+                        
+                    }else{
+                        int i;
+                     
+                        for(i = 0; i < ary.maxCap; i++){
+                              
+                              PBoolean temp;
+                              temp = (PBoolean) Numerics.boolPrim( (PString) ary.get(i).getResult());
+                              this.set(i, temp);
+                              if(ary.get(i) != null)
+                                  this.length = i;
+                        }
+                        this.length = ary.maxCap;
+                        
+                        //set the rest of th earray null
+                        for(int temp = i; temp < this.maxCap; temp++){
+                            this.set(temp, null);
+                        }
+                        
+                    }
+        
+        
+        
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }
