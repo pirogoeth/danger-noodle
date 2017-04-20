@@ -144,6 +144,10 @@ public class Expression implements ParseElement {
         return this.binOp;
     }
 
+    public UnaryOperation getUnaryOperation() {
+        return this.unOp;
+    }
+
     public FunctionCall getFunctionCall() {
         return this.functionCall;
     }
