@@ -934,4 +934,9 @@ public class Operators {
 
         return boolPrim(left || right);
     }
+
+    public static TypeInterface negate(TypeInterface operand) {
+        // XXX - IMPLEMENT!
+        return null;
+    }
 }

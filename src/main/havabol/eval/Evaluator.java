@@ -567,6 +567,21 @@ public class Evaluator {
                 res.setResult(val);
 
                 return res;
+            case UNARY_OP:
+                UnaryOperation unOp = expr.getUnaryOperation();
+                EvalResult op, rhs;
+                TypeInterface val;
+
+                Subscript sub;
+
+                rhs = this.evaluateExpression(binOp.getRHS());
+                if ( rhs.isSubscripted() ) {
+                    rhs = this.applySubscript(rhs);
+                }
+
+                // XXX - ADD UNARY CASES HERE!
+
+                return null;
             case FUNC_CALL:
                 FunctionCall fc = expr.getFunctionCall();
                 FunctionInterface fi = fc.resolveFunctionHandle();
