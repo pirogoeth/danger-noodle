@@ -25,6 +25,10 @@ public class PFloat implements TypeInterface<Double> {
         return this.value;
     }
 
+    public String debug() {
+        return this.debug(0);
+    }
+
     public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 

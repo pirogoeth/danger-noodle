@@ -9,7 +9,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class DataType implements ParseElement {
+public class DataType extends ParseElement {
 
     private Token typeToken;
 

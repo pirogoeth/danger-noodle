@@ -6,7 +6,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class IfControl implements ParseElement {
+public class IfControl extends ParseElement {
 
     private Expression condition;
     private Block trueBranch;

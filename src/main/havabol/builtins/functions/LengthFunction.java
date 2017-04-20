@@ -78,6 +78,10 @@ public class LengthFunction implements FunctionInterface {
         return true;
     }
 
+    public String debug() {
+        return this.debug(0);
+    }
+
     public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 

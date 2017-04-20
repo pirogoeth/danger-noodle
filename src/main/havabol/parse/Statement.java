@@ -6,7 +6,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class Statement implements ParseElement {
+public class Statement extends ParseElement {
 
     private StatementType stmtType = StatementType.UNKNOWN;
 

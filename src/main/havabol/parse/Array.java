@@ -9,7 +9,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class Array implements ParseElement {
+public class Array extends ParseElement {
 
     private List<Primitive> elements;
 

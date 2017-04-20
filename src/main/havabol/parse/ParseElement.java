@@ -5,8 +5,13 @@ import havabol.common.*;
 
 import java.util.*;
 
-public interface ParseElement extends Debuggable {
+public abstract class ParseElement implements Debuggable {
 
-    boolean isValid();
+    public abstract boolean isValid();
+    public abstract String debug(int indent);
+
+    public String debug() {
+        return this.debug(0);
+    }
 
 }

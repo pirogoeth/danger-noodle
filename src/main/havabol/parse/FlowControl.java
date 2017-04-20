@@ -6,7 +6,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class FlowControl implements ParseElement {
+public class FlowControl extends ParseElement {
 
     public enum Type {
         IF,

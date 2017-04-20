@@ -6,7 +6,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class ForControl implements ParseElement {
+public class ForControl extends ParseElement {
 
     private ForExpr cond;
     private Block body;

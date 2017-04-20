@@ -6,7 +6,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class Expression implements ParseElement {
+public class Expression extends ParseElement {
 
     private ExpressionType exprType = ExpressionType.UNKNOWN;
     private Token t;

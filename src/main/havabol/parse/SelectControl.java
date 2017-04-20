@@ -5,7 +5,7 @@ import havabol.classify.*;
 
 import java.util.*;
 
-public class SelectControl implements ParseElement {
+public class SelectControl extends ParseElement {
 
     private Expression condition;
 

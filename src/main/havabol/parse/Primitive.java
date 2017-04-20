@@ -10,7 +10,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class Primitive implements ParseElement {
+public class Primitive extends ParseElement {
 
     private static boolean isBool(Token t) {
         if ( ! Parser.tokenType(t, Primary.OPERAND, Subclass.BOOLEAN) ) {

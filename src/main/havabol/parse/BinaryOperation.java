@@ -5,7 +5,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class BinaryOperation implements ParseElement {
+public class BinaryOperation extends ParseElement {
 
     /**
      * Left-hand side can be an expression, in the case of comparing two constants (but why?)

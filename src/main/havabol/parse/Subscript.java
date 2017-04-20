@@ -6,7 +6,7 @@ import havabol.Token;
 import havabol.classify.*;
 import static havabol.util.Text.*;
 
-public class Subscript implements ParseElement {
+public class Subscript extends ParseElement {
 
     private Expression beginVal;
     private Expression endVal;

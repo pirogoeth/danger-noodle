@@ -5,7 +5,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class Identifier implements ParseElement {
+public class Identifier extends ParseElement {
 
     private Token identToken;
     private Subscript subscript;

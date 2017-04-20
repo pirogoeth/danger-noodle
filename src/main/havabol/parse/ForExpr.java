@@ -9,7 +9,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class ForExpr implements ParseElement {
+public class ForExpr extends ParseElement {
 
     public enum Type {
         COUNTING,

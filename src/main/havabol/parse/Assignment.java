@@ -6,7 +6,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class Assignment implements ParseElement {
+public class Assignment extends ParseElement {
 
     private Declaration declaration;
     private Operator operator;

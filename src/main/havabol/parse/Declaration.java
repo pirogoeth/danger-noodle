@@ -5,7 +5,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class Declaration implements ParseElement {
+public class Declaration extends ParseElement {
 
     private DataType dt = null;
     private Identifier ident = null;

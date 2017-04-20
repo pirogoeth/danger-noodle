@@ -6,7 +6,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class WhileControl implements ParseElement {
+public class WhileControl extends ParseElement {
 
     private Expression condition;
     private Block loopBranch;

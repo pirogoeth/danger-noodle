@@ -6,7 +6,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class Block implements ParseElement {
+public class Block extends ParseElement {
 
     private List<Statement> stmts;
 

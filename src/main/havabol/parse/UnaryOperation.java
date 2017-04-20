@@ -10,7 +10,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class UnaryOperation implements ParseElement {
+public class UnaryOperation extends ParseElement {
 
     /**
      * Middle should ALWAYS be an operator.

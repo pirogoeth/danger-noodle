@@ -9,7 +9,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class FunctionCall implements ParseElement {
+public class FunctionCall extends ParseElement {
 
     private Identifier functionName = null;
     private List<Expression> argsList = new ArrayList<>();

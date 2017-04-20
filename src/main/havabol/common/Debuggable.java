@@ -5,10 +5,7 @@ package havabol.common;
  */
 public interface Debuggable {
 
-    default String debug() {
-        return this.debug(0);
-    }
-
+    String debug();
     String debug(int indent);
 
 }

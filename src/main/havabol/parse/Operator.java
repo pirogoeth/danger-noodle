@@ -5,7 +5,7 @@ import static havabol.util.Text.*;
 
 import java.util.*;
 
-public class Operator implements ParseElement {
+public class Operator extends ParseElement {
 
     private Token operatorToken;
     private final String[] validOperators = {
