@@ -17,7 +17,8 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
     private ReturnType boundType;
     private boolean isBounded = true;
     private int maxCap = -1;
-
+    private int length = 0;
+    
     private static int wrapIndex(int size, int index) {
         return (size - (abs(index) % size));
     }
@@ -148,7 +149,14 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
 
         return null;  // XXX - NO! BAD!
     }
-
+    public void setUnbounded(){
+        this.isBounded = false;
+    }
+    
+    public void setBounded(){
+        this.isBounded = true;
+    }
+    
     public boolean isEqual(Object o) {
         return this.value.equals(o);
     }
@@ -158,16 +166,52 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
      */
 
     // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
+    //append will always enter value at the end of the array list
     public EvalResult append(TypeInterface item) throws Exception {
-        int freeIdx = this.value.indexOf(null);
-        this.insert(freeIdx, item);
+        int freeIdx = this.length;
+        
+        //code for bounded
+        if(this.isBounded){
+            
+            //index is not at the end
+            if(freeIdx < this.maxCap){
+                this.set(freeIdx, item);
+                this.length++;       
+            //index is end of the lsit    
+            }else{
+                throw new Exception(
+                String.format(
+                    "Atempting to set elemnt out of bounds of array - index = %d maxbound = %d",
+                    freeIdx,
+                    this.maxCap
+                )
+            );
+            }
+            
+        //code for unbounded
+        }else{
+            //if the length is less than max, insert it into the null spot
+            if(freeIdx < this.maxCap){
+               this.set(freeIdx, item);
+               this.length++;
+               
+            //if index is maxCap or greater, add it to the array list and increase the maxcap
+            // possible since array is unbounded
+            }else{
+                this.value.add(item);
+                this.length++;
+                this.maxCap++;
+                
+            }
+        }
+        //this.set(freeIdx, item);
 
         return new EvalResult(ReturnType.VOID);
     }
 
     // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
     // XXX - NEEDS REWORKING
-    public EvalResult insert(int index, TypeInterface item) throws Exception {
+    public EvalResult set(int index, TypeInterface item) throws Exception {
         if ( index < 0 ) {
             index = wrapIndex(this.maxCap, index);
         }
@@ -183,12 +227,42 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
             );
         }
 
-        this.value.set(index, item);
+        //code for bounded arrays
+        if(this.isBounded){
+            if(index < this.maxCap){
+                this.value.set(index, item);        
+            }else{
+                throw new Exception(
+                String.format(
+                    "Atempting to add elemnt out of bounds of array - index = %d maxbound = %d",
+                    index,
+                    this.maxCap
+                )
+            );
+            }
+            
+        //code for unbounded arrays
+        }else{
+            if(index < this.maxCap){
+                this.value.set(index, item);        
+            }else{
+                //CHeck this line for correctness 
+                for(int i = this.maxCap; i < index; i++){
+                      this.append(null);
+                }
+                this.value.set(index, item); 
+                this.maxCap = index +1;
+            }
+            
+            
+        }
 
         return new EvalResult(ReturnType.VOID);
     }
 
+    //This is the old set, left it incase we need a spot for an insert method
     // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
+    /*
     public EvalResult set(int index, TypeInterface item) throws Exception {
         if ( index < 0 ) {
             index = wrapIndex(this.maxCap, index);
@@ -222,7 +296,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         res.setResult(item);
         return res;
     }
-
+    */
     // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
     public EvalResult get(int index) throws Exception {
         if ( index < 0 ) {
@@ -281,16 +355,38 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
 
     // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
     public EvalResult getSlice(int beginIndex, int endIndex) throws Exception {
-        final List<TypeInterface> tmpL = this.value.subList(beginIndex, endIndex);
+        
+        if(beginIndex < endIndex){
+           final List<TypeInterface> tmpL = this.value.subList(beginIndex, endIndex);
 
-        ArrayType slice = new ArrayType();
-        slice.initialize(tmpL.size());
-        slice.setBoundType(this.getBoundType());
-        slice.setValue(new ArrayList<TypeInterface>(tmpL));
+           ArrayType slice = new ArrayType();
+           slice.initialize(tmpL.size());
+           slice.setBoundType(this.getBoundType());
+           slice.setValue(new ArrayList<TypeInterface>(tmpL));
 
-        EvalResult res = new EvalResult(this.getFormalType());
-        res.setResult(slice);
-        return res;
+           EvalResult res = new EvalResult(this.getFormalType());
+           res.setResult(slice);
+           return res;
+        }else{
+           final List<TypeInterface> tmpL1 = this.value.subList(0, beginIndex);
+           final List<TypeInterface> tmpL2 = this.value.subList(endIndex, this.value.size()-1);
+           ArrayType slice = new ArrayType();
+           slice.setUnbounded();
+           
+           slice.initialize(tmpL2.size());
+           slice.setBoundType(this.getBoundType());
+           
+           for(int i = 0; i < tmpL2.size(); i++){
+               slice.set(i, tmpL2.get(i));
+           }
+           for(int i = 0; i < tmpL1.size(); i++){
+               slice.append(tmpL1.get(i));
+           }
+           
+           EvalResult res = new EvalResult(this.getFormalType());
+           res.setResult(slice);
+           return res; 
+        }
     }
 
     // XXX - THIS NEEDS NARROWER EXCEPTION TYPES
@@ -315,6 +411,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
     public EvalResult setFromArray(ArrayType ary) throws Exception {
         if ( this.getBoundType() != ary.getBoundType() ) {
             // XXX - Throw an error here because arrays must be homogenous.
+            
             throw new Exception(
                 String.format(
                     "Value type must match array bound type - expected `%s` got `%s`",
@@ -322,6 +419,8 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
                     ary.getBoundType().name()
                 )
             );
+            
+
         }
 
         if ( ary.getCapacity() > this.getCapacity() ) {
