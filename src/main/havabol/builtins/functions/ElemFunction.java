@@ -59,7 +59,13 @@ public class ElemFunction implements FunctionInterface {
                     int capacity = ((ArrayType) ti).getCapacity();
                     TypeInterface t;
 
-                    long nullCount = array.stream().filter(i -> i == null).count();
+                    long nullCount = 0;
+                    for (TypeInterface i : array) {
+                        if ( i == null ) {
+                            nullCount++;
+                        }
+                    }
+
                     if ( nullCount == capacity ) {
                         EvalResult res = new EvalResult(ReturnType.INTEGER);
                         res.setResult(Numerics.intPrim(0));

@@ -27,17 +27,23 @@ public class Block implements ParseElement {
     }
 
     public boolean isValid() {
-        return this.stmts.stream()
-            .map(stmt -> stmt.isValid())
-            .reduce(true, (a, b) -> a && b);
+        for (Statement stmt : this.stmts) {
+            if ( ! stmt.isValid() ) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public String debug(int indent) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(lpads(indent, "Block ~>\n"));
-        this.stmts.stream()
-            .forEach(stmt -> sb.append(stmt.debug(indent + 2)));
+
+        for (Statement stmt : this.stmts) {
+            sb.append(stmt.debug(indent + 2));
+        }
 
         return sb.toString();
     }

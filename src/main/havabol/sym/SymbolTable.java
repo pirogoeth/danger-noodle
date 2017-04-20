@@ -5,7 +5,6 @@ import havabol.classify.*;
 import havabol.storage.*;
 
 import java.util.*;
-import java.util.stream.*;
 
 /**
  * @author Sean Johnson <sean.johnson@maio.me>
@@ -156,16 +155,6 @@ public class SymbolTable
         } else {
             return 1 + this.parent.getBaseAddress();
         }
-    }
-
-    /**
-     * Return a stream view of the STEntry items in the symbol map.
-     *
-     * @return Stream<STEntry>
-     */
-    public Stream<STEntry> symbolStream()
-    {
-        return this.tab.values().stream();
     }
 
     /**

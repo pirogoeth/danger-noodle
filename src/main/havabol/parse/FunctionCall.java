@@ -41,9 +41,13 @@ public class FunctionCall implements ParseElement {
     }
 
     public boolean isValid() {
-        return this.functionName.isValid() && this.argsList.stream()
-            .map(expr -> expr.isValid())
-            .reduce(true, (a, b) -> a && b);
+        for (Expression expr : this.argsList) {
+            if ( ! expr.isValid() ) {
+                return false;
+            }
+        }
+
+        return this.functionName.isValid();
     }
 
     public String debug(int indent) {
@@ -52,9 +56,10 @@ public class FunctionCall implements ParseElement {
         sb.append(lpads(indent, "FunctionCall ~>\n"));
         sb.append(this.functionName.debug(indent + 2));
         sb.append(lpads(indent + 2, "Args ~>\n"));
-        this.argsList
-            .stream()
-            .forEach((expr) -> sb.append(expr.debug(indent + 4)));
+
+        for (Expression expr : this.argsList) {
+            sb.append(expr.debug(indent + 4));
+        }
 
         return sb.toString();
     }

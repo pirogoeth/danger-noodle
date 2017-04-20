@@ -8,7 +8,6 @@ import havabol.util.*;
 import static havabol.util.Text.*;
 
 import java.util.*;
-import java.util.stream.*;
 
 public class Array implements ParseElement {
 
@@ -20,10 +19,6 @@ public class Array implements ParseElement {
 
     public Array(List<Primitive> prims) {
         this.elements = prims;
-    }
-
-    public Stream<Primitive> stream() {
-        return this.elements.stream();
     }
 
     public EvalResult getEvaluable() throws Exception, ParserException {
@@ -44,9 +39,13 @@ public class Array implements ParseElement {
     }
 
     public boolean isValid() {
-        return this.elements.stream()
-            .map(prim -> prim.isValid())
-            .reduce(true, (a, b) -> a && b);
+        for (Primitive prim : this.elements) {
+            if ( ! prim.isValid() ) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public String debug(int indent) {
