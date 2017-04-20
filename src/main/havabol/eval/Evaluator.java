@@ -569,12 +569,9 @@ public class Evaluator {
                 return res;
             case UNARY_OP:
                 UnaryOperation unOp = expr.getUnaryOperation();
-                EvalResult op, rhs;
-                TypeInterface val;
+                // This uses op, rhs, and sub from the above BIN_OP block.
 
-                Subscript sub;
-
-                rhs = this.evaluateExpression(binOp.getRHS());
+                rhs = this.evaluateExpression(unOp.getRHS());
                 if ( rhs.isSubscripted() ) {
                     rhs = this.applySubscript(rhs);
                 }
