@@ -1,6 +1,7 @@
 package havabol.parse;
 
 import havabol.Token;
+import havabol.classify.*;
 import static havabol.util.Text.*;
 
 import java.util.*;
@@ -27,6 +28,25 @@ public class Operator extends ParseElement {
     public String getOperator() {
         return this.operatorToken.tokenStr;
     }
+
+    public Precedence getPrecedence() {
+        switch (this.operatorToken.tokenStr) {
+            case "+":
+                return Precedence.ADD;
+            case "-":
+                return Precedence.SUBTRACT;
+            case "^":
+                return Precedence.EXPONENT;
+            case "*":
+                return Precedence.MULTIPLY;
+            case "/":
+            case "%":
+                return Precedence.DIVIDE;
+            default:
+                return null;
+        }
+    }
+
 
     public boolean isValid() {
         return Arrays.asList(validOperators).contains(this.operatorToken.tokenStr);
