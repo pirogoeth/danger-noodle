@@ -45,8 +45,6 @@ public class HavaBol
             return;
         }
 
-        System.out.println("\n -- LEXING FINISHED -- \n");
-
         List<Statement> stmts = new ArrayList<>();
 
         try
@@ -66,8 +64,6 @@ public class HavaBol
             e.printStackTrace();
             return;
         }
-
-        System.out.println("\n -- PARSING FINISHED -- \n");
 
         List<EvalResult> res = new ArrayList<>();
 

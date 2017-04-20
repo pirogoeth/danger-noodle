@@ -279,11 +279,11 @@ public class Evaluator {
             // stVal will have a `null` TypeInterface.
             if ( val.getResultType() == ReturnType.ARRAY && decl.isArray() ) {
                 ArrayType tgtAry = (ArrayType) stVal.get();
-                System.out.println("ARY TARGET");
-                System.out.print(target.debug(2));
-                System.out.println("ARY VAL");
-                System.out.print(val.debug(2));
-                System.out.println();
+                // System.out.println("ARY TARGET");
+                // System.out.print(target.debug(2));
+                // System.out.println("ARY VAL");
+                // System.out.print(val.debug(2));
+                // System.out.println();
 
                 if ( tgtAry.isBounded() && tgtAry.getCapacity() == -1 ) {
                     // Initialize the array here.
@@ -911,7 +911,13 @@ public class Evaluator {
             case ARRAY:
                 ArrayType ary = (ArrayType) contTI;
                 while ( idx < ary.getCapacity() ) {
-                    cVar.get().setValue(ary.get(idx).getResult().getValue());
+                    EvalResult curVal = ary.getUnsafe(idx);
+                    if ( curVal == null ) {
+                        idx++;
+                        continue;
+                    }
+
+                    cVar.get().setValue(curVal.getResult().getValue());
 
                     while ( blockEval.canEval() ) {
                         blockEval.evaluate();
