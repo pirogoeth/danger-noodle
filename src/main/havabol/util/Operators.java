@@ -935,8 +935,49 @@ public class Operators {
         return boolPrim(left || right);
     }
 
-    public static TypeInterface negate(TypeInterface operand) {
-        // XXX - IMPLEMENT!
+    /**
+     * Negates a singular number!
+     */
+    public static TypeInterface arithNegate(TypeInterface operand) throws EvalException {
+        switch (operand.getFormalType()) {
+            case FLOAT:
+                PFloat floatVal = (PFloat) operand;
+                return floatPrim(-(floatVal.getValue()));
+            case INTEGER:
+                PInteger intVal = (PInteger) operand;
+                return intPrim(-(intVal.getValue()));
+            default:
+                reportEvalError(
+                    String.format(
+                        "unary arithmetic negation `-` expected numeric type, not `%s`",
+                        operand.getFormalType().name()
+                    ),
+                    operand
+                );
+        }
+
         return null;
     }
+
+    /**
+     * Negates a boolean value!
+     */
+    public static TypeInterface logicNegate(TypeInterface operand) throws EvalException {
+        switch (operand.getFormalType()) {
+            case BOOLEAN:
+                PBoolean boolVal = (PBoolean) operand;
+                return boolPrim(!(boolVal.getValue()));
+            default:
+                reportEvalError(
+                    String.format(
+                        "unary logical negation `not` expected boolean type, not `%s`",
+                        operand.getFormalType().name()
+                    ),
+                    operand
+                );
+        }
+
+        return null;
+    }
+
 }

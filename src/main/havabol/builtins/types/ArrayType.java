@@ -30,7 +30,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
     public int getLength(){
         return this.length;
     }
-    
+
     // XXX - NEEDS NARROWER EXCEPTION TYPES
     public void setBoundType(ReturnType ret) throws Exception {
         if (this.boundType != null) {
@@ -68,6 +68,13 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
     /**
      * Sets up the underlying array and limits.
      */
+    public void initialize() {
+        this.isBounded = false;
+        this.maxCap = -1;
+
+        this.value = new ArrayList<>();
+    }
+
     public void initialize(int capacity) {
         this.isBounded = true;
         this.maxCap = capacity;
@@ -123,7 +130,12 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         StringBuilder sb = new StringBuilder();
 
         sb.append("[");
-        for (int i = 0; i < this.value.size(); i++) {
+        for (int i = 0; i < this.value.size() ; i++) {
+            TypeInterface val = this.value.get(i);
+            if ( val == null ) {
+                continue;
+            }
+
             sb.append(this.value.get(i).getRepr());
             if (i < this.value.size() - 1) {
                 sb.append(", ");

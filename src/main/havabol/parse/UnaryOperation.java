@@ -55,24 +55,5 @@ public class UnaryOperation extends ParseElement {
 
         return sb.toString();
     }
-    
-    public boolean not(TypeInterface reverse) throws EvalException{
-         boolean switched;
-         if(reverse.getFormalType() == ReturnType.BOOLEAN ){
-            
-            switched = ((PBoolean) reverse).getValue();
-            return !switched;
-            
-        }else{
-             reportEvalError(
-                String.format(
-                    "b is not a bool `%s`",
-                    reverse.getFormalType().name()
-                ),
-                reverse
-            );
-            return false;
-        }
-    }
 
 }

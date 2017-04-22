@@ -569,16 +569,28 @@ public class Evaluator {
                 return res;
             case UNARY_OP:
                 UnaryOperation unOp = expr.getUnaryOperation();
-                // This uses op, rhs, and sub from the above BIN_OP block.
+                // This uses op, rhs, val, and sub from the above BIN_OP block.
 
                 rhs = this.evaluateExpression(unOp.getRHS());
                 if ( rhs.isSubscripted() ) {
                     rhs = this.applySubscript(rhs);
                 }
 
-                // XXX - ADD UNARY CASES HERE!
+                switch (unOp.getOper().getOperator()) {
+                    case "-":
+                        val = Operators.arithNegate(rhs.getResult());
+                        break;
+                    case "not":
+                        val = Operators.logicNegate(rhs.getResult());
+                        break;
+                    default:
+                        return null;
+                }
 
-                return null;
+                res = new EvalResult(val.getFormalType());
+                res.setResult(val);
+
+                return res;
             case FUNC_CALL:
                 FunctionCall fc = expr.getFunctionCall();
                 FunctionInterface fi = fc.resolveFunctionHandle();
