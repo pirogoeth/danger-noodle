@@ -110,6 +110,9 @@ public class Scanner{
 
             //check for comments or double operators
             checkComment(currentToken, nextToken, textLineM);
+            if(currentToken == null){
+                return null;
+            }
             checkDoubleOperator(currentToken, nextToken, textLineM);
             checkUnaryMinus(currentToken, nextToken, textLineM);
 
@@ -127,6 +130,9 @@ public class Scanner{
 
             //check for comments or double operators
             checkComment(currentToken, nextToken, textLineM);
+            if(currentToken == null){
+                return null;
+            }
             checkDoubleOperator(currentToken, nextToken, textLineM);
             checkUnaryMinus(currentToken, nextToken, textLineM);
             
@@ -148,6 +154,9 @@ public class Scanner{
             currentToken.tokenStr = getToken(textLineM, currentToken);
             nextToken.tokenStr = getToken(textLineM, nextToken);
             checkComment(currentToken, nextToken, textLineM);
+            if(currentToken == null){
+                return null;
+            }
             checkDoubleOperator(currentToken, nextToken, textLineM);
             checkUnaryMinus(currentToken, nextToken, textLineM);
 
