@@ -13,24 +13,43 @@ public class Precedence {
         System.out.print(head.debug(0));
         System.out.println();
 
-        Stack<Operator> opers = new Stack<>();
-        Stack<ParseElement> output = buildPostfix(opers, head);
+        ArrayDeque<Operator> opers = new ArrayDeque<>();
+        ArrayDeque<ParseElement> output = buildPostfix(opers, head);
 
-        // Build output into a binOp tree
-        // XXX - implement
+        Expression resv = null;
+        BinaryOperation op = null;
+        Operator tmp = null;
+
+        while ( ! output.isEmpty() ) {
+            ParseElement ele = output.removeFirst();
+            if ( ele instanceof Operator ) {
+                // current element is an operator, do processing things
+                Expression resL, resR;
+                resR = (Expression) output.removeFirst();
+                resL = (Expression) output.removeFirst();
+                op = new BinaryOperation(resL, (Operator) ele, resR);
+            } else {
+                // otherwise, just work on outputted binOp.
+                resv = (Expression) ele;
+            }
+        }
+
+        System.out.println("FINAL RESULTING BINOP");
+        System.out.println(op.debug(35));
+        System.out.println();
 
         // XXX - THIS SHOULD CONSTRUCT A NEW THING!
         return null;
     }
 
-    private static Stack<ParseElement> buildPostfix(Stack<Operator> opers, BinaryOperation op) {
+    private static ArrayDeque<ParseElement> buildPostfix(ArrayDeque<Operator> opers, BinaryOperation op) {
         if ( op == null || opers == null ) {
             return null;
         }
 
         // System.out.println("buildPostfix");
 
-        Stack<ParseElement> output = new Stack<>();
+        ArrayDeque<ParseElement> output = new ArrayDeque<>();
 
         Expression lhs = op.getLHS();
         switch (lhs.getExpressionType()) {
@@ -49,7 +68,7 @@ public class Precedence {
         Operator last;
         try {
             last = opers.peek();
-        } catch (EmptyStackException exc) {
+        } catch (NoSuchElementException exc) {
             last = null;
         }
 
@@ -57,7 +76,7 @@ public class Precedence {
             // System.out.println("cheeky");
             opers.push(oper);
         } else if ( last != null && oper.getPrecedence().getPriority() > last.getPrecedence().getPriority() ) {
-            // This should perform the postfix pops and push precedence-sorted exprs into a Stack.
+            // This should perform the postfix pops and push precedence-sorted exprs into a ArrayDeque.
             // XXX - Implement!
             // System.out.println("nandos");
             while ( ! opers.isEmpty() ) {
