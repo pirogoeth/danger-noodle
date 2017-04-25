@@ -1,6 +1,7 @@
 package havabol.parse;
 
 import havabol.Token;
+import havabol.classify.*;
 import static havabol.util.Text.*;
 
 import java.util.*;
@@ -27,10 +28,24 @@ public class BinaryOperation extends ParseElement {
      */
     private Expression rhs;
 
+    /**
+     * If this is the child of another binary operation, this var should
+     * hold a reference to the parent.
+     */
+    private BinaryOperation parent = null;
+
     public BinaryOperation(Expression lhs, Operator operator, Expression rhs) {
         this.lhs = lhs;
         this.operator = operator;
         this.rhs = rhs;
+
+        if ( this.lhs.getExpressionType() == ExpressionType.BINARY_OP ) {
+            this.lhs.getBinaryOperation().setParent(this);
+        }
+
+        if ( this.rhs.getExpressionType() == ExpressionType.BINARY_OP ) {
+            this.rhs.getBinaryOperation().setParent(this);
+        }
     }
 
     public Expression getLHS() {
@@ -45,6 +60,27 @@ public class BinaryOperation extends ParseElement {
         return this.rhs;
     }
 
+    public boolean isRoot() {
+        return this.parent == null;
+    }
+
+    public BinaryOperation getParent() {
+        return this.parent;
+    }
+
+    /**
+     * Can only set the value if the parent is currently null.
+     * NO REASSIGNMENT!
+     */
+    public void setParent(BinaryOperation parent) {
+        if ( this.parent != null ) {
+            System.out.println("===> TRIED TO SET PARENT ON ALREADY OWNED CHILD BINOP");
+            return;
+        }
+
+        this.parent = parent;
+    }
+
     public boolean isValid() {
         return ( this.lhs.isValid() &&
                  this.operator.isValid() &&
@@ -55,6 +91,9 @@ public class BinaryOperation extends ParseElement {
         StringBuilder sb = new StringBuilder();
 
         sb.append(lpads(indent, "BinaryOperation ~>\n"));
+        if ( this.isRoot() ) {
+            sb.append(lpads(indent, ":: ROOT BINOP ::\n"));
+        }
         sb.append(lpads(indent + 2, "LHS ~>\n"));
         sb.append(this.lhs.debug(indent + 4));
         sb.append(this.operator.debug(indent + 2));

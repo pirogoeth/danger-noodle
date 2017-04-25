@@ -11,6 +11,7 @@ import havabol.storage.*;
 import havabol.sym.*;
 import havabol.util.*;
 import static havabol.util.Numerics.*;
+import static havabol.util.Precedence.rebuildWithPrecedence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -491,106 +492,9 @@ public class Evaluator {
             case ASSIGNMENT:
                 return this.evaluateAssignment(expr.getAssignment());
             case BINARY_OP:
-                BinaryOperation binOp = expr.getBinaryOperation();
-                EvalResult lhs, rhs, res;
-                TypeInterface val;
-
-                Subscript sub;
-
-                lhs = this.evaluateExpression(binOp.getLHS());
-                if ( lhs.isSubscripted() ) {
-                    lhs = this.applySubscript(lhs);
-                }
-
-                rhs = this.evaluateExpression(binOp.getRHS());
-                if ( rhs.isSubscripted() ) {
-                    rhs = this.applySubscript(rhs);
-                }
-
-                switch (binOp.getOper().getOperator()) {
-                    case "+":
-                        val = Operators.add(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "-":
-                        val = Operators.sub(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "*":
-                        val = Operators.mult(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "/":
-                        val = Operators.div(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "%":
-                        val = Operators.modulo(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "^":
-                        val = Operators.power(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "==":
-                        val = Operators.equal(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "!=":
-                        val = Operators.notEqual(lhs.getResult(), rhs.getResult());
-                        break;
-                    case ">":
-                        val = Operators.greaterThan(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "<":
-                        val = Operators.lessThan(lhs.getResult(), rhs.getResult());
-                        break;
-                    case ">=":
-                        val = Operators.greaterThanEqual(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "<=":
-                        val = Operators.lessThanEqual(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "#":
-                        val = Operators.concat(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "in":
-                        val = Operators.contains(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "notin":
-                        val = Operators.notContains(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "and":
-                        val = Operators.and(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "or":
-                        val = Operators.or(lhs.getResult(), rhs.getResult());
-                        break;
-                    default:
-                        return null;
-                }
-
-                res = new EvalResult(val.getFormalType());
-                res.setResult(val);
-
-                return res;
+                return this.evaluateBinaryOp(expr.getBinaryOperation());
             case UNARY_OP:
-                UnaryOperation unOp = expr.getUnaryOperation();
-                // This uses op, rhs, val, and sub from the above BIN_OP block.
-
-                rhs = this.evaluateExpression(unOp.getRHS());
-                if ( rhs.isSubscripted() ) {
-                    rhs = this.applySubscript(rhs);
-                }
-
-                switch (unOp.getOper().getOperator()) {
-                    case "-":
-                        val = Operators.arithNegate(rhs.getResult());
-                        break;
-                    case "not":
-                        val = Operators.logicNegate(rhs.getResult());
-                        break;
-                    default:
-                        return null;
-                }
-
-                res = new EvalResult(val.getFormalType());
-                res.setResult(val);
-
-                return res;
+                return this.evaluateUnaryOp(expr.getUnaryOperation());
             case FUNC_CALL:
                 FunctionCall fc = expr.getFunctionCall();
                 FunctionInterface fi = fc.resolveFunctionHandle();
@@ -723,6 +627,117 @@ public class Evaluator {
             expr
         );
         return null;
+    }
+
+    private EvalResult evaluateBinaryOp(BinaryOperation binOp) throws Exception, EvalException, ParserException {
+        EvalResult lhs, rhs, res;
+        TypeInterface val;
+
+        Subscript sub;
+
+        // Make sure to perform precedence rebalancing from the root first!
+        if ( binOp.isRoot() ) {
+            binOp = rebuildWithPrecedence(binOp);
+        }
+
+        lhs = this.evaluateExpression(binOp.getLHS());
+        if ( lhs.isSubscripted() ) {
+            lhs = this.applySubscript(lhs);
+        }
+
+        rhs = this.evaluateExpression(binOp.getRHS());
+        if ( rhs.isSubscripted() ) {
+            rhs = this.applySubscript(rhs);
+        }
+
+        switch (binOp.getOper().getOperator()) {
+            case "+":
+                val = Operators.add(lhs.getResult(), rhs.getResult());
+                break;
+            case "-":
+                val = Operators.sub(lhs.getResult(), rhs.getResult());
+                break;
+            case "*":
+                val = Operators.mult(lhs.getResult(), rhs.getResult());
+                break;
+            case "/":
+                val = Operators.div(lhs.getResult(), rhs.getResult());
+                break;
+            case "%":
+                val = Operators.modulo(lhs.getResult(), rhs.getResult());
+                break;
+            case "^":
+                val = Operators.power(lhs.getResult(), rhs.getResult());
+                break;
+            case "==":
+                val = Operators.equal(lhs.getResult(), rhs.getResult());
+                break;
+            case "!=":
+                val = Operators.notEqual(lhs.getResult(), rhs.getResult());
+                break;
+            case ">":
+                val = Operators.greaterThan(lhs.getResult(), rhs.getResult());
+                break;
+            case "<":
+                val = Operators.lessThan(lhs.getResult(), rhs.getResult());
+                break;
+            case ">=":
+                val = Operators.greaterThanEqual(lhs.getResult(), rhs.getResult());
+                break;
+            case "<=":
+                val = Operators.lessThanEqual(lhs.getResult(), rhs.getResult());
+                break;
+            case "#":
+                val = Operators.concat(lhs.getResult(), rhs.getResult());
+                break;
+            case "in":
+                val = Operators.contains(lhs.getResult(), rhs.getResult());
+                break;
+            case "notin":
+                val = Operators.notContains(lhs.getResult(), rhs.getResult());
+                break;
+            case "and":
+                val = Operators.and(lhs.getResult(), rhs.getResult());
+                break;
+            case "or":
+                val = Operators.or(lhs.getResult(), rhs.getResult());
+                break;
+            default:
+                return null;
+        }
+
+        res = new EvalResult(val.getFormalType());
+        res.setResult(val);
+
+        return res;
+    }
+
+    private EvalResult evaluateUnaryOp(UnaryOperation unOp) throws Exception, EvalException, ParserException {
+        EvalResult lhs, rhs, res;
+        TypeInterface val;
+
+        Subscript sub;
+
+        rhs = this.evaluateExpression(unOp.getRHS());
+        if ( rhs.isSubscripted() ) {
+            rhs = this.applySubscript(rhs);
+        }
+
+        switch (unOp.getOper().getOperator()) {
+            case "-":
+                val = Operators.arithNegate(rhs.getResult());
+                break;
+            case "not":
+                val = Operators.logicNegate(rhs.getResult());
+                break;
+            default:
+                return null;
+        }
+
+        res = new EvalResult(val.getFormalType());
+        res.setResult(val);
+
+        return res;
     }
 
     private EvalResult evaluateFlowControl(Statement stmt) throws Exception, EvalException, ParserException {

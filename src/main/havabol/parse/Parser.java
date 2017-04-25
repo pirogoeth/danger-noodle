@@ -5,6 +5,7 @@ import havabol.Scanner;
 import havabol.classify.*;
 import havabol.sym.*;
 import havabol.util.*;
+import static havabol.util.Precedence.rebuildWithPrecedence;
 
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -579,6 +580,7 @@ public class Parser {
                     // Expr not valid?
                     return null;
                 }
+
                 return new Statement(expr);
             case FUNCTION:
                 FunctionCall funcCall = this.parseFunctionCall(this.popStatement());
@@ -1114,7 +1116,7 @@ public class Parser {
                 FunctionCall fCall = this.parseFunctionCall(buf);
                 if ( ! fCall.isValid() ) {
                     reportParseError(
-                            "Building function call in from expression failed",
+                            "Building function call from expression failed",
                             head,
                             next
                     );
