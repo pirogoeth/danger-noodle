@@ -1,118 +1,149 @@
 package havabol.util;
 
 import havabol.classify.*;
+import havabol.eval.*;
 import havabol.parse.*;
+import static havabol.eval.Evaluator.reportEvalError;
 import static havabol.util.Text.*;
 
 import java.util.*;
 
 public class Precedence {
 
-    public static BinaryOperation rebuildWithPrecedence(BinaryOperation head) {
-        System.out.println("BUILDING BINOP WITH PRECEDENCE");
-        System.out.print(head.debug(0));
-        System.out.println();
+    public static BinaryOperation rebuildWithPrecedence(BinaryOperation head) throws EvalException {
+        // System.out.println("REBUILDING BINOP TO LINEAR FORM");
+        ArrayList<ParseElement> elms = binTreeToLinear(head);
+        // elms.stream().forEach(pe -> System.out.print(pe.debug(30)));
+        // System.out.println();
 
-        ArrayDeque<Operator> opers = new ArrayDeque<>();
-        ArrayDeque<ParseElement> output = buildPostfix(opers, head);
+        // System.out.println("BUILDING BINOP WITH PRECEDENCE");
+        // System.out.print(head.debug(0));
+        // System.out.println();
 
-        Expression resv = null;
-        BinaryOperation op = null;
-        Operator tmp = null;
+        ArrayDeque<ParseElement> output = buildPostfix(elms);
 
+        // XXX DEBUG - Dump opers and exprs
+        // System.out.println("FINAL");
+        // output.stream().forEach(pe -> System.out.print(pe.debug(20)));
+
+        // System.out.println("CONVERTING BACK TO BINOP");
+        // System.out.println();
+
+        ArrayDeque<ParseElement> stack = new ArrayDeque<>();
+
+        // After this loop is completed, `output` should be empty and
+        // `stack` should contain a single BinaryOperation.
         while ( ! output.isEmpty() ) {
-            ParseElement ele = output.removeFirst();
+            ParseElement ele = output.pop();
             if ( ele instanceof Operator ) {
                 // current element is an operator, do processing things
                 Expression resL, resR;
-                resR = (Expression) output.removeFirst();
-                resL = (Expression) output.removeFirst();
-                op = new BinaryOperation(resL, (Operator) ele, resR);
+
+                // System.out.println("GOT OPERATOR, USING VALS FROM STACK. STACK CONTENTS:");
+                // stack.stream().forEach(pe -> System.out.print(pe.debug(20)));
+
+                resR = (Expression) stack.pop();
+                resL = (Expression) stack.pop();
+                stack.push(new Expression(new BinaryOperation(resL, (Operator) ele, resR)));
             } else {
                 // otherwise, just work on outputted binOp.
-                resv = (Expression) ele;
+                // System.out.println("values push");
+                stack.push(ele);
             }
         }
 
-        System.out.println("FINAL RESULTING BINOP");
-        System.out.println(op.debug(35));
-        System.out.println();
+        if ( stack.size() == 1 ) {
+            Expression expr = (Expression) stack.pop();
+            if ( expr.getExpressionType() != ExpressionType.BINARY_OP ) {
+                reportEvalError(
+                    String.format(
+                        "Expected final stack element to be BINARY_OP, actually is `%s`",
+                        expr.getExpressionType().name()
+                    ),
+                    expr
+                );
+                return null;
+            }
 
-        // XXX - THIS SHOULD CONSTRUCT A NEW THING!
-        return null;
+            BinaryOperation op = expr.getBinaryOperation();
+
+            // System.out.println("FINAL RESULTING BINOP");
+            // System.out.println(op.debug(35));
+            // System.out.println();
+
+            return op;
+        } else {
+            reportEvalError(
+                String.format(
+                    "Expected a final stack size of 1 - got `%d`",
+                    stack.size()
+                ),
+                head
+            );
+            return null;
+        }
     }
 
-    private static ArrayDeque<ParseElement> buildPostfix(ArrayDeque<Operator> opers, BinaryOperation op) {
-        if ( op == null || opers == null ) {
+    private static ArrayList<ParseElement> binTreeToLinear(BinaryOperation op) {
+        if ( op == null ) {
             return null;
         }
 
-        // System.out.println("buildPostfix");
-
-        ArrayDeque<ParseElement> output = new ArrayDeque<>();
+        ArrayList<ParseElement> elms = new ArrayList<>();
 
         Expression lhs = op.getLHS();
         switch (lhs.getExpressionType()) {
             case BINARY_OP:
-                // System.out.println("lhs binop");
-                output.addAll(buildPostfix(opers, lhs.getBinaryOperation()));
+                elms.addAll(binTreeToLinear(lhs.getBinaryOperation()));
                 break;
             default:
-                // System.out.println("lhs other");
-                // System.out.print(lhs.debug(30));
-                output.push(lhs);
+                elms.add(lhs);
                 break;
         }
 
-        Operator oper = op.getOper();
-        Operator last;
-        try {
-            last = opers.peek();
-        } catch (NoSuchElementException exc) {
-            last = null;
-        }
-
-        if ( opers.size() == 0 ) {
-            // System.out.println("cheeky");
-            opers.push(oper);
-        } else if ( last != null && oper.getPrecedence().getPriority() > last.getPrecedence().getPriority() ) {
-            // This should perform the postfix pops and push precedence-sorted exprs into a ArrayDeque.
-            // XXX - Implement!
-            // System.out.println("nandos");
-            while ( ! opers.isEmpty() ) {
-                output.push(opers.pop());
-            }
-            opers.push(oper);
-        } else {
-            // Just push this operator to the stack.
-            // System.out.println("irl");
-            opers.push(oper);
-        }
+        elms.add(op.getOper());
 
         Expression rhs = op.getRHS();
         switch (rhs.getExpressionType()) {
             case BINARY_OP:
-                // System.out.println("rhs binop");
-                output.addAll(buildPostfix(opers, rhs.getBinaryOperation()));
+                elms.addAll(binTreeToLinear(rhs.getBinaryOperation()));
                 break;
             default:
-                // System.out.println("rhs other");
-                // System.out.print(rhs.debug(30));
-                output.push(rhs);
+                elms.add(rhs);
                 break;
         }
 
-        while ( ! opers.isEmpty() ) {
-            output.push(opers.pop());
+        return elms;
+    }
+
+    private static ArrayDeque<ParseElement> buildPostfix(ArrayList<ParseElement> elems) {
+        if ( elems == null ) {
+            return null;
         }
 
-        // XXX DEBUG - Dump opers and exprs
-        System.out.println("FINAL");
-        output.stream().forEach(pe -> System.out.print(pe.debug(20)));
+        ArrayDeque<Operator> stack = new ArrayDeque<>();
+        ArrayDeque<ParseElement> output = new ArrayDeque<>();
 
-        // By now, the stacks should likely be populated.
-        // We should keep a reference to the lowest expr in the new binOp tree so we do not have
-        // to search for an insertion point.
+        for (ParseElement pe : elems) {
+            if ( pe instanceof Operator ) {
+                Operator current = (Operator) pe;
+                while ( ! stack.isEmpty() ) {
+                    if ( current.getPrecedence().getPriority() < stack.peekFirst().getPrecedence().getPriority() ) {
+                        break;
+                    }
+
+                    output.add(stack.pop());
+                }
+
+                stack.push(current);
+            } else {
+                output.add(pe);
+            }
+        }
+
+        while ( ! stack.isEmpty() ) {
+            output.add(stack.pop());
+        }
 
         return output;
     }
