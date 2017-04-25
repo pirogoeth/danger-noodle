@@ -323,7 +323,7 @@ public class Evaluator {
             }
 
             // XXX - PROBLEM IS RAISED HERE
-            if ( val.getResultType() != stDecl.getDataType() ) {
+            if ( val.getResultType() != stDecl.getDataType() && stVal.get().getFormalType() != ReturnType.ARRAY ) {
                 reportEvalError(
                     String.format(
                         "Can not perform assignment - type mismatch (given %s, expected %s)",
@@ -333,6 +333,20 @@ public class Evaluator {
                     assign
                 );
                 return null;
+            } else if ( val.getResultType() == ReturnType.ARRAY ) {
+                // Compare the BOUND TYPES!
+                // XXX - NEEDS MORE ARRAY COERCION
+                if ( res.getResultType() != ((ArrayType) val.getResult()).getBoundType() ) {
+                    reportEvalError(
+                        String.format(
+                            "Can not perform assignment - mismatched array bound types (given %s, expected %s)",
+                            ((ArrayType) val.getResult()).getBoundType().name(),
+                            res.getResultType().name()
+                        ),
+                        assign
+                    );
+                    return null;
+                }
             }
 
             TypeInterface valRet = val.getResult();
@@ -351,7 +365,11 @@ public class Evaluator {
                         }
                     }
                 } else {
-                    res.setResult(ary.setFromScalar(val.getResult()).getResult());
+                    if ( val.getResultType() == ReturnType.ARRAY ) {
+                        res.setResult(ary.setFromArray((ArrayType) val.getResult()).getResult());
+                    } else {
+                        res.setResult(ary.setFromScalar(val.getResult()).getResult());
+                    }
                 }
             } else if ( stVal.get().getFormalType() == ReturnType.STRING ) {
                 PString str = (PString) stVal.get();
