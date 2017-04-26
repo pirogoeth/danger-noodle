@@ -42,6 +42,33 @@ public class PFloat implements TypeInterface<Double> {
         return Numerics.floatAsString(this.value);
     }
 
+    public boolean coercibleTo(ReturnType target) {
+        switch (target) {
+            case INTEGER:
+            case FLOAT:
+            case STRING:
+                return true;
+            case ARRAY:
+            case BOOLEAN:
+            default:
+                return false;
+        }
+    }
+
+    public TypeInterface coerceTo(ReturnType target) {
+        switch (target) {
+            case STRING:
+                return Numerics.strPrim(this);
+            case INTEGER:
+                return Numerics.intPrim(this);
+            case FLOAT:
+                return this;
+            default:
+                // XXX - THIS SHOULD THROW AN ERROR
+                return null;
+        }
+    }
+
     public boolean isEqual(Object o) {
         return this.value.equals(o);
     }

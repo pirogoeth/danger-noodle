@@ -65,6 +65,55 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         }
     }
 
+    public boolean coercibleTo(ReturnType target) {
+        boolean canCoerce = true;
+        for (TypeInterface item : this.value) {
+            if ( item == null ) {
+                continue;
+            }
+
+            canCoerce = item.coercibleTo(target);
+            if ( !canCoerce ) {
+                break;
+            }
+        }
+
+        return canCoerce;
+    }
+
+    /**
+     * An array can ONLY coerce to another array, but the
+     * internal `boundType` coercion rule is applied.
+     */
+    public ArrayType coerceTo(ReturnType target) {
+        ArrayList<TypeInterface> coerced = new ArrayList<>();
+        for (TypeInterface item : this.value) {
+            if ( item == null ) {
+                continue;
+            }
+
+            coerced.add(item.coerceTo(target));
+        }
+
+
+        ArrayType newAry = new ArrayType();
+        try {
+            newAry.setBoundType(target);
+        } catch (Exception ex) {
+            // So this should not happen since newAry is brand new.
+            // Swallow the exception.
+        }
+
+        if ( this.isBounded() ) {
+            newAry.initialize(this.maxCap);
+        } else {
+            newAry.initialize();
+        }
+        newAry.setValue(coerced);
+
+        return newAry;
+    }
+
     /**
      * Sets up the underlying array and limits.
      */
