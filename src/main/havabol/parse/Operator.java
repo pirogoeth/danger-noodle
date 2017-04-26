@@ -42,6 +42,18 @@ public class Operator extends ParseElement {
             case "/":
             case "%":
                 return Precedence.DIVIDE;
+            case "#":
+                return Precedence.CONCAT;
+            case ">":
+            case "<":
+            case "<=":
+            case ">=":
+            case "==":
+            case "!=":
+                return Precedence.COMPARE;
+            case "and":
+            case "or":
+                return Precedence.COMBINE;
             default:
                 return null;
         }
