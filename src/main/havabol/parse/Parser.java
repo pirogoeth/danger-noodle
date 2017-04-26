@@ -847,11 +847,6 @@ public class Parser {
         while ( this.canParse(tokens) ) {
             Token cur = this.peekNext(tokens);
             switch (Primary.primaryFromInt(cur.primClassif)) {
-                case FUNCTION:
-                    exprBuf.add(this.popNext(tokens));
-                    exprBuf.addAll(this.popUntilMatch(tokens));
-
-                    break;
                 case SEPARATOR:
                     this.eatNextIfEq(tokens, ",");
                 default:
