@@ -539,7 +539,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
                     switch (ary.getBoundType()) {
 
                         case INTEGER:
-                            copyIntToFLoat(ary);
+                            copyIntToFloat(ary);
                         case STRING:
                             copyStringToFloat(ary);
                         default:
@@ -573,10 +573,10 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         }
 
         if (ary.getCapacity() > this.getCapacity()) {
-            ArrayList<TypeInterface> valSlice = new ArrayList<>(ary.getValue().subList(0, this.getCapacity() - 1));
+            ArrayList<TypeInterface> valSlice = new ArrayList<>(ary.getValue().subList(0, this.getCapacity()));
             this.setValue(valSlice);
         } else if (ary.getCapacity() == this.getCapacity()) {
-            this.setValue(ary.getValue());
+            this.setValue(new ArrayList<>(ary.getValue()));
         } else { // ary cap < this cap
             ArrayList<TypeInterface> newL = new ArrayList<>();
             newL.addAll(ary.getValue());
@@ -769,7 +769,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
 
     }
 
-    private void copyIntToFLoat(ArrayType ary) throws Exception {
+    private void copyIntToFloat(ArrayType ary) throws Exception {
         if (this.maxCap < ary.maxCap) {
 
             //make array size equal if smaller arry is bounded, allows insert

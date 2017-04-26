@@ -2,12 +2,12 @@
 String name1 = "Javier";
 String name1 = "Shane";
 
-// edge case 2 - expected behaviour:
+// edge case 2 - expected behaviour: success - "Javier"
 String name2 = "Javier";
 String name2;
 print(name2);
 
-// edge case 3 - expected behaviour:
+// edge case 3 - expected behaviour: failure - `x` is undefined
 Int x1 = 5;
 String x1 = x;
 print(x1);

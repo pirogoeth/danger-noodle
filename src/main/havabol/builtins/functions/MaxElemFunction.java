@@ -39,24 +39,22 @@ public class MaxElemFunction implements FunctionInterface {
     }
 
     public EvalResult execute(EvalResult...args) {
-        int capacity = 0;
+        EvalResult arg = args[0];
+        TypeInterface ti = arg.getResult();
 
-        for (EvalResult arg : args) {
-            TypeInterface ti = arg.getResult();
+        if ( ti == null ) {
+            // Array declared, but not initialized
+            return null;
+        }
 
-            if( ti == null ) {
-                // Array declared, but not initialized
+        int capacity;
+        switch (arg.getResultType()) {
+            case ARRAY:
+                capacity = ((ArrayType) ti).getCapacity();
+                break;
+            default:
+                // wat -- this should probably raise an error
                 return null;
-            }
-
-            switch (arg.getResultType()) {
-                case ARRAY:
-                    capacity = ((ArrayType) ti).getCapacity();
-                    break;
-                default:
-                    // wat -- this should probably raise an error
-                    return null;
-            }
         }
 
         EvalResult res = new EvalResult(ReturnType.INTEGER);

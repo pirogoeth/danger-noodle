@@ -322,7 +322,6 @@ public class Evaluator {
                 val = this.applySubscript(val);
             }
 
-            // XXX - PROBLEM IS RAISED HERE
             if ( val.getResultType() != stDecl.getDataType() && stVal.get().getFormalType() != ReturnType.ARRAY ) {
                 reportEvalError(
                     String.format(
