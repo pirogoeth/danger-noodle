@@ -108,6 +108,7 @@ public class Evaluator {
                     switch (res.getResultType()) {
                         case STRING:
                             s = (PString) val;
+                            System.out.println("Slicing string [" + s.getRepr());
                             newRes = s.get(sub.beginIdx);
                             break;
                         case ARRAY:
@@ -568,7 +569,7 @@ public class Evaluator {
                 iRes.setResultIdent(identS);
 
                 // Create the subscript, if any
-                Subscript identSubsc = expr.getIdentifier().getSubscript();
+                Subscript identSubsc = identExpr.getSubscript();
                 int beginIdx = -1;
                 int endIdx = -1;
                 if ( identSubsc != null ) {
@@ -613,15 +614,10 @@ public class Evaluator {
                     }
                 }
 
-                if ( iRes.isSubscripted() && iRes.getResultType() == ReturnType.STRING ) {
-                    switch (iRes.getSubscript().type) {
-                        case SINGLE:
-                            iRes.setResult(((PString) identV.get()).get(beginIdx).getResult());
-                            break;
-                        case RANGE:
-                            iRes.setResult(((PString) identV.get()).getSlice(beginIdx, endIdx).getResult());
-                            break;
-                    }
+                if ( iRes.isSubscripted() ) {
+                    EvalResult origRes = iRes;
+                    iRes = this.applySubscript(iRes);
+                    iRes.setModifiedFrom(origRes);
                 } else {
                     iRes.setResult(identV.get());
                 }
