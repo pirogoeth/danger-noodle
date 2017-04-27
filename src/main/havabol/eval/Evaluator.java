@@ -108,7 +108,6 @@ public class Evaluator {
                     switch (res.getResultType()) {
                         case STRING:
                             s = (PString) val;
-                            System.out.println("Slicing string [" + s.getRepr());
                             newRes = s.get(sub.beginIdx);
                             break;
                         case ARRAY:
@@ -319,9 +318,6 @@ public class Evaluator {
             }
 
             val = this.evaluateExpression(assign.getAssignedExpr());
-            if ( val.isSubscripted() ) {
-                val = this.applySubscript(val);
-            }
 
             if ( val.getResultType() != stDecl.getDataType() && stVal.get().getFormalType() != ReturnType.ARRAY ) {
                 reportEvalError(
@@ -521,9 +517,6 @@ public class Evaluator {
                 EvalResult[] args = new EvalResult[argExprs.size()];
                 for (int i = 0; i < args.length; i++) {
                     args[i] = this.evaluateExpression(argExprs.get(i));
-                    if ( args[i].isSubscripted() ) {
-                        args[i] = this.applySubscript(args[i]);
-                    }
                 }
 
                 if ( ! fi.validateArguments(args) ) {
@@ -575,9 +568,6 @@ public class Evaluator {
                 if ( identSubsc != null ) {
                     EvalResult b, e;
                     b = this.evaluateExpression(identSubsc.getBeginExpr());
-                    if ( b.isSubscripted() ) {
-                        b = this.applySubscript(b);
-                    }
 
                     if ( b.getResultType() != ReturnType.INTEGER ) {
                         reportEvalError(
@@ -614,13 +604,16 @@ public class Evaluator {
                     }
                 }
 
+                iRes.setResult(identV.get());
+
                 if ( iRes.isSubscripted() ) {
                     EvalResult origRes = iRes;
-                    iRes = this.applySubscript(iRes);
-                    iRes.setModifiedFrom(origRes);
-                } else {
-                    iRes.setResult(identV.get());
+
+                    iRes = this.applySubscript(origRes);
+                    iRes.fromRes(origRes);
+                    iRes.setResultIdent(origRes.getResultIdent());
                 }
+
                 return iRes;
             case ARRAY:
                 Array aryExpr = expr.getArray();
@@ -654,14 +647,7 @@ public class Evaluator {
         }
 
         lhs = this.evaluateExpression(binOp.getLHS());
-        if ( lhs.isSubscripted() ) {
-            lhs = this.applySubscript(lhs);
-        }
-
         rhs = this.evaluateExpression(binOp.getRHS());
-        if ( rhs.isSubscripted() ) {
-            rhs = this.applySubscript(rhs);
-        }
 
         switch (binOp.getOper().getOperator()) {
             case "+":
@@ -732,9 +718,6 @@ public class Evaluator {
         Subscript sub;
 
         rhs = this.evaluateExpression(unOp.getRHS());
-        if ( rhs.isSubscripted() ) {
-            rhs = this.applySubscript(rhs);
-        }
 
         switch (unOp.getOper().getOperator()) {
             case "-":
