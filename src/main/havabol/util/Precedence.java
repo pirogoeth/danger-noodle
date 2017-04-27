@@ -10,6 +10,14 @@ import java.util.*;
 
 public class Precedence {
 
+    private static boolean isParen(Operator op) {
+        if ( op instanceof Parenthese ) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static BinaryOperation rebuildWithPrecedence(BinaryOperation head) throws EvalException {
         System.out.println("BUILDING BINOP WITH PRECEDENCE");
         System.out.print(head.debug(0));
@@ -91,6 +99,10 @@ public class Precedence {
 
         ArrayList<ParseElement> elms = new ArrayList<>();
 
+        if ( op.isExplicitlyGrouped() ) {
+            elms.add(Parenthese.OPEN());
+        }
+
         Expression lhs = op.getLHS();
         switch (lhs.getExpressionType()) {
             case BINARY_OP:
@@ -113,6 +125,10 @@ public class Precedence {
                 break;
         }
 
+        if ( op.isExplicitlyGrouped() ) {
+            elms.add(Parenthese.CLOSE());
+        }
+
         return elms;
     }
 
@@ -125,29 +141,55 @@ public class Precedence {
         ArrayDeque<ParseElement> output = new ArrayDeque<>();
 
         for (ParseElement pe : elems) {
-            if ( pe instanceof Operator ) {
+            if ( pe instanceof Parenthese ) {  // PARENS
+                switch (((Parenthese) pe).getOperator()) {
+                    case "(":
+                        stack.push((Parenthese) pe);
+                        break;
+                    case ")":
+                        while ( ! stack.isEmpty() ) {
+                            Operator popped = stack.pop();
+                            // There should never be mismatched parens since we generate them.
+                            if ( popped.getOperator().equals("(") ) {
+                                break;
+                            }
+                            System.out.println("out push: " + popped.debug());
+                            output.add(popped);
+                        }
+                        break;
+                }
+            } else if ( pe instanceof Operator ) {  // OPERATOR
                 Operator current = (Operator) pe;
                 while ( ! stack.isEmpty() ) {
-                    if ( current.getPrecedence().getPriority() < stack.peekFirst().getPrecedence().getPriority() ) {
+                    Operator top = stack.peekFirst();
+                    if ( current.getPrecedence().getPriority() <= top.getPrecedence().getPriority() ) {
                         break;
                     }
 
-                    System.out.println("out push: " + stack.peek().debug());
-                    output.add(stack.pop());
+                    if ( !isParen(stack.peek()) ) {
+                        System.out.println("out push: " + stack.peek().debug());
+                        output.add(stack.pop());
+                    } else {
+                        stack.pop();
+                    }
                 }
 
                 System.out.println("stack push: " + current.debug());
                 stack.push(current);
-            } else {
+            } else {  // OPERAND
                 System.out.println("out push: " + pe.debug());
                 output.add(pe);
             }
         }
 
         while ( ! stack.isEmpty() ) {
-            System.out.println("stack pop: " + stack.peek().debug());
-            System.out.println("out push: " + stack.peek().debug());
-            output.add(stack.pop());
+            if ( !isParen(stack.peek()) ) {
+                System.out.println("stack pop: " + stack.peek().debug());
+                System.out.println("out push: " + stack.peek().debug());
+                output.add(stack.pop());
+            } else {
+                stack.pop();
+            }
         }
 
         return output;

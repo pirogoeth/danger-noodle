@@ -17,6 +17,9 @@ public class Operator extends ParseElement {
         // Long operators
         "==", ">=", "<=", "!=",
 
+        // Grouping operators
+        ")", "(",
+
         // Word operators
         "and", "or", "not", "in", "notin", "to",
     };
@@ -31,6 +34,9 @@ public class Operator extends ParseElement {
 
     public Precedence getPrecedence() {
         switch (this.operatorToken.tokenStr) {
+            case "(":
+            case ")":
+                return Precedence.PARENTHESES;
             case "^":
                 return Precedence.EXPONENT;
             case "+":
