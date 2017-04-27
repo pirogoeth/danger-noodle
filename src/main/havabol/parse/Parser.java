@@ -1169,6 +1169,9 @@ public class Parser {
                 // Create an expression from the inner grouping
                 buf = this.eatOuterMatching(buf);
                 Expression grp = this.parseExpression(buf);
+                if ( grp.getExpressionType() == ExpressionType.BINARY_OP ) {
+                    grp.getBinaryOperation().setExplicitlyGrouped(true);
+                }
 
                 next = this.peekNext(arg);
 

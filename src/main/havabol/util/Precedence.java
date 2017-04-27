@@ -11,20 +11,20 @@ import java.util.*;
 public class Precedence {
 
     public static BinaryOperation rebuildWithPrecedence(BinaryOperation head) throws EvalException {
-        // System.out.println("REBUILDING BINOP TO LINEAR FORM");
-        ArrayList<ParseElement> elms = binTreeToLinear(head);
-        // elms.stream().forEach(pe -> System.out.print(pe.debug(30)));
-        // System.out.println();
+        System.out.println("BUILDING BINOP WITH PRECEDENCE");
+        System.out.print(head.debug(0));
+        System.out.println();
 
-        // System.out.println("BUILDING BINOP WITH PRECEDENCE");
-        // System.out.print(head.debug(0));
-        // System.out.println();
+        ArrayList<ParseElement> elms = binTreeToLinear(head);
+        System.out.println("REBUILDING BINOP TO LINEAR FORM");
+        elms.stream().forEach(pe -> System.out.print(pe.debug(30)));
+        System.out.println();
 
         ArrayDeque<ParseElement> output = buildPostfix(elms);
 
         // XXX DEBUG - Dump opers and exprs
-        // System.out.println("FINAL");
-        // output.stream().forEach(pe -> System.out.print(pe.debug(20)));
+        System.out.println("FINAL");
+        output.stream().forEach(pe -> System.out.print(pe.debug(20)));
 
         // System.out.println("CONVERTING BACK TO BINOP");
         // System.out.println();
@@ -67,9 +67,9 @@ public class Precedence {
 
             BinaryOperation op = expr.getBinaryOperation();
 
-            // System.out.println("FINAL RESULTING BINOP");
-            // System.out.println(op.debug(35));
-            // System.out.println();
+            System.out.println("FINAL RESULTING BINOP");
+            System.out.println(op.debug(35));
+            System.out.println();
 
             return op;
         } else {
@@ -132,16 +132,21 @@ public class Precedence {
                         break;
                     }
 
+                    System.out.println("out push: " + stack.peek().debug());
                     output.add(stack.pop());
                 }
 
+                System.out.println("stack push: " + current.debug());
                 stack.push(current);
             } else {
+                System.out.println("out push: " + pe.debug());
                 output.add(pe);
             }
         }
 
         while ( ! stack.isEmpty() ) {
+            System.out.println("stack pop: " + stack.peek().debug());
+            System.out.println("out push: " + stack.peek().debug());
             output.add(stack.pop());
         }
 

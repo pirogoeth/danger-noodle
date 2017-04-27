@@ -31,17 +31,15 @@ public class Operator extends ParseElement {
 
     public Precedence getPrecedence() {
         switch (this.operatorToken.tokenStr) {
-            case "+":
-                return Precedence.ADD;
-            case "-":
-                return Precedence.SUBTRACT;
             case "^":
                 return Precedence.EXPONENT;
+            case "+":
+            case "-":
+                return Precedence.ADDITIVE;
             case "*":
-                return Precedence.MULTIPLY;
             case "/":
             case "%":
-                return Precedence.DIVIDE;
+                return Precedence.MULTIPLICATIVE;
             case "#":
                 return Precedence.CONCAT;
             case ">":

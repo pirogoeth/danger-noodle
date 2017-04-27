@@ -34,6 +34,8 @@ public class BinaryOperation extends ParseElement {
      */
     private BinaryOperation parent = null;
 
+    private boolean explicitlyGrouped = false;
+
     public BinaryOperation(Expression lhs, Operator operator, Expression rhs) {
         this.lhs = lhs;
         this.operator = operator;
@@ -68,17 +70,29 @@ public class BinaryOperation extends ParseElement {
         return this.parent;
     }
 
+    public boolean isExplicitlyGrouped() {
+        return this.explicitlyGrouped;
+    }
+
+    public void setExplicitlyGrouped(boolean b) {
+        this.explicitlyGrouped = b;
+    }
+
     /**
      * Can only set the value if the parent is currently null.
      * NO REASSIGNMENT!
      */
     public void setParent(BinaryOperation parent) {
         if ( this.parent != null ) {
-            System.out.println("===> TRIED TO SET PARENT ON ALREADY OWNED CHILD BINOP");
+            // System.out.println("===> TRIED TO SET PARENT ON ALREADY OWNED CHILD BINOP");
             return;
         }
 
         this.parent = parent;
+    }
+
+    public void clearParent() {
+        this.parent = null;
     }
 
     public boolean isValid() {

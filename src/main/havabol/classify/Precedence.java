@@ -4,10 +4,8 @@ public enum Precedence {
 
     PARENTHESES(0),
     EXPONENT(1),
-    MULTIPLY(2),
-    DIVIDE(3),
-    ADD(4),
-    SUBTRACT(5),
+    MULTIPLICATIVE(2),
+    ADDITIVE(4),
     CONCAT(6),
     COMPARE(7),
     NEGATE(8),

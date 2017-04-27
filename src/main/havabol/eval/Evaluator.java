@@ -299,6 +299,7 @@ public class Evaluator {
             }
             res.setResultIdent(newIdent);
         } else {  // simple assignment
+            // `target` is what we are assigning to
             target = this.evaluateExpression(assign.getAssigneeExpr());
 
             STIdentifier setIdent = target.getResultIdent();
@@ -317,7 +318,23 @@ public class Evaluator {
                 return null;
             }
 
-            val = this.evaluateExpression(assign.getAssignedExpr());
+            // simple assignments are slightly different since the top-level binop
+            // is the actual assignment. we still need to balance the RHS precedence.
+            // it does not happen automatically through evaluateExpression because
+            // the top level assignment can not be auto-balanced like that.
+            if ( assign.getAssignedExpr().getExpressionType() == ExpressionType.BINARY_OP ) {
+                BinaryOperation rhs = assign.getAssignedExpr().getBinaryOperation();
+
+                // Clear the parent on RHS so it gets rebalanced.
+                rhs.clearParent();
+
+                // Evaluate the new binop tree
+                // `val` is what is being assigned
+                val = this.evaluateExpression(new Expression(rhs));
+            } else {
+                // `val` is what is being assigned
+                val = this.evaluateExpression(assign.getAssignedExpr());
+            }
 
             if ( val.getResultType() != stDecl.getDataType() && stVal.get().getFormalType() != ReturnType.ARRAY ) {
                 reportEvalError(
