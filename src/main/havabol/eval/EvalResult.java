@@ -39,6 +39,7 @@ public class EvalResult implements Debuggable {
 
     private EvalResult original;
     private ReturnType resultType;
+    private FlowResult flowResult = FlowResult.NONE;
 
     private Statement srcStmt;
     private Expression srcExpr;
@@ -67,6 +68,10 @@ public class EvalResult implements Debuggable {
         return this.retVal;
     }
 
+    public FlowResult getFlowResult() {
+        return this.flowResult;
+    }
+
     public EvalResult getOriginalRes() {
         return this.original;
     }
@@ -85,6 +90,10 @@ public class EvalResult implements Debuggable {
 
     public void setResult(TypeInterface ret) {
         this.retVal = ret;
+    }
+
+    public void setFlowResult(FlowResult fres) {
+        this.flowResult = fres;
     }
 
     public void fromRes(EvalResult original) {
@@ -136,6 +145,11 @@ public class EvalResult implements Debuggable {
             }
         } else {
             sb.append(lpads(indent, ":: VOID ::\n"));
+        }
+
+        if ( this.flowResult != FlowResult.NONE ) {
+            sb.append(lpads(indent, "FLOW RESULT ::\n"));
+            sb.append(lpads(indent, ":: " + this.flowResult.name() + " ::\n"));
         }
 
         return sb.toString();

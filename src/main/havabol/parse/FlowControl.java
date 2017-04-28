@@ -12,7 +12,9 @@ public class FlowControl extends ParseElement {
         IF,
         FOR,
         WHILE,
-        SELECT;
+        SELECT,
+        BREAK,
+        CONTINUE;
     }
 
     private Type flowType;
@@ -21,6 +23,9 @@ public class FlowControl extends ParseElement {
     private WhileControl whileBlock;
     private ForControl forBlock;
     private SelectControl selectBlock;
+
+    private BreakControl breakControl;
+    private ContinueControl continueControl;
 
     public FlowControl(IfControl ifBlock) {
         this.flowType = Type.IF;
@@ -42,6 +47,16 @@ public class FlowControl extends ParseElement {
         this.selectBlock = selectBlock;
     }
 
+    public FlowControl(ContinueControl contCtrl) {
+        this.flowType = Type.CONTINUE;
+        this.continueControl = contCtrl;
+    }
+
+    public FlowControl(BreakControl breakCtrl) {
+        this.flowType = Type.BREAK;
+        this.breakControl = breakCtrl;
+    }
+
     public Type getFlowType() {
         return this.flowType;
     }
@@ -58,11 +73,21 @@ public class FlowControl extends ParseElement {
         return this.forBlock;
     }
 
+    public BreakControl getBreak() {
+        return this.breakControl;
+    }
+
+    public ContinueControl getContinue() {
+        return this.continueControl;
+    }
+
     public boolean isValid() {
         return ( this.ifBlock != null && this.ifBlock.isValid() ) ||
                ( this.whileBlock != null && this.whileBlock.isValid() ) ||
                ( this.forBlock != null && this.forBlock.isValid() ) ||
-               ( this.selectBlock != null && this.selectBlock.isValid() );
+               ( this.selectBlock != null && this.selectBlock.isValid() ) ||
+               ( this.breakControl != null && this.breakControl.isValid() ) ||
+               ( this.continueControl != null && this.continueControl.isValid() );
     }
 
     public String debug(int indent) {
@@ -77,6 +102,10 @@ public class FlowControl extends ParseElement {
             sb.append(this.forBlock.debug(indent + 2));
         } else if ( this.selectBlock != null ) {
             sb.append(this.selectBlock.debug(indent + 2));
+        } else if ( this.breakControl != null ) {
+            sb.append(this.breakControl.debug(indent + 2));
+        } else if ( this.continueControl != null ) {
+            sb.append(this.continueControl.debug(indent + 2));
         }
 
         return sb.toString();

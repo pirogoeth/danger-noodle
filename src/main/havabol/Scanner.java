@@ -730,7 +730,7 @@ public class Scanner{
 
         for(String temp : controlFLow){
            if(szWord.matches(temp)){
-               if(szWord.equals("continur") || szWord.equals("break")){
+               if(szWord.equals("continue") || szWord.equals("break")){
                    token.primClassif = Token.CONTROL;
                    token.subClassif = Token.STATEMENT;
                }else{

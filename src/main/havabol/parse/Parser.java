@@ -625,6 +625,8 @@ public class Parser {
                 return new Statement(this.parseFlowControl(this.popUntil(":")));
             case END:
                 return null;
+            case STATEMENT:
+                return new Statement(this.parseFlowControl(this.popUntil(";")));
             case DECLARE:
                 this.eatNext();
                 return this.parseDeclaration(head);
@@ -733,6 +735,24 @@ public class Parser {
             case "select":
                 // do the thing
                 break;
+            case "break":
+                if ( ! this.eatNextIfEq(";") ) {
+                    reportParseError(
+                            "Unterminated break statement",
+                            flowT
+                    );
+                    return null;
+                }
+                return new FlowControl(new BreakControl(flowT));
+            case "continue":
+                if ( ! this.eatNextIfEq(";") ) {
+                    reportParseError(
+                            "Unterminated continue statement",
+                            flowT
+                    );
+                    return null;
+                }
+                return new FlowControl(new ContinueControl(flowT));
             default:
                 // wat
                 reportParseError(
@@ -907,6 +927,8 @@ public class Parser {
     private Block parseBlock(List<Token> tokens, String...until) throws ParserException {
         List<String> delim = Arrays.asList(until);
         List<Statement> stmts = new ArrayList<>();
+
+        tokens.stream().forEach(t -> t.printToken());
 
         while ( ! delim.contains(this.peekNext(tokens).tokenStr) ) {
             Statement s = this.parse();

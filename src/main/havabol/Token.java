@@ -32,6 +32,7 @@ public class Token
     public static final int FLOW       = 10;// flow statement (e.g., if)
     public static final int END        = 11;// end statement (e.g., endif)
     public static final int DECLARE    = 12;// declare statement (e.g., Int)
+    public static final int STATEMENT  = 15;// control statements (e.g., break, continue)
     // Constants for FUNCTION's subClassif (definedby)
     public static final int BUILTIN    = 13;// builtin function (e.g., print)
     public static final int USER       = 14;// user defined
@@ -63,11 +64,14 @@ public class Token
             , "FLOW"        //10
             , "END"         //11
             , "DECLARE"     //12
+            , "**not used**"//13
+            , "**not used**"//14
+            , "STATEMENT"   //15
         };
     public static final int OPERAND_SUB_CLASS_MIN = 1;
     public static final int OPERAND_SUB_CLASS_MAX = 7;
     public static final int CONTROL_SUB_CLASS_MIN = 10;
-    public static final int CONTROL_SUB_CLASS_MAX = 12;
+    public static final int CONTROL_SUB_CLASS_MAX = 15;
 
     public Token(String value)
     {

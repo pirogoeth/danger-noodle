@@ -17,6 +17,9 @@ public class Operator extends ParseElement {
         // Long operators
         "==", ">=", "<=", "!=",
 
+        // Compound assignment
+        "+=", "-=",
+
         // Grouping operators
         ")", "(",
 

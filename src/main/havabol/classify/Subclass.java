@@ -19,6 +19,7 @@ public enum Subclass {
     FLOW(10),
     END(11),
     DECLARE(12),
+    STATEMENT(15),
 
     // Function subclasses
     BUILTIN(13),
@@ -41,6 +42,7 @@ public enum Subclass {
         DECLARE,
         BUILTIN,
         USER,
+        STATEMENT,
     };
 
     public static Subclass subclassFromInt(int i) {

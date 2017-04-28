@@ -265,15 +265,19 @@ public class Evaluator {
             STIdentifier newIdent = target.getResultIdent();
             SMValue stVal = this.store.get(newIdent);
             if ( val.getResultType() != res.getResultType() ) {
-                reportEvalError(
-                    String.format(
-                        "Can not perform assignment - type mismatch (given %s, expected %s)",
-                        val.getResultType().name(),
-                        res.getResultType().name()
-                    ),
-                    assign
-                );
-                return null;
+                if ( val.getResult().coercibleTo(res.getResultType()) ) {
+                    val.setResult(val.getResult().coerceTo(res.getResultType()));
+                } else {
+                    reportEvalError(
+                        String.format(
+                            "Can not perform assignment - type mismatch (given %s, expected %s)",
+                            val.getResultType().name(),
+                            res.getResultType().name()
+                        ),
+                        assign
+                    );
+                    return null;
+                }
             }
 
             TypeInterface valRet = val.getResult();
@@ -719,6 +723,12 @@ public class Evaluator {
             case "or":
                 val = Operators.or(lhs.getResult(), rhs.getResult());
                 break;
+            case "+=":
+                val = Operators.addset(lhs.getResult(), rhs.getResult());
+                break;
+            case "-=":
+                val = Operators.subset(lhs.getResult(), rhs.getResult());
+                break;
             default:
                 return null;
         }
@@ -777,6 +787,14 @@ public class Evaluator {
                 return this.evaluateForStmt(flow.getFor());
             case WHILE:
                 return this.evaluateWhileStmt(flow.getWhile());
+            case BREAK:
+                EvalResult res = new EvalResult(ReturnType.VOID);
+                res.setFlowResult(FlowResult.BREAK);
+                return res;
+            case CONTINUE:
+                res = new EvalResult(ReturnType.VOID);
+                res.setFlowResult(FlowResult.CONTINUE);
+                return res;
             default:
                 reportEvalError(
                     "Invalid flow control block",
@@ -792,21 +810,22 @@ public class Evaluator {
         Block elseBranch = flow.getElseBranch();
 
         EvalResult condRes = this.evaluateExpression(cond);
+        EvalResult blockLast = new EvalResult(ReturnType.VOID);
         if ( ((PBoolean) condRes.getResult()).getValue() ) {
             Evaluator blockEval = new Evaluator(trueBranch.getStmts(), this.symTab.getNewChild());
             while ( blockEval.canEval() ) {
-                blockEval.evaluate();
+                blockLast = blockEval.evaluate();
             }
         } else {
             if ( elseBranch != null ) {
                 Evaluator blockEval = new Evaluator(elseBranch.getStmts(), this.symTab.getNewChild());
                 while ( blockEval.canEval() ) {
-                    blockEval.evaluate();
+                    blockLast = blockEval.evaluate();
                 }
             }
         }
 
-        return new EvalResult(ReturnType.VOID);
+        return blockLast;
     }
 
     private EvalResult evaluateWhileStmt(WhileControl flow) throws Exception, EvalException, ParserException {
@@ -816,9 +835,31 @@ public class Evaluator {
         EvalResult condRes = this.evaluateExpression(cond);
         Evaluator blockEval = new Evaluator(loopBranch.getStmts(), this.symTab.getNewChild());
 
+        boolean shouldStop = false;
+        boolean shouldSkip = false;
+
         while ( ((PBoolean) condRes.getResult()).getValue() ) {
             while ( blockEval.canEval() ) {
-                blockEval.evaluate();
+                EvalResult flowRes = blockEval.evaluate();
+
+                switch ( flowRes.getFlowResult() ) {
+                    case CONTINUE:
+                        shouldSkip = true;
+                        break;
+                    case BREAK:
+                        shouldStop = true;
+                        break;
+                    case NONE:
+                        break;
+                }
+
+                if ( shouldSkip || shouldStop ) {
+                    break;
+                }
+            }
+
+            if ( shouldStop ) {
+                break;
             }
 
             blockEval.putStmts(loopBranch.getStmts());
@@ -898,9 +939,31 @@ public class Evaluator {
         int cur = init;
         ((PInteger) cVar.get()).setValue(cur);
 
+        boolean shouldStop = false;
+        boolean shouldSkip = false;
+
         while ( cur < max ) {
             while ( blockEval.canEval() ) {
-                blockEval.evaluate();
+                EvalResult flowRes = blockEval.evaluate();
+
+                switch ( flowRes.getFlowResult() ) {
+                    case CONTINUE:
+                        shouldSkip = true;
+                        break;
+                    case BREAK:
+                        shouldStop = true;
+                        break;
+                    case NONE:
+                        break;
+                }
+
+                if ( shouldSkip || shouldStop ) {
+                    break;
+                }
+            }
+
+            if ( shouldStop ) {
+                break;
             }
 
             blockEval.putStmts(body.getStmts());
@@ -962,6 +1025,9 @@ public class Evaluator {
 
         Evaluator blockEval = new Evaluator(body.getStmts(), this.symTab.getNewChild());
 
+        boolean shouldStop = false;
+        boolean shouldSkip = false;
+
         TypeInterface contTI = container.getResult();
         int idx = 0;
         switch (contTI.getFormalType()) {
@@ -982,7 +1048,26 @@ public class Evaluator {
                     cVar.get().setValue(curVal.getResult().getValue());
 
                     while ( blockEval.canEval() ) {
-                        blockEval.evaluate();
+                        EvalResult flowRes = blockEval.evaluate();
+
+                        switch ( flowRes.getFlowResult() ) {
+                            case CONTINUE:
+                                shouldSkip = true;
+                                break;
+                            case BREAK:
+                                shouldStop = true;
+                                break;
+                            case NONE:
+                                break;
+                        }
+
+                        if ( shouldSkip || shouldStop ) {
+                            break;
+                        }
+                    }
+
+                    if ( shouldStop ) {
+                        break;
                     }
 
                     blockEval.putStmts(body.getStmts());
@@ -995,7 +1080,26 @@ public class Evaluator {
                     cVar.get().setValue(str.get(idx).getResult().getValue());
 
                     while ( blockEval.canEval() ) {
-                        blockEval.evaluate();
+                        EvalResult flowRes = blockEval.evaluate();
+
+                        switch ( flowRes.getFlowResult() ) {
+                            case CONTINUE:
+                                shouldSkip = true;
+                                break;
+                            case BREAK:
+                                shouldStop = true;
+                                break;
+                            case NONE:
+                                break;
+                        }
+
+                        if ( shouldSkip || shouldStop ) {
+                            break;
+                        }
+                    }
+
+                    if ( shouldStop ) {
+                        break;
                     }
 
                     blockEval.putStmts(body.getStmts());
