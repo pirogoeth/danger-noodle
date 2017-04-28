@@ -773,7 +773,7 @@ public class Parser {
 
         if ( tmp != null && tmp.tokenStr.equals("[") ) {
             List<Token> aryDesc = this.eatOuterMatching(this.popUntilMatch(tokens));
-            if ( aryDesc.isEmpty() ) {
+            if ( this.peekNext(aryDesc) != null && this.peekNext(aryDesc).tokenStr.equals("unbound") ) {
                 // unbounded
                 decl = new Declaration(dt, ident, true);
             } else {

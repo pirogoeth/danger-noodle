@@ -453,9 +453,7 @@ public class Evaluator {
             aryTmp.setBoundType(dt.getReturnType());
 
             if ( decl.getArrayBound() == null ) {
-                // This happens when the subscript says VARIA_ARY but
-                // the capacity is actually inferred from the initialized
-                // arguments, if any.
+                aryTmp.initialize();
             } else {
                 TypeInterface arrayBound = this.evaluateExpression(decl.getArrayBound()).getResult();
                 if ( arrayBound.getFormalType() != ReturnType.INTEGER ) {
@@ -968,7 +966,7 @@ public class Evaluator {
         int idx = 0;
         switch (contTI.getFormalType()) {
             case ARRAY:
-                ArrayType ary = (ArrayType) contTI;
+                ArrayType ary = ((ArrayType) contTI).clone();
                 while ( idx < ary.getCapacity() ) {
                     EvalResult curVal = ary.getUnsafe(idx);
                     if ( curVal == null ) {
