@@ -928,8 +928,6 @@ public class Parser {
         List<String> delim = Arrays.asList(until);
         List<Statement> stmts = new ArrayList<>();
 
-        tokens.stream().forEach(t -> t.printToken());
-
         while ( ! delim.contains(this.peekNext(tokens).tokenStr) ) {
             Statement s = this.parse();
             if ( s == null ) {

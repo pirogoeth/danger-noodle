@@ -810,22 +810,38 @@ public class Evaluator {
         Block elseBranch = flow.getElseBranch();
 
         EvalResult condRes = this.evaluateExpression(cond);
-        EvalResult blockLast = new EvalResult(ReturnType.VOID);
+        FlowResult flowBubble = FlowResult.NONE;
+
         if ( ((PBoolean) condRes.getResult()).getValue() ) {
             Evaluator blockEval = new Evaluator(trueBranch.getStmts(), this.symTab.getNewChild());
             while ( blockEval.canEval() ) {
-                blockLast = blockEval.evaluate();
+                EvalResult tmp = blockEval.evaluate();
+                if ( tmp.getFlowResult() != FlowResult.NONE ) {
+                    // DO NOT OVERWRITE, BREAK IS HIGHEST PRECEDENCE
+                    if ( flowBubble != FlowResult.BREAK ) {
+                        flowBubble = tmp.getFlowResult();
+                    }
+                }
             }
         } else {
             if ( elseBranch != null ) {
                 Evaluator blockEval = new Evaluator(elseBranch.getStmts(), this.symTab.getNewChild());
                 while ( blockEval.canEval() ) {
-                    blockLast = blockEval.evaluate();
+                    EvalResult tmp = blockEval.evaluate();
+                    if ( tmp.getFlowResult() != FlowResult.NONE ) {
+                        // DO NOT OVERWRITE, BREAK IS HIGHEST PRECEDENCE
+                        if ( flowBubble != FlowResult.BREAK ) {
+                            flowBubble = tmp.getFlowResult();
+                        }
+                    }
                 }
             }
         }
 
-        return blockLast;
+        EvalResult res = new EvalResult(ReturnType.VOID);
+        res.setFlowResult(flowBubble);
+
+        return res;
     }
 
     private EvalResult evaluateWhileStmt(WhileControl flow) throws Exception, EvalException, ParserException {
