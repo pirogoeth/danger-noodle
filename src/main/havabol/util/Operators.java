@@ -754,5 +754,96 @@ public class Operators {
 
         return null;
     }
+    
+    public static TypeInterface addset(TypeInterface first, TypeInterface second) {
+        switch (first.getFormalType()) {
+            case FLOAT:
+                PFloat floatB, floatRes;
+                switch (second.getFormalType()) {
+                    case INTEGER:
+                        floatB = floatPrim((PInteger) second);
+                        break;
+                    case FLOAT:
+                        floatB = (PFloat) second;
+                        break;
+                    case STRING:
+                        floatB = floatPrim((PString) second);
+                        break;
+                    default:
+                        // XXX - EXPLODE!
+                        return null;
+                }
+                floatRes = floatPrim(((PFloat) first).getValue() + floatB.getValue());
+                return floatRes;
+            case INTEGER:
+                PInteger intB, intRes;
+                switch (second.getFormalType()) {
+                    case INTEGER:
+                        intB = (PInteger) second;
+                        break;
+                    case FLOAT:
+                        intB = intPrim((PFloat) second);
+                        break;
+                    case STRING:
+                        intB = intPrim((PString) second);
+                        break;
+                    default:
+                        // XXX - EXPLODE!
+                        return null;
+                }
+                
+                intRes = intPrim(((PInteger) first).getValue() + intB.getValue());
+                first.setValue(intRes);
+                return first;
+            default:
+                // XXX - We need a narrow exception class for this.
+                return null;
+        }
+    }
+    
+    public static TypeInterface subset(TypeInterface first, TypeInterface second) {
+        switch (first.getFormalType()) {
+            case FLOAT:
+                PFloat floatB, floatRes;
+                switch (second.getFormalType()) {
+                    case INTEGER:
+                        floatB = floatPrim((PInteger) second);
+                        break;
+                    case FLOAT:
+                        floatB = (PFloat) second;
+                        break;
+                    case STRING:
+                        floatB = floatPrim((PString) second);
+                        break;
+                    default:
+                        // XXX - EXPLODE!
+                        return null;
+                }
+                floatRes = floatPrim(((PFloat) first).getValue() - floatB.getValue());
+                return floatRes;
+            case INTEGER:
+                PInteger intB, intRes;
+                switch (second.getFormalType()) {
+                    case INTEGER:
+                        intB = (PInteger) second;
+                        break;
+                    case FLOAT:
+                        intB = intPrim((PFloat) second);
+                        break;
+                    case STRING:
+                        intB = intPrim((PString) second);
+                        break;
+                    default:
+                        // XXX - EXPLODE!
+                        return null;
+                }
+                intRes = intPrim(((PInteger) first).getValue() - intB.getValue());
+                first.setValue(intRes);
+                return first;
+            default:
+                // XXX - We need a narrow exception class for this.
+                return null;
+        }
+    }
 
 }
