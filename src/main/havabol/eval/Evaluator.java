@@ -854,6 +854,8 @@ public class Evaluator {
         boolean shouldStop = false;
         boolean shouldSkip = false;
 
+        FlowResult bubbleDown = FlowResult.NONE;
+
         while ( ((PBoolean) condRes.getResult()).getValue() ) {
             while ( blockEval.canEval() ) {
                 EvalResult flowRes = blockEval.evaluate();
@@ -870,6 +872,7 @@ public class Evaluator {
                 }
 
                 if ( shouldSkip || shouldStop ) {
+                    bubbleDown = flowRes.getFlowResult();
                     break;
                 }
             }
@@ -882,7 +885,10 @@ public class Evaluator {
             condRes = this.evaluateExpression(cond);
         }
 
-        return new EvalResult(ReturnType.VOID);
+        EvalResult res = new EvalResult(ReturnType.VOID);
+        res.setFlowResult(bubbleDown);
+
+        return res;
     }
 
     private EvalResult evaluateForStmt(ForControl flow) throws Exception, EvalException, ParserException {
@@ -958,6 +964,8 @@ public class Evaluator {
         boolean shouldStop = false;
         boolean shouldSkip = false;
 
+        FlowResult bubbleDown = FlowResult.NONE;
+
         while ( cur < max ) {
             while ( blockEval.canEval() ) {
                 EvalResult flowRes = blockEval.evaluate();
@@ -974,6 +982,7 @@ public class Evaluator {
                 }
 
                 if ( shouldSkip || shouldStop ) {
+                    bubbleDown = flowRes.getFlowResult();
                     break;
                 }
             }
@@ -991,7 +1000,10 @@ public class Evaluator {
             ((PInteger) cVar.get()).setValue(cur);
         }
 
-        return new EvalResult(ReturnType.VOID);
+        EvalResult res = new EvalResult(ReturnType.VOID);
+        res.setFlowResult(bubbleDown);
+
+        return res;
     }
 
     @SuppressWarnings("unchecked")
@@ -1044,6 +1056,8 @@ public class Evaluator {
         boolean shouldStop = false;
         boolean shouldSkip = false;
 
+        FlowResult bubbleDown = FlowResult.NONE;
+
         TypeInterface contTI = container.getResult();
         int idx = 0;
         switch (contTI.getFormalType()) {
@@ -1078,6 +1092,7 @@ public class Evaluator {
                         }
 
                         if ( shouldSkip || shouldStop ) {
+                            bubbleDown = flowRes.getFlowResult();
                             break;
                         }
                     }
@@ -1110,6 +1125,7 @@ public class Evaluator {
                         }
 
                         if ( shouldSkip || shouldStop ) {
+                            bubbleDown = flowRes.getFlowResult();
                             break;
                         }
                     }
@@ -1124,7 +1140,10 @@ public class Evaluator {
                 break;
         }
 
-        return new EvalResult(ReturnType.VOID);
+        EvalResult res = new EvalResult(ReturnType.VOID);
+        res.setFlowResult(bubbleDown);
+
+        return res;
     }
 
 }
