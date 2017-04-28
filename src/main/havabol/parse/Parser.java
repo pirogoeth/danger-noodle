@@ -776,6 +776,8 @@ public class Parser {
             if ( this.peekNext(aryDesc) != null && this.peekNext(aryDesc).tokenStr.equals("unbound") ) {
                 // unbounded
                 decl = new Declaration(dt, ident, true);
+            } else if ( aryDesc.isEmpty() ) {
+                decl = new Declaration(dt, ident, true);
             } else {
                 // bounding expression
                 Expression arySize = this.parseExpression(aryDesc);
