@@ -20,19 +20,19 @@ public class Precedence {
 
     public static BinaryOperation rebuildWithPrecedence(BinaryOperation head) throws EvalException {
         // System.out.println("BUILDING BINOP WITH PRECEDENCE");
-        System.out.print(head.debug(0));
+        // System.out.print(head.debug(0));
         // System.out.println();
 
         ArrayList<ParseElement> elms = binTreeToLinear(head);
         // System.out.println("REBUILDING BINOP TO LINEAR FORM");
-        elms.stream().forEach(pe -> System.out.print(pe.debug(30)));
+        // elms.stream().forEach(pe -> System.out.print(pe.debug(30)));
         // System.out.println();
 
         ArrayDeque<ParseElement> output = buildPostfix(elms);
 
         // XXX DEBUG - Dump opers and exprs
         // System.out.println("FINAL");
-        output.stream().forEach(pe -> System.out.print(pe.debug(20)));
+        // output.stream().forEach(pe -> System.out.print(pe.debug(20)));
 
         // // System.out.println("CONVERTING BACK TO BINOP");
         // // System.out.println();

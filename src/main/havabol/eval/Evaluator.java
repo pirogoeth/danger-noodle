@@ -300,8 +300,7 @@ public class Evaluator {
             target = this.evaluateExpression(assign.getAssigneeExpr());
 
             STIdentifier setIdent = target.getResultIdent();
-            STControl stDecl = setIdent.getDeclared();
-            res = new EvalResult(stDecl.getDataType());
+            res = new EvalResult(setIdent.getDeclaredType());
 
             SMValue stVal = this.store.get(setIdent);
             if ( stVal == null ) {
@@ -333,7 +332,7 @@ public class Evaluator {
                 val = this.evaluateExpression(assign.getAssignedExpr());
             }
 
-            if ( val.getResultType() != stDecl.getDataType() && stVal.get().getFormalType() != ReturnType.ARRAY ) {
+            if ( val.getResultType() != setIdent.getDeclaredType() && stVal.get().getFormalType() != ReturnType.ARRAY ) {
                 if ( val.getResult().coercibleTo(res.getResultType()) ) {
                     val.setResult(val.getResult().coerceTo(res.getResultType()));
                 } else {
@@ -907,6 +906,10 @@ public class Evaluator {
             }
 
             blockEval.putStmts(body.getStmts());
+            if ( ((PInteger) cVar.get()).getValue() != cur ) {
+                cur = ((PInteger) cVar.get()).getValue();
+            }
+
             cur = cur + step;
             ((PInteger) cVar.get()).setValue(cur);
         }
