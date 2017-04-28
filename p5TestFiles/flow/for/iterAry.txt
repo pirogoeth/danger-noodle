@@ -1,0 +1,14 @@
+Int i[] = 1, 2, 3, 4, 5;
+
+Int k;
+Int j;
+for j in i:
+  // do things
+  k = j - 1;
+endfor;
+
+if j == 5 and k == 4:
+  print("success");
+else:
+  print("failure");
+endif;

@@ -1,0 +1,11 @@
+Int i = 0;
+
+while i < 10:
+  i += 1;
+endwhile;
+
+if i == 10:
+  print("success");
+else:
+  print("failure");
+endif;

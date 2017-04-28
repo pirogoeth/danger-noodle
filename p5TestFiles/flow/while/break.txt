@@ -1,0 +1,14 @@
+Int val = 0;
+
+while T:
+  if val == 5:
+    break;
+  endif;
+  val += 1;
+endwhile;
+
+if val == 5:
+  print("success");
+else:
+  print("failure");
+endif;

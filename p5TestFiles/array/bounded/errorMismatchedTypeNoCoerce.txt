@@ -1,0 +1,2 @@
+Bool bools[3] = T,F,T;
+bools[2] = "This is not a bool";

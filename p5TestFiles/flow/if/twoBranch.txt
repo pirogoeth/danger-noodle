@@ -1,0 +1,7 @@
+Bool exec = F;
+
+if exec:
+  print("failure");
+else:
+  print("success");
+endif;

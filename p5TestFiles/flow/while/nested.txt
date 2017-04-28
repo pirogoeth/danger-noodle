@@ -1,0 +1,20 @@
+Int val = 0;
+Int inner = 10;
+
+while T:
+  while inner > 0:
+    inner -= 1;
+  endwhile;
+
+  val += 1;
+
+  if val > 10:
+    break;
+  endif;
+endwhile;
+
+if val == 11 and inner == 0:
+  print("success");
+else:
+  print("failure");
+endif;

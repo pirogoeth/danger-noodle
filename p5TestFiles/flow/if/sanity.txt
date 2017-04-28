@@ -1,0 +1,11 @@
+if T:
+  print("success - T is T");
+else:
+  print("failure - T is F");
+endif;
+
+if F:
+  print("failure - F is T");
+else:
+  print("success - F is F");
+endif;

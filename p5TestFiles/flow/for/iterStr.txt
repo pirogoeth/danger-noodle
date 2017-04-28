@@ -1,0 +1,14 @@
+String s = "this test";
+
+String j;
+for j in s:
+  if j == "h":
+    break;
+  endif;
+endfor;
+
+if j == "h":
+  print("success");
+else:
+  print("failure");
+endif;

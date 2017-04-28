@@ -1,0 +1,5 @@
+Bool exec = T;
+
+if exec:
+  print("success");
+endif;
