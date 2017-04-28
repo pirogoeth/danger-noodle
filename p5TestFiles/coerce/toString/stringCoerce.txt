@@ -1,0 +1,6 @@
+String a = '1';
+String b;
+b = a;
+
+// Should produce a = '1', b = '1'
+print('a =', a,', b =', b);

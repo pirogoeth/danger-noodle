@@ -1,0 +1,4 @@
+bool a = T;
+
+// Should produce error
+print('a =', a;

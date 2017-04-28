@@ -1,0 +1,7 @@
+String a = 'String A';
+String b;
+String c = 'String C';
+b = 'String B';
+
+// Should produce a = 'String A', b = 'String B', c = 'String C'
+print('a =', a,', b =', b, 'c =', c);

@@ -1,0 +1,4 @@
+float a = 1;
+
+// Should produce error
+print('a =', a);

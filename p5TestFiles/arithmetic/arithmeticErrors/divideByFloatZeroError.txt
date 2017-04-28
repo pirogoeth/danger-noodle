@@ -1,0 +1,7 @@
+Float a = 5;
+Float b = 0;
+Float c;
+c = a / b;
+
+// Should produce divide by zero error
+print('a =', a,', b =', b, 'c =', c);

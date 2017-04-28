@@ -1,0 +1,7 @@
+String a = 5;
+String b = 0;
+String c;
+c = a / b;
+
+// Should produce divide by zero error
+print('a =', a,', b =', b, 'c =', c);

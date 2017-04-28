@@ -1,0 +1,8 @@
+Bool a = T;
+Bool b;
+Bool c = F;
+b = c;
+c = NOT c;
+
+// Should produce a = T, b = F, c = T
+print('a =', a,', b =', b, 'c =', c);

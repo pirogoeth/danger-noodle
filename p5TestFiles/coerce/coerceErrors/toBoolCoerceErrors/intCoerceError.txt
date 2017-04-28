@@ -1,0 +1,6 @@
+Int a = '1';
+Bool b;
+b = a;
+
+// Should produce coercion error
+print('a =', a,', b =', b);

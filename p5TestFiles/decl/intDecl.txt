@@ -1,0 +1,8 @@
+Int a = 1;
+Int b;
+Int c = 2;
+b = c;
+c = c + 1;
+
+// Should produce a = 1, b = 2, c = 3
+print('a =', a,', b =', b, 'c =', c);

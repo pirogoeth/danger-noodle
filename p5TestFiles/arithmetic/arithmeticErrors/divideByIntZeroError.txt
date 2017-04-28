@@ -1,0 +1,7 @@
+Int a = 5;
+Int b = 0;
+Int c;
+c = a / b;
+
+// Should produce divide by zero error
+print('a =', a,', b =', b, 'c =', c);

@@ -1,0 +1,6 @@
+Int = 1;
+Float b;
+b = a;
+
+// Should produce a = 1, b = 1.00
+print('a =', a,', b =', b);

@@ -1,0 +1,6 @@
+Float a = 1.1;
+String b;
+b = a;
+
+// Should produce a = 1.1, b = '1.10'
+print('a =', a,', b =', b);

@@ -1,0 +1,6 @@
+String a = '5.0';
+Float b;
+b = a;
+
+// Should produce a = '5.00', b = 5.0
+print('a =', a,', b =', b);

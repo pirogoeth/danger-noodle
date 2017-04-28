@@ -1,0 +1,6 @@
+Bool a = T;
+Bool b;
+b = a;
+
+// Should produce a = T, b = T 
+print('a =', a,', b =', b);
