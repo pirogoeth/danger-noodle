@@ -101,7 +101,7 @@ public class ElemFunction implements FunctionInterface {
 
     public boolean validateArguments(EvalResult...args) {
         // Shoud only have 1 argument passed to MAXELEM function
-        if( args.length != 1 ) {
+        if ( args.length != 1 ) {
             return false;
         }
         // The argument should be an ARRAY

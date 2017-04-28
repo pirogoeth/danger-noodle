@@ -16,4 +16,7 @@ public interface TypeInterface<T> extends Debuggable {
 
     boolean isIterable();
 
+    boolean coercibleTo(ReturnType target);
+    TypeInterface coerceTo(ReturnType target);
+
 }

@@ -39,26 +39,39 @@ public class SpacesFunction implements FunctionInterface {
     }
 
     public EvalResult execute(EvalResult...args) {
+        EvalResult arg = args[0];
+        TypeInterface ti = arg.getResult();
+
+        if ( ti == null ) {
+            // Array declared, but not initialized
+            return null;
+        }
+
         String currentString;
         boolean isSpaces = false;
 
-        for (EvalResult arg : args) {
-            TypeInterface ti = arg.getResult();
+        if ( ti == null ) {
+            // String declared, but not initialized
+            return null;
+        }
 
-            if( ti == null ) {
-                // String declared, but not initialized
+        if ( ti.getFormalType() != ReturnType.STRING ) {
+            if ( ti.coercibleTo(ReturnType.STRING) ) {
+                ti = ti.coerceTo(ReturnType.STRING);
+            } else {
+                // wat -- this should probably raise an error
                 return null;
             }
+        }
 
-            switch (arg.getResultType()) {
-                case STRING:
-                    currentString = ((PString) ti).getValue();
-                    isSpaces = currentString == null || currentString.isEmpty() || currentString.trim().isEmpty();
-                    break;
-                default:
-                    // wat -- this should probably raise an error
-                    return null;
-            }
+        switch (ti.getFormalType()) {
+            case STRING:
+                currentString = ((PString) ti).getValue();
+                isSpaces = currentString == null || currentString.isEmpty() || currentString.trim().isEmpty();
+                break;
+            default:
+                // wat -- this should probably raise an error
+                return null;
         }
 
         EvalResult res = new EvalResult(ReturnType.BOOLEAN);
@@ -68,13 +81,19 @@ public class SpacesFunction implements FunctionInterface {
     }
 
     public boolean validateArguments(EvalResult...args) {
-        // Shoud only have 1 argument passed to SPACES function
-        if( args.length != 1 ) {
+        // Shoud only have 1 argument passed to LENGTH function
+        if ( args.length != 1 ) {
             return false;
         }
-        // The argument should be a STRING
-        else if ( args[0].getResultType() != ReturnType.STRING ) {
-            return false;
+
+        TypeInterface arg = args[0].getResult();
+
+        if ( arg.getFormalType() != ReturnType.STRING ) {
+            if ( ! arg.coercibleTo(ReturnType.STRING) ) {
+                return false;
+            } else {
+                return true;
+            }
         }
 
         return true;

@@ -11,6 +11,7 @@ import havabol.storage.*;
 import havabol.sym.*;
 import havabol.util.*;
 import static havabol.util.Numerics.*;
+import static havabol.util.Precedence.rebuildWithPrecedence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +112,7 @@ public class Evaluator {
                             break;
                         case ARRAY:
                             a = (ArrayType) val;
-                            newRes = a.get(sub.beginIdx);
+                            newRes = a.getUnsafe(sub.beginIdx);
                             break;
                         default:
                             reportEvalError(
@@ -148,6 +149,8 @@ public class Evaluator {
                     );
                     return null;
             }
+
+            newRes.setSubscript(sub);
         } else {
             newRes = res;
         }
@@ -279,11 +282,6 @@ public class Evaluator {
             // stVal will have a `null` TypeInterface.
             if ( val.getResultType() == ReturnType.ARRAY && decl.isArray() ) {
                 ArrayType tgtAry = (ArrayType) stVal.get();
-                // System.out.println("ARY TARGET");
-                // System.out.print(target.debug(2));
-                // System.out.println("ARY VAL");
-                // System.out.print(val.debug(2));
-                // System.out.println();
 
                 if ( tgtAry.isBounded() && tgtAry.getCapacity() == -1 ) {
                     // Initialize the array here.
@@ -298,6 +296,7 @@ public class Evaluator {
             }
             res.setResultIdent(newIdent);
         } else {  // simple assignment
+            // `target` is what we are assigning to
             target = this.evaluateExpression(assign.getAssigneeExpr());
 
             STIdentifier setIdent = target.getResultIdent();
@@ -316,22 +315,55 @@ public class Evaluator {
                 return null;
             }
 
-            val = this.evaluateExpression(assign.getAssignedExpr());
-            if ( val.isSubscripted() ) {
-                val = this.applySubscript(val);
+            // simple assignments are slightly different since the top-level binop
+            // is the actual assignment. we still need to balance the RHS precedence.
+            // it does not happen automatically through evaluateExpression because
+            // the top level assignment can not be auto-balanced like that.
+            if ( assign.getAssignedExpr().getExpressionType() == ExpressionType.BINARY_OP ) {
+                BinaryOperation rhs = assign.getAssignedExpr().getBinaryOperation();
+
+                // Clear the parent on RHS so it gets rebalanced.
+                rhs.clearParent();
+
+                // Evaluate the new binop tree
+                // `val` is what is being assigned
+                val = this.evaluateExpression(new Expression(rhs));
+            } else {
+                // `val` is what is being assigned
+                val = this.evaluateExpression(assign.getAssignedExpr());
             }
 
-            // XXX - PROBLEM IS RAISED HERE
-            if ( val.getResultType() != stDecl.getDataType() ) {
-                reportEvalError(
-                    String.format(
-                        "Can not perform assignment - type mismatch (given %s, expected %s)",
-                        val.getResultType().name(),
-                        res.getResultType().name()
-                    ),
-                    assign
-                );
-                return null;
+            if ( val.getResultType() != stDecl.getDataType() && stVal.get().getFormalType() != ReturnType.ARRAY ) {
+                if ( val.getResult().coercibleTo(res.getResultType()) ) {
+                    val.setResult(val.getResult().coerceTo(res.getResultType()));
+                } else {
+                    reportEvalError(
+                        String.format(
+                            "Can not perform assignment - (uncoercible) type mismatch (given %s, expected %s)",
+                            val.getResultType().name(),
+                            res.getResultType().name()
+                        ),
+                        assign
+                    );
+                    return null;
+                }
+            } else if ( val.getResultType() == ReturnType.ARRAY ) {
+                // Compare the BOUND TYPES!
+                if ( res.getResultType() != ((ArrayType) val.getResult()).getBoundType() ) {
+                    if ( val.getResult().coercibleTo(res.getResultType()) ) {
+                        val.setResult(val.getResult().coerceTo(res.getResultType()));
+                    } else {
+                        reportEvalError(
+                            String.format(
+                                "Can not perform assignment - (uncoercible) mismatched array bound types (given %s, expected %s)",
+                                ((ArrayType) val.getResult()).getBoundType().name(),
+                                res.getResultType().name()
+                            ),
+                            assign
+                        );
+                        return null;
+                    }
+                }
             }
 
             TypeInterface valRet = val.getResult();
@@ -350,7 +382,11 @@ public class Evaluator {
                         }
                     }
                 } else {
-                    res.setResult(ary.setFromScalar(val.getResult()).getResult());
+                    if ( val.getResultType() == ReturnType.ARRAY ) {
+                        res.setResult(ary.setFromArray((ArrayType) val.getResult()).getResult());
+                    } else {
+                        res.setResult(ary.setFromScalar(val.getResult()).getResult());
+                    }
                 }
             } else if ( stVal.get().getFormalType() == ReturnType.STRING ) {
                 PString str = (PString) stVal.get();
@@ -491,94 +527,9 @@ public class Evaluator {
             case ASSIGNMENT:
                 return this.evaluateAssignment(expr.getAssignment());
             case BINARY_OP:
-                BinaryOperation binOp = expr.getBinaryOperation();
-                EvalResult lhs, rhs, res;
-                TypeInterface val;
-
-                Subscript sub;
-
-                lhs = this.evaluateExpression(binOp.getLHS());
-                if ( lhs.isSubscripted() ) {
-                    lhs = this.applySubscript(lhs);
-                }
-
-                rhs = this.evaluateExpression(binOp.getRHS());
-                if ( rhs.isSubscripted() ) {
-                    rhs = this.applySubscript(rhs);
-                }
-
-                switch (binOp.getOper().getOperator()) {
-                    case "+":
-                        val = Operators.add(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "-":
-                        val = Operators.sub(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "*":
-                        val = Operators.mult(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "/":
-                        val = Operators.div(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "%":
-                        val = Operators.modulo(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "^":
-                        val = Operators.power(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "==":
-                        val = Operators.equal(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "!=":
-                        val = Operators.notEqual(lhs.getResult(), rhs.getResult());
-                        break;
-                    case ">":
-                        val = Operators.greaterThan(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "<":
-                        val = Operators.lessThan(lhs.getResult(), rhs.getResult());
-                        break;
-                    case ">=":
-                        val = Operators.greaterThanEqual(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "<=":
-                        val = Operators.lessThanEqual(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "#":
-                        val = Operators.concat(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "in":
-                        val = Operators.contains(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "notin":
-                        val = Operators.notContains(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "and":
-                        val = Operators.and(lhs.getResult(), rhs.getResult());
-                        break;
-                    case "or":
-                        val = Operators.or(lhs.getResult(), rhs.getResult());
-                        break;
-                    default:
-                        return null;
-                }
-
-                res = new EvalResult(val.getFormalType());
-                res.setResult(val);
-
-                return res;
+                return this.evaluateBinaryOp(expr.getBinaryOperation());
             case UNARY_OP:
-                UnaryOperation unOp = expr.getUnaryOperation();
-                // This uses op, rhs, and sub from the above BIN_OP block.
-
-                rhs = this.evaluateExpression(unOp.getRHS());
-                if ( rhs.isSubscripted() ) {
-                    rhs = this.applySubscript(rhs);
-                }
-
-                // XXX - ADD UNARY CASES HERE!
-
-                return null;
+                return this.evaluateUnaryOp(expr.getUnaryOperation());
             case FUNC_CALL:
                 FunctionCall fc = expr.getFunctionCall();
                 FunctionInterface fi = fc.resolveFunctionHandle();
@@ -587,9 +538,6 @@ public class Evaluator {
                 EvalResult[] args = new EvalResult[argExprs.size()];
                 for (int i = 0; i < args.length; i++) {
                     args[i] = this.evaluateExpression(argExprs.get(i));
-                    if ( args[i].isSubscripted() ) {
-                        args[i] = this.applySubscript(args[i]);
-                    }
                 }
 
                 if ( ! fi.validateArguments(args) ) {
@@ -635,15 +583,12 @@ public class Evaluator {
                 iRes.setResultIdent(identS);
 
                 // Create the subscript, if any
-                Subscript identSubsc = expr.getIdentifier().getSubscript();
+                Subscript identSubsc = identExpr.getSubscript();
                 int beginIdx = -1;
                 int endIdx = -1;
                 if ( identSubsc != null ) {
                     EvalResult b, e;
                     b = this.evaluateExpression(identSubsc.getBeginExpr());
-                    if ( b.isSubscripted() ) {
-                        b = this.applySubscript(b);
-                    }
 
                     if ( b.getResultType() != ReturnType.INTEGER ) {
                         reportEvalError(
@@ -680,18 +625,16 @@ public class Evaluator {
                     }
                 }
 
-                if ( iRes.isSubscripted() && iRes.getResultType() == ReturnType.STRING ) {
-                    switch (iRes.getSubscript().type) {
-                        case SINGLE:
-                            iRes.setResult(((PString) identV.get()).get(beginIdx).getResult());
-                            break;
-                        case RANGE:
-                            iRes.setResult(((PString) identV.get()).getSlice(beginIdx, endIdx).getResult());
-                            break;
-                    }
-                } else {
-                    iRes.setResult(identV.get());
+                iRes.setResult(identV.get());
+
+                if ( iRes.isSubscripted() ) {
+                    EvalResult origRes = iRes;
+
+                    iRes = this.applySubscript(origRes);
+                    iRes.fromRes(origRes);
+                    iRes.setResultIdent(origRes.getResultIdent());
                 }
+
                 return iRes;
             case ARRAY:
                 Array aryExpr = expr.getArray();
@@ -711,6 +654,107 @@ public class Evaluator {
             expr
         );
         return null;
+    }
+
+    private EvalResult evaluateBinaryOp(BinaryOperation binOp) throws Exception, EvalException, ParserException {
+        EvalResult lhs, rhs, res;
+        TypeInterface val;
+
+        Subscript sub;
+
+        // Make sure to perform precedence rebalancing from the root first!
+        if ( binOp.isRoot() ) {
+            binOp = rebuildWithPrecedence(binOp);
+        }
+
+        lhs = this.evaluateExpression(binOp.getLHS());
+        rhs = this.evaluateExpression(binOp.getRHS());
+
+        switch (binOp.getOper().getOperator()) {
+            case "+":
+                val = Operators.add(lhs.getResult(), rhs.getResult());
+                break;
+            case "-":
+                val = Operators.sub(lhs.getResult(), rhs.getResult());
+                break;
+            case "*":
+                val = Operators.mult(lhs.getResult(), rhs.getResult());
+                break;
+            case "/":
+                val = Operators.div(lhs.getResult(), rhs.getResult());
+                break;
+            case "%":
+                val = Operators.modulo(lhs.getResult(), rhs.getResult());
+                break;
+            case "^":
+                val = Operators.power(lhs.getResult(), rhs.getResult());
+                break;
+            case "==":
+                val = Operators.equal(lhs.getResult(), rhs.getResult());
+                break;
+            case "!=":
+                val = Operators.notEqual(lhs.getResult(), rhs.getResult());
+                break;
+            case ">":
+                val = Operators.greaterThan(lhs.getResult(), rhs.getResult());
+                break;
+            case "<":
+                val = Operators.lessThan(lhs.getResult(), rhs.getResult());
+                break;
+            case ">=":
+                val = Operators.greaterThanEqual(lhs.getResult(), rhs.getResult());
+                break;
+            case "<=":
+                val = Operators.lessThanEqual(lhs.getResult(), rhs.getResult());
+                break;
+            case "#":
+                val = Operators.concat(lhs.getResult(), rhs.getResult());
+                break;
+            case "in":
+                val = Operators.contains(lhs.getResult(), rhs.getResult());
+                break;
+            case "notin":
+                val = Operators.notContains(lhs.getResult(), rhs.getResult());
+                break;
+            case "and":
+                val = Operators.and(lhs.getResult(), rhs.getResult());
+                break;
+            case "or":
+                val = Operators.or(lhs.getResult(), rhs.getResult());
+                break;
+            default:
+                return null;
+        }
+
+        res = new EvalResult(val.getFormalType());
+        res.setResult(val);
+
+        return res;
+    }
+
+    private EvalResult evaluateUnaryOp(UnaryOperation unOp) throws Exception, EvalException, ParserException {
+        EvalResult lhs, rhs, res;
+        TypeInterface val;
+
+        Subscript sub;
+
+        rhs = this.evaluateExpression(unOp.getRHS());
+
+        switch (unOp.getOper().getOperator()) {
+            case "-":
+                val = Operators.arithNegate(rhs.getResult());
+                break;
+            case "not":
+                val = Operators.logicNegate(rhs.getResult());
+                break;
+            default:
+                return null;
+        }
+
+        res = new EvalResult(val.getFormalType());
+        res.setResult(val);
+
+        return res;
     }
 
     private EvalResult evaluateFlowControl(Statement stmt) throws Exception, EvalException, ParserException {
@@ -925,6 +969,11 @@ public class Evaluator {
                 while ( idx < ary.getCapacity() ) {
                     EvalResult curVal = ary.getUnsafe(idx);
                     if ( curVal == null ) {
+                        idx++;
+                        continue;
+                    }
+
+                    if ( curVal.getResult().getValue() == null ) {
                         idx++;
                         continue;
                     }

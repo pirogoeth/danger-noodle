@@ -5,6 +5,7 @@ import havabol.Scanner;
 import havabol.classify.*;
 import havabol.sym.*;
 import havabol.util.*;
+import static havabol.util.Precedence.rebuildWithPrecedence;
 
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -579,6 +580,7 @@ public class Parser {
                     // Expr not valid?
                     return null;
                 }
+
                 return new Statement(expr);
             case FUNCTION:
                 FunctionCall funcCall = this.parseFunctionCall(this.popStatement());
@@ -845,11 +847,6 @@ public class Parser {
         while ( this.canParse(tokens) ) {
             Token cur = this.peekNext(tokens);
             switch (Primary.primaryFromInt(cur.primClassif)) {
-                case FUNCTION:
-                    exprBuf.add(this.popNext(tokens));
-                    exprBuf.addAll(this.popUntilMatch(tokens));
-
-                    break;
                 case SEPARATOR:
                     this.eatNextIfEq(tokens, ",");
                 default:
@@ -1114,7 +1111,7 @@ public class Parser {
                 FunctionCall fCall = this.parseFunctionCall(buf);
                 if ( ! fCall.isValid() ) {
                     reportParseError(
-                            "Building function call in from expression failed",
+                            "Building function call from expression failed",
                             head,
                             next
                     );
@@ -1172,6 +1169,9 @@ public class Parser {
                 // Create an expression from the inner grouping
                 buf = this.eatOuterMatching(buf);
                 Expression grp = this.parseExpression(buf);
+                if ( grp.getExpressionType() == ExpressionType.BINARY_OP ) {
+                    grp.getBinaryOperation().setExplicitlyGrouped(true);
+                }
 
                 next = this.peekNext(arg);
 

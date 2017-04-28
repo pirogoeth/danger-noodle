@@ -46,6 +46,32 @@ public class PBoolean implements TypeInterface<Boolean> {
         }
     }
 
+    public boolean coercibleTo(ReturnType target) {
+        switch (target) {
+            case ARRAY:
+            case INTEGER:
+            case FLOAT:
+                return false;
+            case STRING:
+            case BOOLEAN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public TypeInterface coerceTo(ReturnType target) {
+        switch (target) {
+            case STRING:
+                return Numerics.strPrim(this);
+            case BOOLEAN:
+                return this;
+            default:
+                // XXX - THIS SHOULD THROW AN ERROR
+                return null;
+        }
+    }
+
     public boolean isEqual(Object o) {
         return this.value.equals(o);
     }

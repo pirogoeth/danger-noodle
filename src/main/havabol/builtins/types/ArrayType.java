@@ -30,7 +30,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
     public int getLength(){
         return this.length;
     }
-    
+
     // XXX - NEEDS NARROWER EXCEPTION TYPES
     public void setBoundType(ReturnType ret) throws Exception {
         if (this.boundType != null) {
@@ -65,9 +65,65 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         }
     }
 
+    public boolean coercibleTo(ReturnType target) {
+        boolean canCoerce = true;
+        for (TypeInterface item : this.value) {
+            if ( item == null ) {
+                continue;
+            }
+
+            canCoerce = item.coercibleTo(target);
+            if ( !canCoerce ) {
+                break;
+            }
+        }
+
+        return canCoerce;
+    }
+
+    /**
+     * An array can ONLY coerce to another array, but the
+     * internal `boundType` coercion rule is applied.
+     */
+    public ArrayType coerceTo(ReturnType target) {
+        ArrayList<TypeInterface> coerced = new ArrayList<>();
+        for (TypeInterface item : this.value) {
+            if ( item == null ) {
+                continue;
+            }
+
+            coerced.add(item.coerceTo(target));
+        }
+
+
+        ArrayType newAry = new ArrayType();
+        try {
+            newAry.setBoundType(target);
+        } catch (Exception ex) {
+            // So this should not happen since newAry is brand new.
+            // Swallow the exception.
+        }
+
+        if ( this.isBounded() ) {
+            newAry.initialize(this.maxCap);
+        } else {
+            newAry.initialize();
+        }
+        newAry.setValue(coerced);
+
+        return newAry;
+    }
+
     /**
      * Sets up the underlying array and limits.
      */
+    public void initialize() {
+        this.isBounded = false;
+        this.maxCap = -1;
+
+        this.value = new ArrayList<>();
+    }
+
     public void initialize(int capacity) {
         this.isBounded = true;
         this.maxCap = capacity;
@@ -123,7 +179,12 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         StringBuilder sb = new StringBuilder();
 
         sb.append("[");
-        for (int i = 0; i < this.value.size(); i++) {
+        for (int i = 0; i < this.value.size() ; i++) {
+            TypeInterface val = this.value.get(i);
+            if ( val == null ) {
+                continue;
+            }
+
             sb.append(this.value.get(i).getRepr());
             if (i < this.value.size() - 1) {
                 sb.append(", ");
@@ -360,7 +421,9 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
 
         TypeInterface val = this.value.get(index);
         if (val == null) {
-            return null;
+            // If this is null we should create a new TypeInterface
+            // of the bound type with a null value.
+            val = this.getBoundType().newInstance();
         }
 
         EvalResult res = new EvalResult(this.getBoundType());
@@ -478,7 +541,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
                     switch (ary.getBoundType()) {
 
                         case INTEGER:
-                            copyIntToFLoat(ary);
+                            copyIntToFloat(ary);
                         case STRING:
                             copyStringToFloat(ary);
                         default:
@@ -512,10 +575,10 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
         }
 
         if (ary.getCapacity() > this.getCapacity()) {
-            ArrayList<TypeInterface> valSlice = new ArrayList<>(ary.getValue().subList(0, this.getCapacity() - 1));
+            ArrayList<TypeInterface> valSlice = new ArrayList<>(ary.getValue().subList(0, this.getCapacity()));
             this.setValue(valSlice);
         } else if (ary.getCapacity() == this.getCapacity()) {
-            this.setValue(ary.getValue());
+            this.setValue(new ArrayList<>(ary.getValue()));
         } else { // ary cap < this cap
             ArrayList<TypeInterface> newL = new ArrayList<>();
             newL.addAll(ary.getValue());
@@ -708,7 +771,7 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
 
     }
 
-    private void copyIntToFLoat(ArrayType ary) throws Exception {
+    private void copyIntToFloat(ArrayType ary) throws Exception {
         if (this.maxCap < ary.maxCap) {
 
             //make array size equal if smaller arry is bounded, allows insert

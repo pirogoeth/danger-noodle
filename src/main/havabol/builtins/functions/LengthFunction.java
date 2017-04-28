@@ -39,25 +39,24 @@ public class LengthFunction implements FunctionInterface {
     }
 
     public EvalResult execute(EvalResult...args) {
-        int length = 0;
+        EvalResult arg = args[0];
+        TypeInterface ti = arg.getResult();
 
-        for (EvalResult arg : args) {
-            TypeInterface ti = arg.getResult();
+        if ( ti == null ) {
+            // String declared, but not initialized
+            return null;
+        }
 
-            if ( ti == null ) {
-                // String declared, but not initialized
+        if ( ti.getFormalType() != ReturnType.STRING ) {
+            if ( ti.coercibleTo(ReturnType.STRING) ) {
+                ti = ti.coerceTo(ReturnType.STRING);
+            } else {
+                // wat -- this should probably raise an error
                 return null;
             }
-
-            switch (arg.getResultType()) {
-                case STRING:
-                    length = ((PString) ti).getValue().length();
-                    break;
-                default:
-                    // wat -- this should probably raise an error
-                    return null;
-            }
         }
+
+        int length = ((PString) ti).getValue().length();
 
         EvalResult res = new EvalResult(ReturnType.INTEGER);
         res.setResult(Numerics.intPrim(length));
@@ -71,8 +70,14 @@ public class LengthFunction implements FunctionInterface {
             return false;
         }
 
-        if ( args[0].getResultType() != ReturnType.STRING ) {
-            return false;
+        TypeInterface arg = args[0].getResult();
+
+        if ( arg.getFormalType() != ReturnType.STRING ) {
+            if ( ! arg.coercibleTo(ReturnType.STRING) ) {
+                return false;
+            } else {
+                return true;
+            }
         }
 
         return true;

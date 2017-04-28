@@ -48,6 +48,35 @@ public class PString implements TypeInterface<String> {
         return this.value;
     }
 
+    public boolean coercibleTo(ReturnType target) {
+        switch (target) {
+            case INTEGER:
+            case FLOAT:
+            case STRING:
+            case BOOLEAN:
+                return true;
+            case ARRAY:
+            default:
+                return false;
+        }
+    }
+
+    public TypeInterface coerceTo(ReturnType target) {
+        switch (target) {
+            case STRING:
+                return this;
+            case INTEGER:
+                return Numerics.intPrim(this);
+            case FLOAT:
+                return Numerics.floatPrim(this);
+            case BOOLEAN:
+                return Numerics.boolPrim(this);
+            default:
+                // XXX - THIS SHOULD THROW AN ERROR
+                return null;
+        }
+    }
+
     public boolean isEqual(Object o) {
         return this.value.equals(o);
     }

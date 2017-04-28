@@ -1,5 +1,8 @@
 package havabol.classify;
 
+import havabol.common.type.*;
+import havabol.builtins.types.*;
+
 /**
  * Represents a subset of Subclass classifications that can be used
  * to denote the return type of a function or expression.
@@ -31,6 +34,24 @@ public enum ReturnType {
 
     public int getSubCid() {
         return this.sub.getCid();
+    }
+
+    public TypeInterface newInstance() {
+        switch (this) {
+            case INTEGER:
+                return new PInteger();
+            case FLOAT:
+                return new PFloat();
+            case STRING:
+                return new PString();
+            case BOOLEAN:
+                return new PBoolean();
+            case ARRAY:
+                return new ArrayType();
+            case VOID:
+            default:
+                return null;
+        }
     }
 
 }

@@ -37,6 +37,7 @@ public class EvalResult implements Debuggable {
         }
     }
 
+    private EvalResult original;
     private ReturnType resultType;
 
     private Statement srcStmt;
@@ -66,6 +67,10 @@ public class EvalResult implements Debuggable {
         return this.retVal;
     }
 
+    public EvalResult getOriginalRes() {
+        return this.original;
+    }
+
     public STIdentifier getResultIdent() {
         return this.resultIdentifier;
     }
@@ -82,12 +87,20 @@ public class EvalResult implements Debuggable {
         this.retVal = ret;
     }
 
+    public void fromRes(EvalResult original) {
+        this.original = original;
+    }
+
     public void setResultIdent(STIdentifier ident) {
         this.resultIdentifier = ident;
     }
 
     public void unsetSubscript() {
         this.subscript = null;
+    }
+
+    public void setSubscript(EvalSubscript es) {
+        this.subscript = es;
     }
 
     public void setSubscript(int b) {
