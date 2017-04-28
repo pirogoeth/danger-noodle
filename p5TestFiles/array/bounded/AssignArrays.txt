@@ -1,0 +1,20 @@
+Int ints[] = 1,2,3,4;
+print("first: ", ints[3]);
+ints[3] = 20; 
+print("Second ", ints[3]);
+
+Float floats[] = 2.3, 2.4, 2,6;
+floats = ints;
+for item in floats:
+     print(item);
+endfor;
+
+String smaller[2] = "one", "two";
+String larger[3] = "this", "has", "more";
+smaller = larger;
+print(smaller[1]);
+
+String smaller2[2] = "one", "two";
+String larger2[3] = "this", "has", "more";
+larger2 = smaller2;
+print(larger2[1]);

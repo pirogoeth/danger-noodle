@@ -1,0 +1,8 @@
+Int ints[unbound] = 1,2,3,4;
+Int ints2[3] = 1,2,3;
+
+ints = ints2;
+
+for item in ints:
+   print(item);
+endfor;

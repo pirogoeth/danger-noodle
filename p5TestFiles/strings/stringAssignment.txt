@@ -1,0 +1,10 @@
+String word = 'word';
+
+// Should produce word = word
+print('word =', word);
+
+String name = 'Clark';
+String activity = 'is going to Colorado.';
+
+// Should produce name = Clark, activity = is going to Colorado
+print('name =', name, ', activity =', activity);

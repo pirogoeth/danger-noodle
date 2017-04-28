@@ -1,0 +1,11 @@
+Int a = 5;
+Int b = 5;
+Int c = a;
+Int d = 4;
+
+Bool aGTEqB = a >= b;
+Bool aGTEqC = a >= c;
+Bool aGTEqD = a >= d;
+
+// Should produce aGTEqB = T, aGTEqC = T, aGTEqD = T
+print('aGTEqB =', aGTEqB, ', aGTEqC =', aGTEqC,', aGTEqD =', aGTEqD);

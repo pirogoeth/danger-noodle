@@ -1,0 +1,6 @@
+Int nums[10];
+Bool bools[127];
+String[12*2/4];
+Float floats[12.3];
+
+

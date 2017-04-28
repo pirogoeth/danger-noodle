@@ -1,0 +1,15 @@
+Bool a = T;
+Bool b = F;
+Bool c = a and b;
+Bool d = a and a;
+Bool e = b and b;
+Bool f = a or b;
+Bool g = a or a;
+Bool h = b or b;
+Bool i = a or b and c;
+Bool j = b and c or d;
+Bool k = d and e and f;
+Bool l = f or g or h;
+
+// Should produce a = T , b = F , c = F , d = T , e = F f = F , g = T , h = F , i = F j = T , k = F , l = F
+print('a =', a, ', b =', b, ', c =', c, ', d =', d, ', e =', e, 'f =', f, ', g =', g, ', h =', h, ', i =', i, 'j =', j, ', k =', k, ', l =', l);

@@ -1,0 +1,16 @@
+Int uints[unbound] = 1,2,3,4,5;
+print(uints[3]);
+
+uints[20] = 100;
+for item in uints:
+   print(item);
+endfor;
+
+
+Boolean bools[unbound] = T,T,F,F;
+bools[15] = T;
+for item in bools:
+   if item:
+       print("Found a true");
+   endif;
+endfor;

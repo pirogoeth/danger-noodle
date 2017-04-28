@@ -1,0 +1,11 @@
+Int a = 5;
+Int b = 5;
+Int c = a;
+Int d = 4;
+
+Bool aLTEqB = a <= b;
+Bool aLTEqC = a <= c;
+Bool aLTEqD = a <= d;
+
+// Should produce aLTEqB = T, aLTEqC = T, aLTEqD = F
+print('aLTEqB =', aLTEqB, ', aLTEqC =', aLTEqC,', aLTEqD =', aLTEqD);

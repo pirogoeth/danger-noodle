@@ -1,0 +1,11 @@
+Int a = 5;
+Int b = 5;
+Int c = a;
+Int d = 4;
+
+Bool aEqB = a == b;
+Bool aEqC = a == c;
+Bool aEqD = a == d;
+
+// Should produce aEqB = T, aEqC = T, aEqD = F
+print('aEqB =', aEqB, ', aEqC =', aEqC,', aEqD =', aEqD);

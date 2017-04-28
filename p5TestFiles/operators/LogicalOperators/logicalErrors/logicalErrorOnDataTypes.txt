@@ -1,0 +1,6 @@
+Int a = 1;
+Bool b;
+String c = 'c';
+b = a and c;
+
+// Should produce error

@@ -1,0 +1,11 @@
+Int a = 5;
+Int b = 5;
+Int c = a;
+Int d = 4;
+
+Bool aNotEqB = a != b;
+Bool aNotEqC = a != c;
+Bool aNotEqD = a != d;
+
+// Should produce aNotEqB = F, aNotEqC = F, aNotEqD = T
+print('aNotEqB =', aNotEqB, ', aNotEqC =', aNotEqC,', aNotEqD =', aNotEqD);

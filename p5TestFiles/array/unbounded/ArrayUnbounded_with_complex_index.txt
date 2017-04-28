@@ -1,0 +1,4 @@
+ 
+Int ints[unbound] = 1,2,3,4;
+ints[2*3+4/2] = 22;
+print(ints[10]);

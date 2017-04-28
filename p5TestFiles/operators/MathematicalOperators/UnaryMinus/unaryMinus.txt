@@ -1,0 +1,6 @@
+Int a = 5;
+Int b = -a;
+Int c = -5;
+
+// Should produce a= 5, b = -5, c = -5
+print('a =', a, ', b =', b, ', c =', c);

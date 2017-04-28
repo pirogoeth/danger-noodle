@@ -1,0 +1,11 @@
+Int a = 5;
+Int b = 5;
+Int c = a;
+Int d = 4;
+
+Bool aLTB = a < b;
+Bool aLTC = a < c;
+Bool aLTD = d < a;
+
+// Should produce aLTB = F, aLTC = F, aLTD = T
+print('aLTB =', aLTB, ', aLTC =', aLTC,', aLTD =', aLTD);
