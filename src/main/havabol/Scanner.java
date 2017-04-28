@@ -730,8 +730,13 @@ public class Scanner{
 
         for(String temp : controlFLow){
            if(szWord.matches(temp)){
-               token.primClassif = Token.CONTROL;
-               token.subClassif = Token.FLOW;
+               if(szWord.equals("continur") || szWord.equals("break")){
+                   token.primClassif = Token.CONTROL;
+                   token.subClassif = Token.STATEMENT;
+               }else{
+                  token.primClassif = Token.CONTROL;
+                  token.subClassif = Token.FLOW;
+               }
                return;
            }
         }
