@@ -657,7 +657,7 @@ public class Operators {
         if ( a.getFormalType() == ReturnType.BOOLEAN )
         {  // get the bool value
 
-            left = ((PBoolean) b).getValue();
+            left = ((PBoolean) a).getValue();
         } else {
             reportEvalError(
                     String.format(
