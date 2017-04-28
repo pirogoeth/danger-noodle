@@ -1,0 +1,8 @@
+Int a = 4;
+Int b = 2;
+Float c = 2.0;
+Int d = 6;
+Int e = (a - b) * c + d;
+
+// Should produce a = 4, b = 2, c = 2.00, d = 6, e = 10
+print('a =', a,'b =', b, 'c =', c, ', d =', d, ', e =', e);

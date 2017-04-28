@@ -1,0 +1,8 @@
+Bool a = T;
+Bool b = F;
+Bool c = a and b;
+Bool d = a and a;
+Bool e = b and b;
+
+// Should produce a = T, b = F, c = F, d = T, e = F
+print('a =', a, ', b =', b, ', c =', c, ', d =', d, ', e =', e);

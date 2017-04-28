@@ -1,0 +1,13 @@
+Int a = 1;
+Int b = 2;
+Int c = b - a;
+
+// Should produce a = 1, b = 2, c = 1
+print('a =', a,'b =', b, 'c =', c);
+
+Float d = 1.0;
+Float e = 2.0;
+Float f = e - d;
+
+// Should produce d = 1.00, e = 2.00, f = 1.00
+print('d =', d,'e =', e, 'f =', f);

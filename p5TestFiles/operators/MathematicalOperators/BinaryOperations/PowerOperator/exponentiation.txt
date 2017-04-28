@@ -1,0 +1,13 @@
+Int a = 4;
+Int b = 3;
+Int c = a ^ b;
+
+// Should produce a = 4, b = 3, c = 64
+print('a =', a,'b =', b, 'c =', c);
+
+Float d = 2.0;
+Float e = 5.0;
+Float f = d ^ e;
+
+// Should produce d = 2.00, e = 5.00, f = 32.00
+print('d =', d,'e =', e, 'f =', f);
