@@ -852,6 +852,18 @@ public class Scanner{
                            next.tokenStr = getToken(line, next);
                        }
                        break;
+                    case "+":
+                       if(next.tokenStr.equals("=")){
+                           current.tokenStr += next.tokenStr;
+                           next.tokenStr = getToken(line, next);
+                       }
+                       break;
+                    case "-":
+                       if(next.tokenStr.equals("=")){
+                           current.tokenStr += next.tokenStr;
+                           next.tokenStr = getToken(line, next);
+                       }
+                       break;
                 }
             }
 
