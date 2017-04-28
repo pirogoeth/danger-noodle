@@ -600,10 +600,10 @@ public class Operators {
     }
 
     public static TypeInterface contains(TypeInterface item, TypeInterface container) throws EvalException {
-        ArrayType ary;
+        ArrayType ary = null;
         ReturnType typeBound;
 
-        PString str;
+        PString str = null;
 
         if ( container.getFormalType() == ReturnType.ARRAY ) {
             ary = (ArrayType) container;
@@ -624,7 +624,11 @@ public class Operators {
         }
 
         if ( item.getFormalType() != typeBound ) {
-            return boolPrim(false);
+            if ( item.coercibleTo(typeBound) ) {
+                item = item.coerceTo(typeBound);
+            } else {
+                return boolPrim(false);
+            }
         }
 
         switch (container.getFormalType()) {
@@ -632,6 +636,11 @@ public class Operators {
                 String s = ((PString) container).getValue();
                 return boolPrim(s.contains(((PString) item).getValue()));
             case ARRAY:
+                for (TypeInterface elem : ary.getValue()) {
+                    if ( elem.isEqual(item.getValue()) ) {
+                        return boolPrim(true);
+                    }
+                }
                 break;
         }
 
@@ -754,8 +763,9 @@ public class Operators {
 
         return null;
     }
-    
+
     public static TypeInterface addset(TypeInterface first, TypeInterface second) {
+        TypeInterface value;
         switch (first.getFormalType()) {
             case FLOAT:
                 PFloat floatB, floatRes;
@@ -773,8 +783,10 @@ public class Operators {
                         // XXX - EXPLODE!
                         return null;
                 }
-                floatRes = floatPrim(((PFloat) first).getValue() + floatB.getValue());
-                return floatRes;
+
+                value = floatPrim(((PFloat) first).getValue() + floatB.getValue());
+                ((PFloat) first).setValue(((PFloat) value).getValue());
+                return first;
             case INTEGER:
                 PInteger intB, intRes;
                 switch (second.getFormalType()) {
@@ -791,17 +803,18 @@ public class Operators {
                         // XXX - EXPLODE!
                         return null;
                 }
-                
-                intRes = intPrim(((PInteger) first).getValue() + intB.getValue());
-                first.setValue(intRes);
+
+                value = intPrim(((PInteger) first).getValue() + intB.getValue());
+                ((PInteger) first).setValue(((PInteger) value).getValue());
                 return first;
             default:
                 // XXX - We need a narrow exception class for this.
                 return null;
         }
     }
-    
+
     public static TypeInterface subset(TypeInterface first, TypeInterface second) {
+        TypeInterface value;
         switch (first.getFormalType()) {
             case FLOAT:
                 PFloat floatB, floatRes;
@@ -819,8 +832,10 @@ public class Operators {
                         // XXX - EXPLODE!
                         return null;
                 }
-                floatRes = floatPrim(((PFloat) first).getValue() - floatB.getValue());
-                return floatRes;
+
+                value = floatPrim(((PFloat) first).getValue() - floatB.getValue());
+                ((PFloat) first).setValue(((PFloat) value).getValue());
+                return first;
             case INTEGER:
                 PInteger intB, intRes;
                 switch (second.getFormalType()) {
@@ -837,8 +852,9 @@ public class Operators {
                         // XXX - EXPLODE!
                         return null;
                 }
-                intRes = intPrim(((PInteger) first).getValue() - intB.getValue());
-                first.setValue(intRes);
+
+                value = intPrim(((PInteger) first).getValue() - intB.getValue());
+                ((PInteger) first).setValue(((PInteger) value).getValue());
                 return first;
             default:
                 // XXX - We need a narrow exception class for this.
