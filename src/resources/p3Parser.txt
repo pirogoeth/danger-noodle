@@ -48,7 +48,7 @@ if i == 10:
 endif;
 
 // arrays
-Int[10] thing = 10, 20, 30, 40;
+Int thing[10] = 10, 20, 30, 40;
 Int val;
 for val in thing:
   print("\t", val);
@@ -83,6 +83,7 @@ print(hulluh);
 print("the dog says: '", hulluh[3] # hulluh[2] # hulluh[1] # hulluh[LENGTH(hulluh) - 1], "'");
 
 String dog;
+dog = "           ";
 dog[0] = hulluh[0];
 dog[1] = hulluh[3];
 dog[2] = hulluh[2];

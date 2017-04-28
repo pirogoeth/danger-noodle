@@ -9,7 +9,8 @@ public enum Precedence {
     CONCAT(6),
     COMPARE(7),
     NEGATE(8),
-    COMBINE(9);
+    COMBINE(9),
+    PARENTHESES_LOW(12);
 
     private int priority;
 

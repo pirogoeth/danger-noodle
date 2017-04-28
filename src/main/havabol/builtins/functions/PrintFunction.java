@@ -41,6 +41,10 @@ public class PrintFunction implements FunctionInterface {
     public EvalResult execute(EvalResult...args) {
         for (EvalResult arg : args) {
             TypeInterface ti = arg.getResult();
+            if ( ti.getValue() == null ) {
+                continue;
+            }
+
             switch (arg.getResultType()) {
                 case STRING:
                     String s = ((PString) ti).getValue();

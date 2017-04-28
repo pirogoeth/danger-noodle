@@ -19,23 +19,23 @@ public class Precedence {
     }
 
     public static BinaryOperation rebuildWithPrecedence(BinaryOperation head) throws EvalException {
-        System.out.println("BUILDING BINOP WITH PRECEDENCE");
+        // System.out.println("BUILDING BINOP WITH PRECEDENCE");
         System.out.print(head.debug(0));
-        System.out.println();
+        // System.out.println();
 
         ArrayList<ParseElement> elms = binTreeToLinear(head);
-        System.out.println("REBUILDING BINOP TO LINEAR FORM");
+        // System.out.println("REBUILDING BINOP TO LINEAR FORM");
         elms.stream().forEach(pe -> System.out.print(pe.debug(30)));
-        System.out.println();
+        // System.out.println();
 
         ArrayDeque<ParseElement> output = buildPostfix(elms);
 
         // XXX DEBUG - Dump opers and exprs
-        System.out.println("FINAL");
+        // System.out.println("FINAL");
         output.stream().forEach(pe -> System.out.print(pe.debug(20)));
 
-        // System.out.println("CONVERTING BACK TO BINOP");
-        // System.out.println();
+        // // System.out.println("CONVERTING BACK TO BINOP");
+        // // System.out.println();
 
         ArrayDeque<ParseElement> stack = new ArrayDeque<>();
 
@@ -47,7 +47,7 @@ public class Precedence {
                 // current element is an operator, do processing things
                 Expression resL, resR;
 
-                // System.out.println("GOT OPERATOR, USING VALS FROM STACK. STACK CONTENTS:");
+                // // System.out.println("GOT OPERATOR, USING VALS FROM STACK. STACK CONTENTS:");
                 // stack.stream().forEach(pe -> System.out.print(pe.debug(20)));
 
                 resR = (Expression) stack.pop();
@@ -55,7 +55,7 @@ public class Precedence {
                 stack.push(new Expression(new BinaryOperation(resL, (Operator) ele, resR)));
             } else {
                 // otherwise, just work on outputted binOp.
-                // System.out.println("values push");
+                // // System.out.println("values push");
                 stack.push(ele);
             }
         }
@@ -75,9 +75,9 @@ public class Precedence {
 
             BinaryOperation op = expr.getBinaryOperation();
 
-            System.out.println("FINAL RESULTING BINOP");
-            System.out.println(op.debug(35));
-            System.out.println();
+            // System.out.println("FINAL RESULTING BINOP");
+            // System.out.println(op.debug(35));
+            // System.out.println();
 
             return op;
         } else {
@@ -142,18 +142,21 @@ public class Precedence {
 
         for (ParseElement pe : elems) {
             if ( pe instanceof Parenthese ) {  // PARENS
+                Parenthese p = (Parenthese) pe;
                 switch (((Parenthese) pe).getOperator()) {
                     case "(":
-                        stack.push((Parenthese) pe);
+                        p.setStacked(true);
+                        stack.push(p);
                         break;
                     case ")":
+                        // System.out.println("END OF EXPR GROUP - POPPING UNTIL GRP BEGIN");
                         while ( ! stack.isEmpty() ) {
                             Operator popped = stack.pop();
                             // There should never be mismatched parens since we generate them.
                             if ( popped.getOperator().equals("(") ) {
                                 break;
                             }
-                            System.out.println("out push: " + popped.debug());
+                            // System.out.println("out push: " + popped.debug());
                             output.add(popped);
                         }
                         break;
@@ -162,30 +165,30 @@ public class Precedence {
                 Operator current = (Operator) pe;
                 while ( ! stack.isEmpty() ) {
                     Operator top = stack.peekFirst();
-                    if ( current.getPrecedence().getPriority() <= top.getPrecedence().getPriority() ) {
+                    if ( current.getPrecedence().getPriority() < top.getPrecedence().getPriority() ) {
                         break;
                     }
 
                     if ( !isParen(stack.peek()) ) {
-                        System.out.println("out push: " + stack.peek().debug());
+                        // System.out.println("out push: " + stack.peek().debug());
                         output.add(stack.pop());
                     } else {
                         stack.pop();
                     }
                 }
 
-                System.out.println("stack push: " + current.debug());
+                // System.out.println("stack push: " + current.debug());
                 stack.push(current);
             } else {  // OPERAND
-                System.out.println("out push: " + pe.debug());
+                // System.out.println("out push: " + pe.debug());
                 output.add(pe);
             }
         }
 
         while ( ! stack.isEmpty() ) {
             if ( !isParen(stack.peek()) ) {
-                System.out.println("stack pop: " + stack.peek().debug());
-                System.out.println("out push: " + stack.peek().debug());
+                // System.out.println("stack pop: " + stack.peek().debug());
+                // System.out.println("out push: " + stack.peek().debug());
                 output.add(stack.pop());
             } else {
                 stack.pop();

@@ -34,9 +34,6 @@ public class Operator extends ParseElement {
 
     public Precedence getPrecedence() {
         switch (this.operatorToken.tokenStr) {
-            case "(":
-            case ")":
-                return Precedence.PARENTHESES;
             case "^":
                 return Precedence.EXPONENT;
             case "+":

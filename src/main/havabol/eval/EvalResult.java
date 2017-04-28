@@ -99,6 +99,10 @@ public class EvalResult implements Debuggable {
         this.subscript = null;
     }
 
+    public void setSubscript(EvalSubscript es) {
+        this.subscript = es;
+    }
+
     public void setSubscript(int b) {
         this.subscript = new EvalSubscript(b);
     }

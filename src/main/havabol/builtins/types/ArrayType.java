@@ -421,7 +421,9 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
 
         TypeInterface val = this.value.get(index);
         if (val == null) {
-            return null;
+            // If this is null we should create a new TypeInterface
+            // of the bound type with a null value.
+            val = this.getBoundType().newInstance();
         }
 
         EvalResult res = new EvalResult(this.getBoundType());

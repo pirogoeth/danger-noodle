@@ -112,7 +112,7 @@ public class Evaluator {
                             break;
                         case ARRAY:
                             a = (ArrayType) val;
-                            newRes = a.get(sub.beginIdx);
+                            newRes = a.getUnsafe(sub.beginIdx);
                             break;
                         default:
                             reportEvalError(
@@ -149,6 +149,8 @@ public class Evaluator {
                     );
                     return null;
             }
+
+            newRes.setSubscript(sub);
         } else {
             newRes = res;
         }
@@ -280,11 +282,6 @@ public class Evaluator {
             // stVal will have a `null` TypeInterface.
             if ( val.getResultType() == ReturnType.ARRAY && decl.isArray() ) {
                 ArrayType tgtAry = (ArrayType) stVal.get();
-                // System.out.println("ARY TARGET");
-                // System.out.print(target.debug(2));
-                // System.out.println("ARY VAL");
-                // System.out.print(val.debug(2));
-                // System.out.println();
 
                 if ( tgtAry.isBounded() && tgtAry.getCapacity() == -1 ) {
                     // Initialize the array here.
@@ -337,28 +334,35 @@ public class Evaluator {
             }
 
             if ( val.getResultType() != stDecl.getDataType() && stVal.get().getFormalType() != ReturnType.ARRAY ) {
-                reportEvalError(
-                    String.format(
-                        "Can not perform assignment - type mismatch (given %s, expected %s)",
-                        val.getResultType().name(),
-                        res.getResultType().name()
-                    ),
-                    assign
-                );
-                return null;
-            } else if ( val.getResultType() == ReturnType.ARRAY ) {
-                // Compare the BOUND TYPES!
-                // XXX - NEEDS MORE ARRAY COERCION
-                if ( res.getResultType() != ((ArrayType) val.getResult()).getBoundType() ) {
+                if ( val.getResult().coercibleTo(res.getResultType()) ) {
+                    val.setResult(val.getResult().coerceTo(res.getResultType()));
+                } else {
                     reportEvalError(
                         String.format(
-                            "Can not perform assignment - mismatched array bound types (given %s, expected %s)",
-                            ((ArrayType) val.getResult()).getBoundType().name(),
+                            "Can not perform assignment - (uncoercible) type mismatch (given %s, expected %s)",
+                            val.getResultType().name(),
                             res.getResultType().name()
                         ),
                         assign
                     );
                     return null;
+                }
+            } else if ( val.getResultType() == ReturnType.ARRAY ) {
+                // Compare the BOUND TYPES!
+                if ( res.getResultType() != ((ArrayType) val.getResult()).getBoundType() ) {
+                    if ( val.getResult().coercibleTo(res.getResultType()) ) {
+                        val.setResult(val.getResult().coerceTo(res.getResultType()));
+                    } else {
+                        reportEvalError(
+                            String.format(
+                                "Can not perform assignment - (uncoercible) mismatched array bound types (given %s, expected %s)",
+                                ((ArrayType) val.getResult()).getBoundType().name(),
+                                res.getResultType().name()
+                            ),
+                            assign
+                        );
+                        return null;
+                    }
                 }
             }
 
@@ -965,6 +969,11 @@ public class Evaluator {
                 while ( idx < ary.getCapacity() ) {
                     EvalResult curVal = ary.getUnsafe(idx);
                     if ( curVal == null ) {
+                        idx++;
+                        continue;
+                    }
+
+                    if ( curVal.getResult().getValue() == null ) {
                         idx++;
                         continue;
                     }
