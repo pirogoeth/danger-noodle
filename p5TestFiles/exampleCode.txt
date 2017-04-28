@@ -1,4 +1,4 @@
-// Base case :^)
+// Base case
 print("Hello, world!");
 
 // Declare a variable or five.
@@ -36,16 +36,16 @@ print(f2);
 
 Int i3;
 i3 = i2 + f2;
-print("Satan and Chill - roll trips:", i3);
+print("Netflix and Chill - watches movies:", i3);
 
 // Next!
 print("Length of 'hello world':", LENGTH("hello world"));
 
 // test a return
-Int i4 = LENGTH("sick boiiiz");
+Int i4 = LENGTH("DangerNoodle for the win!");
 print(i4);
 
-// shit
+// More test info
 Int i5 = i4 + i3;
 print(i5);
 
