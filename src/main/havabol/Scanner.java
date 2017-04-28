@@ -44,7 +44,7 @@ public class Scanner{
     private final static String delimiters = " \t;:()\'\"=!<>+-*/[]#,^\n{}";   //delimiters to separate tokens
     private final static String[] newOperators = {"and", "or", "not", "in", "notin", "to"};  //new operators added for part 2
     private final static String[] controlDeclare = {"Int", "Float", "String", "Bool"}; //control declare values
-    private final static String[] controlFLow = {"if", "else", "while", "for"};        //control flow values
+    private final static String[] controlFLow = {"if", "else", "while", "for", "break", "continue"};        //control flow values
     private final static String[] controlEnd = {"endif", "endwhile", "endfor"};        //control end values
     public ArrayList <Token> tokenList = new ArrayList<>();
     public ArrayList <String> lineList = new ArrayList<>();
