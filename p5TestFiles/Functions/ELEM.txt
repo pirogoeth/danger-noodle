@@ -1,0 +1,11 @@
+Int test[10] = 1,2,3,4;
+print(ELEM(test));
+
+String test2[unbound] = "a", "b", "c", "1", "2", "3";
+print(ELEM(test2));
+
+Bool test3[100] = T,F,T;
+if ELEM(test3) == 3:
+    print("ELEM works!");
+endif;
+ 

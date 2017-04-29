@@ -1,0 +1,14 @@
+Int test[10] = 1,2,3,4;
+print(MAXELEM(test));
+
+String test2[unbound] = "a", "b", "c", "1", "2", "3";
+print("MAXELEM before add ", MAXELEM(test2));
+//test2[19] = "added";
+print("MAXELEM after add ", MAXELEM(test2));
+
+Bool test3[100] = T,F,T;
+if MAXELEM(test3) == 100:
+    print("MAXELEM works!");
+endif;
+
+ 

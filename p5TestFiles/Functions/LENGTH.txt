@@ -1,0 +1,16 @@
+String test = "this has a length of 23";
+print(LENGTH(test));
+
+String test2 = "cat";
+String test3 = "deer";
+
+if LENGTH(test2) < LENGTH(test3):
+    print(test2, " has less letters than ", test3);
+else:
+    print(test3, " has less letters than ", test2);
+endif;
+
+String letters = "abcdef";
+for num = 0 to LENGTH(letters):
+    print(letters[num]);
+endfor; 

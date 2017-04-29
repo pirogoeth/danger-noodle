@@ -1,0 +1,22 @@
+print("this is a test for print");
+
+Int i = 1;
+Float f = 12.5;
+Bool b = T;
+String s = "This is a string";
+
+print("print can print multiple items of any type Int-", i, " Float-", f, " Bool-", b, " String-", s);
+
+print("print can print the return value of other functons-" , LENGTH(s));
+
+Int ints[10] = 1,2,3;
+print("print can print a element of an array-", ints[0]);
+print("or all of the elements");
+for item in ints:
+    print(item);
+endfor;
+
+print("printing with no arguments prints a blank line");
+print();
+print();
+print("This should be 2 blank lines between this and the last print"); 

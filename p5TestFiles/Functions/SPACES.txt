@@ -1,0 +1,21 @@
+String empty = "";
+String spaces = "      ";
+String notempty = "This is not an empty string!";
+Int notastring = 1;
+
+if SPACES(empty):
+    print("found an empty string");
+endif;
+
+if SPACES(spaces):
+    print("Ths string is only spaces");
+endif;
+
+if SPACES(notempty):
+    print("Ths string is only spaces");
+else:
+    print("this string has something in it");
+endif;
+
+//test string coercion 
+SPACES(notastring); 
