@@ -1,0 +1,16 @@
+Int a[] = '1', '2', '3', '4', '5'; 
+print(a); 
+Float b[] = '1.0', '2.0', '3.0', '4.0', '5.0'; 
+print(b); 
+Bool c[] = 'T', 'F', 'T', 'F', 'T'; 
+print(c); 
+String d[] = 1, 2, 3, 4, 5; 
+print(d); 
+Int e[] = d;
+print(e); 
+Float f[] = b;
+print(f); 
+String g[] = a; 
+print(g); 
+String h[] = c; 
+print(h);
