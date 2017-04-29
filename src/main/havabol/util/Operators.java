@@ -239,7 +239,7 @@ public class Operators {
             case FLOAT:
                 PFloat floatB = (PFloat) second.coerceTo(ReturnType.FLOAT);
 
-                if( ((PFloat) first).getValue() == floatB.getValue()){
+                if ( Double.compare(((PFloat) first).getValue(), floatB.getValue()) == 0 ) {
                     res.setValue(Boolean.TRUE);
                 }else{
                     res.setValue(Boolean.FALSE);
@@ -290,7 +290,7 @@ public class Operators {
             case FLOAT:
                 PFloat floatB = (PFloat) second.coerceTo(ReturnType.FLOAT);
 
-                if( ((PFloat) first).getValue() != floatB.getValue()){
+                if ( Double.compare(((PFloat) first).getValue(), floatB.getValue()) != 0 ) {
                     res.setValue(Boolean.TRUE);
                 }else{
                     res.setValue(Boolean.FALSE);
@@ -341,7 +341,7 @@ public class Operators {
             case FLOAT:
                 PFloat floatB = (PFloat) second.coerceTo(ReturnType.FLOAT);
 
-                if( ((PFloat) first).getValue() > floatB.getValue()){
+                if ( Double.compare(((PFloat) first).getValue(), floatB.getValue()) > 0 ) {
                     res.setValue(Boolean.TRUE);
                 }else{
                     res.setValue(Boolean.FALSE);
@@ -385,7 +385,7 @@ public class Operators {
             case FLOAT:
                 PFloat floatB = (PFloat) second.coerceTo(ReturnType.FLOAT);
 
-                if( ((PFloat) first).getValue() < floatB.getValue()){
+                if ( Double.compare(((PFloat) first).getValue(), floatB.getValue()) < 0 ) {
                     res.setValue(Boolean.TRUE);
                 }else{
                     res.setValue(Boolean.FALSE);
@@ -429,7 +429,7 @@ public class Operators {
             case FLOAT:
                 PFloat floatB = (PFloat) second.coerceTo(ReturnType.FLOAT);
 
-                if( ((PFloat) first).getValue() <= floatB.getValue()){
+                if ( Double.compare(((PFloat) first).getValue(), floatB.getValue()) <= 0 ) {
                     res.setValue(Boolean.TRUE);
                 }else{
                     res.setValue(Boolean.FALSE);
@@ -473,7 +473,7 @@ public class Operators {
             case FLOAT:
                 PFloat floatB = (PFloat) second.coerceTo(ReturnType.FLOAT);
 
-                if( ((PFloat) first).getValue() >= floatB.getValue()){
+                if ( Double.compare(((PFloat) first).getValue(), floatB.getValue()) >= 0 ) {
                     res.setValue(Boolean.TRUE);
                 }else{
                     res.setValue(Boolean.FALSE);

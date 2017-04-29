@@ -532,66 +532,17 @@ public class ArrayType implements TypeInterface<ArrayList<TypeInterface>> {
     public EvalResult setFromArray(ArrayType ary) throws Exception {
         if (this.getBoundType() != ary.getBoundType()) {
             // XXX - Throw an error here because arrays must be homogenous.
-
-            switch (this.getBoundType()) {
-
-                case STRING:
-                    copyAllToString(ary);
-                    break;
-
-                case INTEGER:
-
-                    switch (ary.getBoundType()) {
-
-                        case FLOAT:
-                            copyFloatToInt(ary);
-                        case STRING:
-                            copyStringToInt(ary);
-                        default:
-                            throw new Exception(
-                                    String.format(
-                                            "Can not set int array eqaul to boolean array. THis type = `%s` other arry = got `%s`",
-                                            this.getBoundType().name(),
-                                            ary.getBoundType().name()
-                                    )
-                            );
-                    }
-
-                case FLOAT:
-                    switch (ary.getBoundType()) {
-
-                        case INTEGER:
-                            copyIntToFloat(ary);
-                        case STRING:
-                            copyStringToFloat(ary);
-                        default:
-                            throw new Exception(
-                                    String.format(
-                                            "Can not set float array eqaul to boolean array. THis type = `%s` other arry = got `%s`",
-                                            this.getBoundType().name(),
-                                            ary.getBoundType().name()
-                                    )
-                            );
-                    }
-
-                case BOOLEAN:
-
-                    switch (ary.getBoundType()) {
-
-                        case STRING:
-                            copyStringToBoolean(ary);
-                        default:
-                            throw new Exception(
-                                    String.format(
-                                            "Incompatable array types. This type = `%s` other arry = got `%s`",
-                                            this.getBoundType().name(),
-                                            ary.getBoundType().name()
-                                    )
-                            );
-                    }
-
+            if ( ary.coercibleTo(this.getBoundType()) ) {
+                ary = ary.coerceTo(this.getBoundType());
+            } else {
+                throw new Exception(
+                    String.format(
+                        "Can not store values to array - uncoercible type - from `%s` to `%s`",
+                        ary.getBoundType().name(),
+                        this.getBoundType().name()
+                    )
+                );
             }
-
         }
 
         if ( this.isBounded() ) {

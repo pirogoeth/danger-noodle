@@ -259,7 +259,9 @@ public class Evaluator {
             val = this.evaluateExpression(assign.getAssignedExpr());
             if ( val.getResultType() == ReturnType.ARRAY ) {
                 ArrayType ary = (ArrayType) val.getResult();
-                ary.setBoundType(decl.getDataType().getReturnType());
+                if ( ary.getBoundType() == null ) {
+                    ary.setBoundType(decl.getDataType().getReturnType());
+                }
             }
 
             STIdentifier newIdent = target.getResultIdent();
