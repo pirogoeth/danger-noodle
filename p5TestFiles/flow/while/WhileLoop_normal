@@ -1,0 +1,33 @@
+Int i = 0;
+
+while i < 10:
+    print(i);
+    i += 1;
+endwhile; 
+
+Float f = 0;
+
+while f < 5:
+    print(f);
+    f += .5;
+endwhile;
+
+Bool test = F;
+Int track = 0;
+while test != T:
+    if(track > 5):
+       test = T;
+       print("End of loop");
+    endif;
+track += 1;
+endwhile;
+   
+String list = "a";
+
+print("before while\t", list);
+while LENGTH(list) < 6:
+      list = list # "a";
+      print("inside while\t", list);
+endwhile;
+
+print("after while\t", list); 
