@@ -21,7 +21,6 @@ if ftest < 2:
          
          ftest += 2;
          ftest = 4.5;
-print("Got here",  (4.5 == ftest));
           if ftest == 4.50:
             print("Made it down to inner if!"); 
           endif;
