@@ -1,0 +1,50 @@
+
+Int i = 0;
+if i == 2:
+    print("This Should Not Print");
+else:
+   print("This should print 0 != 2"); 
+   if i == 0:
+       print("This is equal to 0");
+   else:
+       print("How did you get here?");
+   endif;
+endif;
+
+
+Float ftest = 1.5;
+print("before if else: ", ftest);
+if ftest < 2:
+     ftest += 1;
+
+     if ftest > 2:
+         
+         ftest += 2;
+         ftest = 4.5;
+print("Got here",  (4.5 == ftest));
+          if ftest == 4.50:
+            print("Made it down to inner if!"); 
+          endif;
+
+     endif;
+else:
+     ftest -=1;
+endif;
+
+print("after if else: ", ftest);
+
+
+Bool b1 = T;
+Bool b2 = F;
+print(b1 or b2);
+if b1 and b2:
+    print("and doesn't work");
+
+else:
+    print("and does work");
+    if b1:
+       print("Nested if with bool works");
+    endif;
+endif;
+
+ 

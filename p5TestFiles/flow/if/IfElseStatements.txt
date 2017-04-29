@@ -1,0 +1,35 @@
+ 
+Int i = 0;
+if i == 2:
+    print("This Should Not Print");
+else:
+   print("This should print 0 != 2"); 
+endif;
+
+
+Float ftest = 1.5;
+print("before if else: ", ftest);
+if ftest < 2:
+     ftest += 1;
+else:
+     ftest -=1;
+endif;
+
+print("after if else: ", ftest);
+
+
+Bool b1 = T;
+Bool b2 = F;
+print(b1 or b2);
+if b1 and b2:
+    print("and doesn't work");
+else:
+    print("and does work");
+endif;
+
+
+if b2 or b1:
+    print("or does work");
+else:
+    print("or doesn't work");
+endif; 
