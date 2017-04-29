@@ -12,5 +12,5 @@ for $testFile (@testFiles)
     print "|____________________________________________________________________________________________________|\n\n";
     $i++;
 }
-print $i;
+print "Number of files tested: ".$i."!!!";
 #print @testFiles;

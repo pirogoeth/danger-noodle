@@ -1,0 +1,36 @@
+Float a = 1.1;
+Float b = 1.1;
+
+if a == b:
+    print("success");
+else:
+    print("failure");
+endif;
+
+Float c = 1.2;
+Float d = 1.1;
+
+if a >= b:
+    print("success");
+else:
+    print("failure");
+endif;
+
+if c >= d:
+    print("success");
+else:
+    print("failure");
+endif;
+
+if d <= c:
+    print("success");
+else:
+    print("failure");
+endif;
+
+if d >= c:
+    print("failure");
+else:
+    print("success");
+endif;
+

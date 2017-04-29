@@ -1,0 +1,12 @@
+String a = 'a';
+String b = 'The bee buzzes blatantly.';
+String c = 'c';
+
+Bool d = a in b;
+Bool e = a notin b;
+
+Bool f = c in b;
+Bool g = c notin b;
+
+// Should produce d = T , e = F , f = F , g = T
+print('d =', d, ', e =', e, ', f =', f, ', g =', g);
