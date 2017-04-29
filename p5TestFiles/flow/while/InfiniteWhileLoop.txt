@@ -1,5 +1,0 @@
- 
-Int i = 0;
-while i != 1:
-    print("This will never stop!\nYou Need to force Stop");
-endwhile;
